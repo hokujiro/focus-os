@@ -584,10 +584,15 @@ input:checked + .slider-sm:before {
   <div class="login-box">
     <div class="login-title">FOCUS OS</div>
     <div class="login-sub">Who's working today?</div>
-    <div id="login-user-grid" class="user-grid"></div>
-    <button class="user-card-new" style="width:100%;flex-direction:row;min-height:auto;padding:10px 16px;gap:10px;border-radius:10px" onclick="openCreateUserModal()">
+    <form onsubmit="event.preventDefault(); submitLogin()" style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+      <input id="login-username" placeholder="Username" style="width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:10px;padding:12px 16px;font-family:var(--fg);font-size:14px;color:var(--wh);outline:none;transition:border-color .15s" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--b2)'">
+      <input type="password" id="login-password" placeholder="Password" style="width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:10px;padding:12px 16px;font-family:var(--fg);font-size:14px;color:var(--wh);outline:none;transition:border-color .15s" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--b2)'">
+      <div id="login-msg" style="font-family:var(--fm);font-size:10px;color:var(--red);min-height:14px;text-align:center"></div>
+      <button type="submit" style="padding:12px;background:var(--wh);color:var(--bg);border:none;border-radius:10px;font-family:var(--fg);font-size:14px;font-weight:700;cursor:pointer;transition:opacity .12s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">Log In</button>
+    </form>
+    <button class="user-card-new" style="width:100%;flex-direction:row;min-height:auto;padding:10px 16px;gap:10px;border-radius:10px" onclick="hideLoginScreen();openCreateUserModal()">
       <span style="font-size:18px">＋</span>
-      <span style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase">New User</span>
+      <span style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase">Create New User</span>
     </button>
   </div>
 </div>
@@ -616,6 +621,9 @@ input:checked + .slider-sm:before {
       <!-- Username -->
       <div style="font-family:var(--fm);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);margin-bottom:8px">Username</div>
       <input id="cu-username" class="cu-inp" placeholder="e.g. pipi, alex, max…" maxlength="24" oninput="renderCUPreview()">
+      <!-- Password -->
+      <div style="font-family:var(--fm);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);margin-top:16px;margin-bottom:8px">Password</div>
+      <input type="password" id="cu-password" class="cu-inp" placeholder="Secure password">
       <!-- Color -->
       <div style="font-family:var(--fm);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);margin-top:16px;margin-bottom:10px">Color</div>
       <div id="cu-color-grid" class="cu-color-grid"></div>
@@ -637,14 +645,33 @@ input:checked + .slider-sm:before {
     <div style="padding:16px 20px 20px;display:flex;flex-direction:column;gap:14px">
       <!-- Upload photo -->
       <input type="file" id="cu-photo-file" accept="image/*" style="display:none" onchange="handleCUPhoto(this)">
-      <div onclick="document.getElementById('cu-photo-file').click()"
-        style="width:100%;height:120px;border:1.5px dashed var(--b3);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:border-color .12s;overflow:hidden;position:relative;background:var(--s2)"
+      <div id="cu-photo-box" onclick="document.getElementById('cu-photo-file').click()"
+        style="width:180px;height:180px;margin:0 auto;border:1.5px dashed var(--b3);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:border-color .12s;overflow:hidden;position:relative;background:var(--s2)"
         onmouseover="this.style.borderColor='var(--ac)'" onmouseout="this.style.borderColor='var(--b3)'">
         <div id="cu-photo-placeholder" style="display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none">
           <span style="font-size:24px">📷</span>
           <span style="font-family:var(--fm);font-size:9px;color:var(--mu);letter-spacing:.08em;text-transform:uppercase">Upload photo</span>
         </div>
-        <img id="cu-photo-preview-img" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+      </div>
+      
+      <!-- Cropper Box (Initially Hidden) -->
+      <div id="cu-crop-container" style="display:none;flex-direction:column;align-items:center;gap:12px;padding:10px 0">
+        <div style="font-family:var(--fm);font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.06em">Drag & Zoom to crop</div>
+        <div style="width:200px;height:200px;position:relative;overflow:hidden;border:1px dashed var(--b3);background:var(--s2);cursor:grab;border-radius:12px"
+             onmousedown="startCropDrag(event)" onmousemove="doCropDrag(event)" onmouseup="endCropDrag(event)" onmouseleave="endCropDrag(event)"
+             ontouchstart="startCropDrag(event)" ontouchmove="doCropDrag(event)" ontouchend="endCropDrag(event)">
+          <img id="cu-crop-img" style="position:absolute;transform-origin:0 0;pointer-events:none">
+          <!-- Circular shadow mask -->
+          <div style="position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 9999px rgba(5,5,12,0.8);pointer-events:none"></div>
+          <!-- Selection circle -->
+          <div style="position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,255,255,0.5);pointer-events:none"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;width:200px">
+          <span style="font-size:10px;color:var(--mu)">-</span>
+          <input type="range" id="cu-crop-zoom" min="1" max="4" step="0.01" value="1" oninput="updateCropTransform()" style="flex:1;cursor:pointer">
+          <span style="font-size:10px;color:var(--mu)">+</span>
+        </div>
+        <button onclick="applyCrop()" style="padding:8px 16px;background:var(--ac);color:var(--wh);border:none;border-radius:8px;font-family:var(--fm);font-size:11px;font-weight:700;cursor:pointer;transition:opacity .12s;letter-spacing:.05em" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">APPLY CROP ✓</button>
       </div>
       <button id="cu-photo-remove" onclick="removeCUPhoto()" style="display:none;background:none;border:none;font-family:var(--fm);font-size:9px;color:var(--red);cursor:pointer;letter-spacing:.05em;text-align:center">✕ Remove photo</button>
       <!-- Divider -->
@@ -704,12 +731,17 @@ input:checked + .slider-sm:before {
     </div>
     <!-- Friends section -->
     <div style="padding:14px 20px">
+      <!-- Pending Requests -->
+      <div id="pending-requests-section" style="display:none;margin-bottom:14px">
+        <div style="font-family:var(--fm);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mu);margin-bottom:8px">Pending Requests</div>
+        <div id="pending-requests-list"></div>
+      </div>
       <div style="font-family:var(--fm);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mu);margin-bottom:10px">Friends</div>
       <div style="display:flex;gap:8px;margin-bottom:10px">
-        <input id="friend-search-inp" style="flex:1;background:var(--s2);border:1px solid var(--b2);border-radius:7px;padding:7px 11px;font-family:var(--fg);font-size:12px;color:var(--wh);outline:none" placeholder="Add by username…" onkeydown="if(event.key==='Enter')addFriendByUsername()">
-        <button onclick="addFriendByUsername()" style="padding:7px 14px;background:var(--ac);border:none;border-radius:7px;font-family:var(--fm);font-size:9px;font-weight:700;color:var(--wh);cursor:pointer;letter-spacing:.05em;transition:opacity .1s" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">ADD</button>
+        <input id="friend-search-inp" style="flex:1;background:var(--s2);border:1px solid var(--b2);border-radius:7px;padding:7px 11px;font-family:var(--fg);font-size:12px;color:var(--wh);outline:none" placeholder="Search by username…" oninput="searchFriendsLive()">
       </div>
       <div id="friend-search-msg" style="font-family:var(--fm);font-size:10px;color:var(--red);min-height:14px;margin-bottom:6px"></div>
+      <div id="friend-search-results" style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px"></div>
       <div id="friends-list"></div>
     </div>
     <!-- Danger zone -->
@@ -1263,7 +1295,7 @@ async function loadData(){
       supabaseClient.from('penalties').select('*'),
       supabaseClient.from('users').select('*'),
       currentUserId
-        ? supabaseClient.from('friendships').select('friend_id').eq('user_id', currentUserId)
+        ? supabaseClient.from('friendships').select('friend_id').eq('user_id', currentUserId).eq('status', 'accepted')
         : Promise.resolve({data:[],error:null}),
       currentUserId
         ? supabaseClient.from('topics').select('*').eq('user_id', currentUserId)
@@ -5855,18 +5887,41 @@ function hideLoginScreen(){
   document.getElementById('login-overlay').style.display = 'none';
 }
 
+async function hashPW(password) {
+  if(!password) return null;
+  const encoder = new TextEncoder();
+  const hash = await crypto.subtle.digest('SHA-256', encoder.encode(password));
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 function renderLoginUserGrid(){
-  const grid = document.getElementById('login-user-grid');
-  if(!grid) return;
-  if(allUsers.length === 0){
-    grid.innerHTML = `<div style="grid-column:1/-1;font-family:var(--fm);font-size:10px;color:var(--mu);padding:8px 0;letter-spacing:.06em">No users yet. Create one below.</div>`;
-    return;
+  // Kept for backward compatibility but UI uses login form now.
+}
+
+async function submitLogin() {
+  const userInp = document.getElementById('login-username').value.trim();
+  const pswInp = document.getElementById('login-password').value;
+  const msg = document.getElementById('login-msg');
+  if(!userInp || !pswInp) { msg.textContent = 'Enter username and password'; return; }
+  
+  const user = allUsers.find(u => u.username.toLowerCase() === userInp.toLowerCase());
+  if(!user) { msg.textContent = 'Invalid username or password'; return; }
+  
+  const hashed = await hashPW(pswInp);
+  // Verify password hash against Supabase
+  try {
+    const {data, error} = await supabaseClient.from('users').select('password_hash').eq('id', user.id).single();
+    if(error || !data) throw new Error('User not found in DB');
+    if(data.password_hash && data.password_hash !== hashed) {
+      msg.textContent = 'Invalid username or password'; return;
+    }
+    // Success
+    msg.textContent = '';
+    await selectUser(user.id);
+  } catch(e) {
+    console.error('Login error:', e);
+    msg.textContent = 'Error during login';
   }
-  grid.innerHTML = allUsers.map(u=>`
-    <div class="user-card" onclick="selectUser('${u.id}')">
-      ${userAvHtml(u, 52)}
-      <div class="user-card-name">${escH(u.username)}</div>
-    </div>`).join('');
 }
 
 async function selectUser(userId){
@@ -5904,18 +5959,24 @@ function openAvPicker(ctx='create'){
   _epPhotoData = null;
   const m = document.getElementById('av-picker-modal');
   m.style.display = 'flex';
-  // Show current avatar in photo zone / emoji button
-  const img = document.getElementById('cu-photo-preview-img');
-  const ph  = document.getElementById('cu-photo-placeholder');
+  const phBox = document.getElementById('cu-photo-box');
+  const cropCont = document.getElementById('cu-crop-container');
   const rm  = document.getElementById('cu-photo-remove');
+  if(cropCont) cropCont.style.display = 'none';
   const existingPhoto = ctx==='edit'
     ? (currentUser?.avatarEmoji?.startsWith('data:')||currentUser?.avatarEmoji?.startsWith('http') ? currentUser.avatarEmoji : null)
     : _cuPhotoData;
   const existingEmoji = ctx==='edit'
     ? (existingPhoto ? null : currentUser?.avatarEmoji)
     : _cuEmoji;
-  if(existingPhoto && img){ img.src=existingPhoto; img.style.display='block'; if(ph)ph.style.display='none'; if(rm)rm.style.display='block'; }
-  else { if(img){img.style.display='none';img.src='';} if(ph)ph.style.display='flex'; if(rm)rm.style.display='none'; }
+
+  if(existingPhoto && phBox){ 
+    phBox.style.display='flex';
+    phBox.innerHTML=`<img src="${existingPhoto}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">`;
+    if(rm)rm.style.display='block'; 
+  } else { 
+    _resetAvPickerPanel(); 
+  }
   const ed = document.getElementById('cu-emoji-display');
   if(ed) ed.textContent = existingEmoji || '😀';
 }
@@ -5946,42 +6007,141 @@ async function confirmAvSelection(){
   closeAvPicker();
 }
 function _resetAvPickerPanel(){
-  const img = document.getElementById('cu-photo-preview-img');
-  const ph  = document.getElementById('cu-photo-placeholder');
+  const phBox = document.getElementById('cu-photo-box');
+  const cropCont = document.getElementById('cu-crop-container');
   const rm  = document.getElementById('cu-photo-remove');
-  if(img){ img.style.display='none'; img.src=''; }
-  if(ph)  ph.style.display='flex';
+  if(phBox){
+    phBox.style.display='flex';
+    phBox.innerHTML=`<div id="cu-photo-placeholder" style="display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none">
+      <span style="font-size:24px">📷</span>
+      <span style="font-family:var(--fm);font-size:9px;color:var(--mu);letter-spacing:.08em;text-transform:uppercase">Upload photo</span>
+    </div>`;
+  }
+  if(cropCont) cropCont.style.display='none';
   if(rm)  rm.style.display='none';
   const fi = document.getElementById('cu-photo-file');
   if(fi)  fi.value='';
 }
+let cropImgRaw = null;
+let cropZoom = 1;
+let cropPanX = 0, cropPanY = 0;
+let cropDragging = false;
+let cropStartX = 0, cropStartY = 0;
+
 function pickCUColor(color, el){
   _cuColor = color;
   document.querySelectorAll('.cu-color-swatch').forEach(b=>b.classList.remove('sel'));
   el.classList.add('sel');
   renderCUPreview();
 }
+
 function handleCUPhoto(input){
   const file = input.files[0];
   if(!file) return;
   const reader = new FileReader();
   reader.onload = ev => {
     const data = ev.target.result;
-    const img = document.getElementById('cu-photo-preview-img');
-    const ph  = document.getElementById('cu-photo-placeholder');
-    const rm  = document.getElementById('cu-photo-remove');
-    if(img){ img.src = data; img.style.display='block'; }
-    if(ph)  ph.style.display='none';
-    if(rm)  rm.style.display='block';
-    if(_avPickerCtx === 'edit'){
-      _epPhotoData = data; _epEmoji = null;
-      _applyEpPreview();
-    } else {
-      _cuPhotoData = data; _cuEmoji = '';
-      renderCUPreview();
-    }
+    const img = document.getElementById('cu-crop-img');
+    const phBox = document.getElementById('cu-photo-box');
+    const cropCont = document.getElementById('cu-crop-container');
+    const rm = document.getElementById('cu-photo-remove');
+    
+    img.onload = () => {
+      phBox.style.display = 'none';
+      cropCont.style.display = 'flex';
+      if(rm) rm.style.display = 'none';
+      
+      const containerSize = 200;
+      const minScale = Math.max(containerSize / img.naturalWidth, containerSize / img.naturalHeight);
+      
+      cropZoom = minScale;
+      document.getElementById('cu-crop-zoom').min = minScale;
+      // Allow them to zoom up to 4x the minimum scale
+      document.getElementById('cu-crop-zoom').max = minScale * 4;
+      document.getElementById('cu-crop-zoom').value = minScale;
+      
+      cropPanX = (containerSize - img.naturalWidth * cropZoom) / 2;
+      cropPanY = (containerSize - img.naturalHeight * cropZoom) / 2;
+      
+      updateCropTransform();
+    };
+    img.src = data;
+    cropImgRaw = img;
   };
   reader.readAsDataURL(file);
+}
+
+function updateCropTransform() {
+  const img = document.getElementById('cu-crop-img');
+  if(!img) return;
+  cropZoom = parseFloat(document.getElementById('cu-crop-zoom').value);
+  const containerSize = 200;
+  
+  const maxPanX = 0;
+  const minPanX = containerSize - img.naturalWidth * cropZoom;
+  const maxPanY = 0;
+  const minPanY = containerSize - img.naturalHeight * cropZoom;
+  
+  cropPanX = Math.max(minPanX, Math.min(maxPanX, cropPanX));
+  cropPanY = Math.max(minPanY, Math.min(maxPanY, cropPanY));
+  
+  img.style.width = img.naturalWidth + 'px';
+  img.style.height = img.naturalHeight + 'px';
+  img.style.transform = `translate(${cropPanX}px, ${cropPanY}px) scale(${cropZoom})`;
+}
+
+function startCropDrag(e) {
+  cropDragging = true;
+  const touch = e.touches ? e.touches[0] : e;
+  cropStartX = touch.clientX - cropPanX;
+  cropStartY = touch.clientY - cropPanY;
+}
+function doCropDrag(e) {
+  if(!cropDragging) return;
+  e.preventDefault();
+  const touch = e.touches ? e.touches[0] : e;
+  cropPanX = touch.clientX - cropStartX;
+  cropPanY = touch.clientY - cropStartY;
+  updateCropTransform();
+}
+function endCropDrag(e) {
+  cropDragging = false;
+}
+
+function applyCrop() {
+  const img = document.getElementById('cu-crop-img');
+  const canvas = document.createElement('canvas');
+  canvas.width = 250;
+  canvas.height = 250;
+  const ctx = canvas.getContext('2d');
+  
+  const renderScale = 250 / 200;
+  
+  ctx.save();
+  ctx.scale(renderScale, renderScale);
+  ctx.translate(cropPanX, cropPanY);
+  ctx.scale(cropZoom, cropZoom);
+  ctx.drawImage(img, 0, 0);
+  ctx.restore();
+  
+  const finalData = canvas.toDataURL('image/jpeg', 0.9);
+  
+  const cropCont = document.getElementById('cu-crop-container');
+  const phBox  = document.getElementById('cu-photo-box');
+  const rm = document.getElementById('cu-photo-remove');
+  
+  cropCont.style.display = 'none';
+  phBox.style.display = 'flex';
+  phBox.innerHTML = `<img src="${finalData}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">`;
+  if(rm) rm.style.display = 'block';
+  
+  if(_avPickerCtx === 'edit'){
+    _epPhotoData = finalData; _epEmoji = null;
+    _applyEpPreview();
+  } else {
+    _cuPhotoData = finalData; _cuEmoji = '';
+    renderCUPreview();
+  }
 }
 
 function _applyEpPreview(){
@@ -6039,15 +6199,18 @@ function userAvHtml(user, size=26){
 }
 async function confirmCreateUser(){
   const username = document.getElementById('cu-username').value.trim();
+  const password = document.getElementById('cu-password').value;
   if(!username){ document.getElementById('cu-username').focus(); return; }
+  if(!password){ showToast('Password is required'); document.getElementById('cu-password').focus(); return; }
   // Check duplicate
   if(allUsers.some(u=>u.username.toLowerCase()===username.toLowerCase())){
     showToast('Username already taken'); return;
   }
+  const passHash = await hashPW(password);
   const avatarValue = _cuPhotoData || _cuEmoji || '👤';
   try{
     const {data, error} = await supabaseClient.from('users').insert({
-      username, avatar_emoji: avatarValue, color: _cuColor
+      username, avatar_emoji: avatarValue, color: _cuColor, password_hash: passHash
     }).select().single();
     if(error) throw error;
     const newUser = {id:data.id, username:data.username, avatarEmoji:data.avatar_emoji, color:data.color};
@@ -6075,6 +6238,7 @@ function openFriendsModal(){
   document.getElementById('friends-modal').style.display = 'flex';
   renderProfileSection();
   renderFriendsList();
+  loadPendingRequests();
   cancelEditProfile();
 }
 function closeFriendsModal(){
@@ -6174,28 +6338,135 @@ function renderFriendsList(){
     </div>`;
   }).join('');
 }
-async function addFriendByUsername(){
+async function searchFriendsLive(){
   const inp = document.getElementById('friend-search-inp');
   const msg = document.getElementById('friend-search-msg');
-  const username = inp.value.trim();
-  if(!username){ msg.textContent = 'Enter a username'; return; }
-  if(!currentUserId){ msg.textContent = 'No user selected'; return; }
-  const target = allUsers.find(u=>u.username.toLowerCase()===username.toLowerCase());
-  if(!target){ msg.textContent = `User "${username}" not found`; return; }
-  if(target.id === currentUserId){ msg.textContent = "That's you!"; return; }
-  if(myFriendIds.includes(target.id)){ msg.textContent = 'Already a friend'; return; }
+  const res = document.getElementById('friend-search-results');
+  const query = inp.value.trim().toLowerCase();
+  
+  if(!query){ res.innerHTML = ''; msg.textContent = ''; return; }
+  
+  const matches = allUsers.filter(u => u.username.toLowerCase().includes(query) && u.id !== currentUserId);
+  if(matches.length === 0){
+    res.innerHTML = '<div style="font-size:10px;color:var(--mu)">No users found</div>';
+    return;
+  }
+  
+  res.innerHTML = matches.slice(0, 5).map(u => {
+    const isFriend = myFriendIds.includes(u.id);
+    return `
+      <div style="display:flex;align-items:center;gap:10px;padding:6px;background:rgba(255,255,255,0.03);border-radius:6px">
+        ${userAvHtml(u, 22)}
+        <span style="font-size:11px;color:var(--wh);flex:1">${escH(u.username)}</span>
+        ${isFriend ? `<span style="font-size:9px;color:var(--mu)">Friends</span>` : `<button onclick="sendFriendRequest('${u.id}')" style="padding:4px 8px;background:var(--ac);border:none;border-radius:4px;font-size:9px;color:var(--wh);cursor:pointer">Send Request</button>`}
+      </div>`;
+  }).join('');
+}
+
+async function sendFriendRequest(targetId){
+  const msg = document.getElementById('friend-search-msg');
   try{
-    const {error} = await supabaseClient.from('friendships').insert({user_id: currentUserId, friend_id: target.id});
+    const {data, error: checkErr} = await supabaseClient.from('friendships')
+      .select('*').eq('user_id', currentUserId).eq('friend_id', targetId);
+    if(data && data.length > 0) {
+      msg.textContent = 'Request already sent or friends'; return;
+    }
+    const {error} = await supabaseClient.from('friendships').insert({
+      user_id: currentUserId, friend_id: targetId, status: 'pending'
+    });
     if(error) throw error;
-    myFriendIds.push(target.id);
-    inp.value = '';
-    msg.textContent = '';
+    showToast('Friend request sent!');
+    document.getElementById('friend-search-inp').value = '';
+    document.getElementById('friend-search-results').innerHTML = '';
+    loadPendingRequests();
+  }catch(e){
+    console.error(e);
+    msg.textContent = 'Error sending request: ' + e.message;
+  }
+}
+
+async function cancelSentRequest(targetId) {
+  try {
+    await supabaseClient.from('friendships').delete()
+      .eq('user_id', currentUserId).eq('friend_id', targetId).eq('status', 'pending');
+    loadPendingRequests();
+    if(document.getElementById('friend-search-inp').value) searchFriendsLive();
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+async function loadPendingRequests() {
+  const section = document.getElementById('pending-requests-section');
+  const listEl = document.getElementById('pending-requests-list');
+  if(!section || !listEl) return;
+  try {
+    const {data: incData} = await supabaseClient.from('friendships')
+      .select('user_id').eq('friend_id', currentUserId).eq('status', 'pending');
+    const {data: outData} = await supabaseClient.from('friendships')
+      .select('friend_id').eq('user_id', currentUserId).eq('status', 'pending');
+      
+    const incoming = (incData || []).map(r => allUsers.find(u => u.id === r.user_id)).filter(Boolean);
+    const outgoing = (outData || []).map(r => allUsers.find(u => u.id === r.friend_id)).filter(Boolean);
+    
+    if(incoming.length === 0 && outgoing.length === 0){
+      section.style.display = 'none'; return;
+    }
+    section.style.display = 'block';
+    
+    let html = '';
+    if(incoming.length > 0) {
+      html += `<div style="font-size:8px;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Received</div>`;
+      html += incoming.map(u => `
+        <div style="display:flex;align-items:center;gap:10px;padding:6px;background:rgba(90,120,152,0.1);border-radius:6px;margin-bottom:6px">
+          ${userAvHtml(u, 22)}
+          <span style="font-size:11px;color:var(--wh);flex:1">${escH(u.username)}</span>
+          <button onclick="acceptFriendRequest('${u.id}')" style="padding:4px 8px;background:var(--grn);border:none;border-radius:4px;font-size:9px;color:var(--bg);cursor:pointer;font-weight:bold">Accept</button>
+          <button onclick="declineFriendRequest('${u.id}')" style="padding:4px 8px;background:var(--s2);border:1px solid var(--red);border-radius:4px;font-size:9px;color:var(--red);cursor:pointer">Decline</button>
+        </div>`).join('');
+    }
+    if(outgoing.length > 0) {
+      if(html) html += `<div style="margin-top:8px"></div>`;
+      html += `<div style="font-size:8px;color:var(--mu);margin-bottom:4px;text-transform:uppercase">Sent (Pending Confirmation)</div>`;
+      html += outgoing.map(u => `
+        <div style="display:flex;align-items:center;gap:10px;padding:6px;background:rgba(255,255,255,0.03);border-radius:6px;margin-bottom:6px;border:1px dashed var(--b2)">
+          ${userAvHtml(u, 22)}
+          <span style="font-size:11px;color:var(--mu);flex:1">${escH(u.username)}</span>
+          <span style="font-size:9px;color:var(--ac);font-weight:bold;margin-right:4px">Pending...</span>
+          <button onclick="cancelSentRequest('${u.id}')" style="padding:4px;background:none;border:none;font-size:12px;color:var(--red);cursor:pointer" title="Cancel Request">✕</button>
+        </div>`).join('');
+    }
+    listEl.innerHTML = html;
+  } catch(e){ console.error('Error loading requests', e); }
+}
+
+async function acceptFriendRequest(senderId) {
+  try {
+    await supabaseClient.from('friendships').update({status: 'accepted'})
+      .eq('user_id', senderId).eq('friend_id', currentUserId);
+    await supabaseClient.from('friendships').insert({
+      user_id: currentUserId, friend_id: senderId, status: 'accepted'
+    });
+    myFriendIds.push(senderId);
+    showToast('Friend request accepted');
+    loadPendingRequests();
     renderFriendsList();
     renderSidebar();
-    showToast(`Added ${target.username} as friend`);
-  }catch(e){
-    console.error('Add friend error:', e);
-    msg.textContent = 'Error adding friend';
+    renderCurrentView();
+  } catch(e) {
+    console.error(e);
+    showToast('Error accepting request');
+  }
+}
+
+async function declineFriendRequest(senderId) {
+  try {
+    await supabaseClient.from('friendships').delete()
+      .eq('user_id', senderId).eq('friend_id', currentUserId);
+    showToast('Request declined');
+    loadPendingRequests();
+  } catch(e) {
+    console.error(e);
   }
 }
 async function removeFriend(friendId){

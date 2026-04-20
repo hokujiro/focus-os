@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.focusos.agentengine</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/python3</string>
+        <string>-u</string>
+        <string>/Users/pipi/.openclaw/agent-engine/agent_engine.py</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>WorkingDirectory</key>
+    <string>/Users/pipi/.openclaw/agent-engine</string>
+    <key>StandardOutPath</key>
+    <string>/Users/pipi/Library/Logs/focus-os-agent.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/pipi/Library/Logs/focus-os-agent.log</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin</string>
+        <key>PYTHONPATH</key>
+        <string>/Users/pipi/.openclaw/agent-engine</string>
+    </dict>
+</dict>
+</plist>

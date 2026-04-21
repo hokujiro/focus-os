@@ -82,22 +82,16 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.5)}
 .s-inprog{background:rgba(112,144,224,.15);color:#7090e0}
 .s-done{background:rgba(40,160,100,.3);color:var(--grn)}
 .s-failed{background:rgba(220,50,50,.2);color:#ff5555}
-.s-review{background:rgba(180,100,250,.2);color:#c080ff}
+.s-failed{background:rgba(220,50,50,.2);color:#ff5555}
 
 .s-todo-dot{background:var(--red)}
 .s-inprog-dot{background:#7090e0}
-.s-review-dot{background:#c080ff}
+.s-inprog-dot{background:#7090e0}
 .s-done-dot{background:var(--grn)}
 .s-failed-dot{background:#ff5555}
 .tc-title.failed{text-decoration:line-through;color:var(--red)}
 
-/* ── REVIEW CHAT ── */
-.vc-chat-list{display:flex;flex-direction:column;gap:8px;max-height:200px;overflow-y:auto;margin-bottom:8px}
-.vc-chat-msg{background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--wh);position:relative}
-.vc-chat-msg.is-final{border-left:3px solid var(--ac);background:rgba(90,120,152,.08)}
-.vc-chat-msg-meta{font-family:var(--fm);font-size:9px;color:var(--mu);margin-bottom:4px;display:flex;align-items:center;gap:6px}
-.vc-chat-del{position:absolute;right:8px;top:6px;font-size:11px;color:var(--mu);background:none;border:none;cursor:pointer;opacity:0;transition:opacity .1s;line-height:1;padding:2px 4px}
-.vc-chat-msg:hover .vc-chat-del{opacity:.7}
+/* ── CHAT STYLES ── */
 .vc-attach-list{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
 .vc-attach-pill{display:inline-flex;align-items:center;gap:4px;background:var(--s1);border:1px solid var(--b2);border-radius:6px;padding:2px 8px;font-family:var(--fm);font-size:9px;color:var(--su);text-decoration:none;cursor:pointer}
 .vc-attach-pill:hover{border-color:var(--ac);color:var(--ac)}
@@ -460,9 +454,6 @@ input:checked + .slider-sm:before {
 .emoji-custom-inp:focus{border-color:var(--ac)}
 .emoji-preview-box{width:42px;height:42px;border-radius:9px;background:var(--s2);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
 
-/* ── ASSIGN PERSON ── */
-.assign-dz{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--s2);border:2px dashed var(--b3);border-radius:12px;padding:20px 40px;color:var(--mu);z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .15s;pointer-events:all}
-.assign-dz.drag-over{background:rgba(90,120,152,.2)!important;border-color:var(--ac)!important;color:var(--wh);transform:translateX(-50%) scale(1.05)}
 /* ── DELETE DROP ZONE ── */
 /* ── Filter chip drop targets ── */
 .fdz-chip{transition:padding .12s,font-size .12s,background .12s,border-color .12s,color .12s,box-shadow .12s}
@@ -476,23 +467,11 @@ input:checked + .slider-sm:before {
 /* ── Dragged card fades when over a target ── */
 .task-card.drag-fading{opacity:.03 !important;transition:opacity .1s}
 
-/* ── AGENTS VIEW ── */
-.agents-wrap{padding:20px 24px;overflow-y:auto;height:100%}
-.agents-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-top:16px}
-.agent-card{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:18px 16px;cursor:pointer;transition:all .14s;display:flex;flex-direction:column;gap:10px}
-.agent-card:hover{border-color:var(--b2);background:var(--s2)}
-.agent-card-top{display:flex;align-items:center;gap:12px}
-.agent-name{font-family:var(--fm);font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--wh)}
-.agent-context{font-family:var(--fm);font-size:9px;color:var(--mu);line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.agent-stats-row{display:flex;gap:8px;border-top:1px solid var(--b1);padding-top:10px}
-.agent-stat{flex:1;text-align:center}
-.agent-stat-val{font-family:var(--fm);font-size:13px;font-weight:700}
-.agent-stat-lbl{font-family:var(--fm);font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin-top:2px}
 
   /* Topic Detail — reuses pd-* from project detail */
   .td-input{background:var(--s3);border:1px solid var(--b1);border-radius:6px;padding:9px 12px;color:var(--wh);font-family:var(--fg);font-size:13px;outline:none;transition:border-color .15s;width:100%;box-sizing:border-box}
   .td-input:focus{border-color:var(--ac)}
-  .td-color-inp{-webkit-appearance:none;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;background:none;padding:0;overflow:hidden;flex-shrink:0}
+  .td-color-inp{-webkit-appearance:none;appearance:none;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;background:none;padding:0;overflow:hidden;flex-shrink:0}
   .td-color-inp::-webkit-color-swatch-wrapper{padding:0}
   .td-color-inp::-webkit-color-swatch{border:none;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15)}
   .td-proj-card{background:var(--s2);border:1px solid var(--b1);border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .14s,transform .14s}
@@ -798,11 +777,32 @@ input:checked + .slider-sm:before {
       <span id="vc-mode-lbl" class="vc-mode-lbl">NEW TASK</span>
       <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
         <button class="vc-close" onclick="closeVC()">&#215;</button>
-        <button id="vc-chat-open-btn" onclick="toggleVCChatPanel()" title="Open Review Chat" style="display:none;width:26px;height:26px;border-radius:50%;background:none;border:1px solid var(--b2);color:var(--mu);cursor:pointer;font-size:13px;line-height:1;display:none;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0" onmouseover="this.style.borderColor='var(--ac)';this.style.color='var(--ac)';this.style.background='rgba(90,120,152,.12)'" onmouseout="this.style.borderColor='var(--b2)';this.style.color='var(--mu)';this.style.background='none'">💬</button>
       </div>
     </div>
     <input type="hidden" id="vc-id">
     <input id="vc-title" class="vc-title-inp" type="text" placeholder="What needs to get done?">
+    <!-- ═══ CHECKLIST SECTION ═══ -->
+    <div class="vc-div"></div>
+    <div class="vc-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div class="vc-sec-label" style="margin-bottom:0">Checklist</div>
+        <div id="vc-checklist-prog" style="font-family:var(--fm);font-size:9px;color:var(--mu);letter-spacing:.05em"></div>
+      </div>
+      <div id="vc-checklist-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">
+        <!-- Checklist items here -->
+      </div>
+      <div style="display:flex;gap:6px">
+        <input type="text" id="vc-checklist-new" class="vc-chat-inp" placeholder="Add item…" onkeydown="if(event.key==='Enter'){event.preventDefault();vcAddChecklistItem()}">
+        <button class="vc-chat-send-btn" onclick="vcAddChecklistItem()" style="padding:0 12px;font-size:11px;height:32px">ADD</button>
+      </div>
+    </div>
+
+    <div class="vc-div"></div>
+    <div class="vc-section">
+      <div class="vc-sec-label">Notes</div>
+      <textarea id="vc-notes" class="vc-notes" rows="2" placeholder="Optional notes..."></textarea>
+    </div>
+
     <div class="vc-div"></div>
     <div class="vc-section">
       <div class="vc-sec-label">Topic</div>
@@ -815,36 +815,16 @@ input:checked + .slider-sm:before {
     </div>
     <div class="vc-div"></div>
     <div class="vc-section">
-      <div class="vc-grid-3">
+      <div class="vc-grid-2">
         <div>
           <div class="vc-sec-label">Status</div>
           <div id="vc-status-picker" class="options-row"></div>
-        </div>
-        <div>
-          <div class="vc-sec-label">Priority</div>
-          <div id="vc-prio-picker" class="options-row"></div>
         </div>
         <div>
           <div class="vc-sec-label">Difficulty</div>
           <div id="vc-diff-picker" class="options-row"></div>
         </div>
       </div>
-    </div>
-    <div class="vc-div"></div>
-    <div class="vc-section">
-      <div class="vc-sec-label" style="display:flex;align-items:center;justify-content:space-between">
-        Agent Execution
-        <label class="switch-sm">
-          <input type="checkbox" id="vc-req-agent">
-          <span class="slider-sm"></span>
-        </label>
-      </div>
-      <div style="font-size:9px;color:var(--mu);margin-top:4px">Delegate this task to the project's AI agent</div>
-    </div>
-    <div class="vc-div"></div>
-    <div class="vc-section">
-      <div class="vc-sec-label">Notes</div>
-      <textarea id="vc-notes" class="vc-notes" rows="2" placeholder="Optional notes..."></textarea>
     </div>
     <div class="vc-footer">
       <div class="vc-footer-left">
@@ -855,40 +835,6 @@ input:checked + .slider-sm:before {
       <div class="vc-actions">
         <button class="btn-cancel" onclick="closeVC()">Cancel</button>
         <button class="btn-save" onclick="saveVC()">Save Task</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ REVIEW CHAT PANEL ═══ -->
-  <div id="vc-chat-panel" style="display:none;align-self:flex-start" onclick="event.stopPropagation()">
-    <div style="padding:14px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
-      <span style="font-family:var(--fm);font-size:10px;letter-spacing:.12em;color:var(--su)">REVIEW CHAT</span>
-      <button onclick="toggleVCChatPanel()" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:16px;line-height:1;padding:0">&#215;</button>
-    </div>
-    <div id="vc-cp-list" class="vc-cp-list"></div>
-    <div style="padding:10px 14px;border-top:1px solid var(--b1);flex-shrink:0">
-      <div id="vc-cp-pending" class="vc-attach-row" style="margin-bottom:6px"></div>
-      <input type="file" id="vc-cp-file" multiple style="display:none" onchange="vcCpPickFile(this)">
-      <div style="display:flex;gap:6px;align-items:center">
-        <button onclick="document.getElementById('vc-cp-file').click()" class="vc-chat-attach-btn" title="Attach">📎</button>
-        <input id="vc-cp-inp" type="text" class="vc-chat-inp" placeholder="Add message…" onkeydown="if(event.key==='Enter')vcCpSend()">
-        <button class="vc-chat-send-btn" onclick="vcCpSend()">SEND</button>
-      </div>
-    </div>
-    <!-- Final Comment -->
-    <div style="padding:12px 14px;border-top:2px solid var(--b2);flex-shrink:0;background:rgba(90,120,152,.06)">
-      <div style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;color:var(--ac);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
-        <span>★ FINAL COMMENT</span>
-        <span id="vc-final-saved-lbl" style="display:none;color:var(--grn);font-size:9px">✓ Saved</span>
-      </div>
-      <textarea id="vc-final-text" class="vc-chat-inp" rows="1" placeholder="Write final comment…"
-        style="width:100%;resize:none;display:block;overflow:hidden;min-height:36px"
-        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
-      <div id="vc-final-pending" class="vc-attach-row" style="margin-top:8px"></div>
-      <input type="file" id="vc-final-file" multiple style="display:none" onchange="vcFinalPickFile(this)">
-      <div style="display:flex;gap:6px;align-items:center;margin-top:8px">
-        <button onclick="document.getElementById('vc-final-file').click()" class="vc-chat-attach-btn" title="Attach file">📎</button>
-        <button onclick="vcSaveFinalComment()" class="vc-chat-send-btn" style="flex:1">SAVE FINAL</button>
       </div>
     </div>
   </div>
@@ -962,23 +908,6 @@ input:checked + .slider-sm:before {
   </div>
 </div>
 
-<!-- ═══ HIRE PM MODAL ═══ -->
-<div id="hire-pm-modal" style="display:none" class="mini-modal-ov" onclick="closePMModal()">
-  <div class="mini-modal" style="max-width:380px" onclick="event.stopPropagation()">
-    <div class="mini-modal-hdr">
-      <span class="mini-modal-ttl">Hire Project Manager</span>
-      <button class="mini-modal-close" onclick="closePMModal()">&#215;</button>
-    </div>
-    <div class="mini-modal-body" id="pm-modal-list" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:12px">
-      <!-- Populated by JS -->
-    </div>
-    <div class="mini-modal-ftr">
-      <button class="btn-cancel" onclick="closePMModal()">Cancel</button>
-      <button class="btn-del" id="pm-fire-btn" onclick="assignPM(currentProjectId, null)" style="display:none">FIRE PM</button>
-    </div>
-  </div>
-</div>
-
 <!-- ═══ EMOJI PICKER MODAL ═══ -->
 <div id="emoji-picker" style="display:none" class="emoji-picker-modal" onclick="closeEmojiPicker()">
   <div class="emoji-picker-box" onclick="event.stopPropagation()">
@@ -1008,16 +937,7 @@ input:checked + .slider-sm:before {
       <label class="f-label">Project</label>
       <div id="rec-proj-picker" class="proj-picker" style="margin-bottom:14px;max-height:160px;overflow-y:auto;padding:2px"></div>
 
-      <div class="f-row" style="margin-bottom:14px">
-        <div>
-          <label class="f-label">Priority</label>
-          <div id="rec-prio-picker" class="options-row"></div>
-        </div>
-        <div>
-          <label class="f-label">Assigned Agent</label>
-          <div id="rec-agent-picker" class="options-row"></div>
-        </div>
-      </div>
+
 
       <label class="f-label">Repeat on *</label>
       <div class="day-sel-wrap" id="day-selector" style="margin-bottom:14px"></div>
@@ -1031,160 +951,6 @@ input:checked + .slider-sm:before {
         <button class="btn-cancel" onclick="closeRecModal()">Cancel</button>
         <button class="btn-save" onclick="saveRecurring()">Save</button>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ ASSIGN PERSON DROPZONE ═══ -->
-<div id="assign-dz" class="assign-dz" style="display:none" ondragover="dzOver(event,'assign-dz','assign')" ondrop="dzDrop(event,'assign-dz','assign')" ondragleave="dzLeave(event)">
-  <div style="font-size:24px;margin-bottom:8px">👤</div>
-  <div style="font-family:var(--fm);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase">Drop here to Assign & Start</div>
-</div>
-
-
-<!-- ═══ ASSIGN AGENT MODAL ═══ -->
-<div id="assign-modal" style="display:none" class="mini-modal-ov" onclick="closeAssignModal()">
-  <div class="mini-modal" style="width:360px;max-width:96vw" onclick="event.stopPropagation()">
-    <div class="mini-modal-hdr">
-      <span class="mini-modal-ttl">Assign to Agent</span>
-      <button class="mini-modal-close" onclick="closeAssignModal()">&#215;</button>
-    </div>
-    <div class="mini-modal-body" style="padding:12px 16px">
-      <input type="hidden" id="assign-task-id">
-      <div id="assign-agent-list" style="display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto"></div>
-      <div id="assign-no-agents" style="display:none;text-align:center;padding:24px 0">
-        <div style="font-size:28px;margin-bottom:8px">🤖</div>
-        <div style="font-family:var(--fm);font-size:10px;color:var(--mu);letter-spacing:.08em;margin-bottom:12px">NO AGENTS YET</div>
-        <button onclick="closeAssignModal();switchView('agents')" style="font-family:var(--fm);font-size:9px;padding:6px 14px;border-radius:99px;border:1px solid var(--ac);color:var(--ac);background:none;cursor:pointer">+ Create Agent</button>
-      </div>
-    </div>
-    <div class="mini-modal-ftr">
-      <button class="btn-cancel" onclick="closeAssignModal()">Cancel</button>
-      <button onclick="closeAssignModal();switchView('agents')" style="font-family:var(--fm);font-size:9px;color:var(--ac);background:none;border:none;cursor:pointer;letter-spacing:.06em">Manage Agents →</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ ASSIGN PM MODAL ═══ -->
-<div id="assign-pm-modal" style="display:none" class="mini-modal-ov" onclick="closeAssignPMModal()">
-  <div class="mini-modal" style="width:360px;max-width:96vw" onclick="event.stopPropagation()">
-    <div class="mini-modal-hdr">
-      <span class="mini-modal-ttl">Hire Project Manager</span>
-      <button class="mini-modal-close" onclick="closeAssignPMModal()">&#215;</button>
-    </div>
-    <div class="mini-modal-body" style="padding:12px 16px">
-      <div id="assign-pm-list" style="display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto"></div>
-      <div id="assign-pm-no-agents" style="display:none;text-align:center;padding:24px 0">
-        <div style="font-size:28px;margin-bottom:8px">🤖</div>
-        <div style="font-family:var(--fm);font-size:10px;color:var(--mu);letter-spacing:.08em;margin-bottom:12px">NO AGENTS YET</div>
-        <button onclick="closeAssignPMModal();switchView('agents')" style="font-family:var(--fm);font-size:9px;padding:6px 14px;border-radius:99px;border:1px solid var(--ac);color:var(--ac);background:none;cursor:pointer">+ Create Agent</button>
-      </div>
-    </div>
-    <div class="mini-modal-ftr">
-      <button class="btn-cancel" onclick="closeAssignPMModal()">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ CREATE / EDIT AGENT MODAL ═══ -->
-<div id="agent-modal" style="display:none" class="mini-modal-ov" onclick="closeAgentModal()">
-  <div class="mini-modal" style="width:400px;max-width:96vw" onclick="event.stopPropagation()">
-    <div class="mini-modal-hdr">
-      <span class="mini-modal-ttl" id="agent-modal-ttl">New Agent</span>
-      <button class="mini-modal-close" onclick="closeAgentModal()">&#215;</button>
-    </div>
-    <div class="mini-modal-body" style="padding:14px 16px;display:flex;flex-direction:column;gap:12px">
-      <input type="hidden" id="agent-id">
-
-      <!-- Avatar row -->
-      <div style="display:flex;align-items:center;gap:14px">
-        <div id="agent-avatar-preview" style="width:56px;height:56px;border-radius:50%;background:var(--ac2);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;overflow:hidden;border:2px solid var(--b2);cursor:pointer">🤖</div>
-        <div style="flex:1;display:flex;flex-direction:column;gap:8px">
-          <div style="font-family:var(--fm);font-size:10px;color:var(--mu);letter-spacing:.05em">Click the circle to pick an emoji</div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <input type="file" id="agent-photo-file" accept="image/*" style="display:none" onchange="agentLoadPhoto(this)">
-            <button type="button" onclick="document.getElementById('agent-photo-file').click()"
-              style="font-family:var(--fm);font-size:10px;color:var(--su);background:var(--s2);border:1px solid var(--b2);border-radius:7px;padding:5px 11px;cursor:pointer;letter-spacing:.04em">
-              📷 Upload photo
-            </button>
-            <button type="button" id="agent-photo-remove" onclick="agentRemovePhoto()" style="display:none;font-family:var(--fm);font-size:10px;color:var(--red);background:none;border:none;cursor:pointer;letter-spacing:.04em">✕ Remove</button>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <label class="mm-label">Name *</label>
-        <input id="agent-name" class="mm-inp" type="text" placeholder="e.g. GPT-4o, Claude, Alice...">
-      </div>
-      <div>
-        <label class="mm-label">Persona & Instructions <span style="font-weight:400;color:var(--b3)">(becomes the agent's IDENTITY.md if linked to a bot)</span></label>
-        <textarea id="agent-context" class="mm-inp" rows="3" placeholder="Describe this agent's role, specialty, personality and instructions..." style="resize:vertical"></textarea>
-      </div>
-
-      <!-- Channels -->
-      <div>
-        <label class="mm-label">Channels</label>
-        <div style="background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:10px">
-          <span style="font-size:16px;line-height:1;flex-shrink:0">✈️</span>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:12px;color:var(--wh);font-family:var(--fg);margin-bottom:5px">Telegram</div>
-            <div style="display:flex;gap:6px;align-items:center">
-              <select id="agent-telegram-select" class="mm-inp" style="margin-bottom:0;cursor:pointer;flex:1" onchange="tgUpdatePairingTrigger()">
-                <option value="">— Not connected —</option>
-              </select>
-              <button type="button" id="tg-add-btn" onclick="tgShowAddBot()"
-                style="flex-shrink:0;width:28px;height:28px;border-radius:6px;border:1px dashed var(--b2);background:none;color:var(--mu);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s"
-                onmouseover="this.style.borderColor='var(--ac)';this.style.color='var(--ac)'"
-                onmouseout="this.style.borderColor='var(--b2)';this.style.color='var(--mu)'"
-                title="Add new bot">+</button>
-            </div>
-            <!-- Add bot inline form (hidden by default) -->
-            <div id="tg-add-form" style="display:none;margin-top:8px;display:none">
-              <input id="tg-token-input" class="mm-inp" type="text" placeholder="Paste bot token from @BotFather…" style="margin-bottom:6px;font-size:11px">
-              <div style="display:flex;gap:6px">
-                <button type="button" onclick="tgRegisterBot()"
-                  style="flex:1;padding:6px;background:var(--ac);color:var(--wh);border:none;border-radius:6px;font-family:var(--fm);font-size:9px;cursor:pointer;letter-spacing:.06em">
-                  CONNECT BOT
-                </button>
-                <button type="button" onclick="tgHideAddBot()"
-                  style="padding:6px 10px;background:none;color:var(--mu);border:1px solid var(--b2);border-radius:6px;font-family:var(--fm);font-size:9px;cursor:pointer">
-                  Cancel
-                </button>
-              </div>
-            </div>
-            <!-- Pairing code section (hidden until user clicks "Pair") -->
-            <div id="tg-pair-trigger" style="display:none;margin-top:8px">
-              <button type="button" onclick="tgShowPairing()"
-                style="background:none;border:none;padding:0;font-family:var(--fm);font-size:9px;color:var(--b3);cursor:pointer;letter-spacing:.04em;text-decoration:underline;text-underline-offset:2px"
-                onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='var(--b3)'">
-                ⚠ Access not configured? Enter pairing code
-              </button>
-            </div>
-            <div id="tg-pair-form" style="display:none;margin-top:8px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.25);border-radius:7px;padding:9px 10px">
-              <div style="font-family:var(--fm);font-size:9px;color:#f59e0b;letter-spacing:.06em;margin-bottom:6px">PAIRING CODE</div>
-              <div style="display:flex;gap:6px">
-                <input id="tg-pair-code" class="mm-inp" type="text" placeholder="e.g. X7N8LGX8"
-                  style="margin-bottom:0;font-size:11px;font-family:'Space Mono',monospace;text-transform:uppercase;flex:1;letter-spacing:.08em"
-                  oninput="this.value=this.value.toUpperCase()">
-                <button type="button" onclick="tgApproveCode()"
-                  style="flex-shrink:0;padding:6px 12px;background:#f59e0b;color:#000;border:none;border-radius:6px;font-family:var(--fm);font-size:9px;cursor:pointer;font-weight:700;letter-spacing:.06em">
-                  APPROVE
-                </button>
-                <button type="button" onclick="tgHidePairing()"
-                  style="flex-shrink:0;padding:6px 8px;background:none;color:var(--mu);border:1px solid var(--b2);border-radius:6px;font-family:var(--fm);font-size:9px;cursor:pointer">
-                  ✕
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-    <div class="mini-modal-ftr">
-      <button class="btn-cancel" onclick="closeAgentModal()">Cancel</button>
-      <button id="agent-del-btn" style="font-family:var(--fm);font-size:9px;color:var(--red);background:none;border:none;cursor:pointer;display:none;letter-spacing:.06em" onclick="deleteAgent()">Delete</button>
-      <button class="btn-save" onclick="saveAgent()">Save Agent</button>
     </div>
   </div>
 </div>
@@ -1254,7 +1020,7 @@ const DIFF_COLORS = {easy:'var(--grn)','medium-easy':'#70a8f7','medium-hard':'va
 const STORAGE_KEY_BASE = 'focus-os-v3';
 function getStorageKey(){ return currentUserId ? `${STORAGE_KEY_BASE}-${currentUserId}` : STORAGE_KEY_BASE; }
 const DEFAULTS = {
-  tasks:[], templates:[], penalties:[], agents:[],
+  tasks:[], templates:[], penalties:[],
   settings:{
     topics:['social-media','master','app'],
     topicMeta:{},   // user-defined or user-customized topics
@@ -1280,7 +1046,6 @@ async function loadData(){
     const [
       { data: s,   error: se  },
       { data: t,   error: te  },
-      { data: a,   error: ae  },
       { data: tm,  error: tme },
       { data: p,   error: pe  },
       { data: u,   error: ue  },
@@ -1290,7 +1055,6 @@ async function loadData(){
     ] = await Promise.all([
       supabaseClient.from('settings').select('id,last_recurring_check,updated_at').eq('id','global').single(),
       supabaseClient.from('tasks').select('*'),
-      supabaseClient.from('agents').select('*'),
       supabaseClient.from('templates').select('*'),
       supabaseClient.from('penalties').select('*'),
       supabaseClient.from('users').select('*'),
@@ -1305,8 +1069,8 @@ async function loadData(){
         : Promise.resolve({data:[],error:null}),
     ]);
 
-    if (se || te || ae || tme || pe) {
-      console.warn("Supabase load errors:", {se, te, ae, tme, pe});
+    if (se || te || tme || pe) {
+      console.warn("Supabase load errors:", {se, te, tme, pe});
       throw new Error("Supabase fetch error");
     }
 
@@ -1327,9 +1091,8 @@ async function loadData(){
           id: x.id, title: x.title, topic: x.topic, project: x.project, status: x.status,
           priority: x.priority, difficulty: x.difficulty, dueDate: x.due_date,
           scheduledDate: x.scheduled_date, scheduledWeek: x.scheduled_week,
-          assignedAgent: x.assigned_agent, completedDate: x.completed_date, notes: x.notes,
+          completedDate: x.completed_date, notes: x.notes,
           penalized: x.penalized, salaryCredited: x.salary_credited,
-          requiresAgent: x.requires_agent, executingAgentName: x.executing_agent_name,
           fromTemplate: meta.fromTemplate, createdAt: x.created_at,
           comments: meta.comments || [],
           userId: x.user_id || null
@@ -1337,15 +1100,10 @@ async function loadData(){
       }),
       templates: (tm||[]).map(x => ({
         id: x.id, title: x.title, topic: x.topic, project: x.project, priority: x.priority,
-        assignedAgent: x.assigned_agent, notes: x.notes, days: x.days
-      })),
-      agents: (a||[]).map(x => ({
-        id: x.id, name: x.name, emoji: x.emoji, photo: x.photo_url, context: x.context,
-        dailySalary: x.daily_salary, isPm: x.is_pm, managedProject: x.managed_project,
-        identityMd: x.identity_md || null
+        notes: x.notes, days: x.days
       })),
       penalties: (p||[]).map(x => ({
-        id: x.id, taskId: x.task_id, agent_id: x.agent_id, amount: x.amount,
+        id: x.id, taskId: x.task_id, amount: x.amount,
         date: x.date, topic: x.topic, project: x.project
       })),
       settings: { topics, topicMeta, projects, projMeta },
@@ -1380,20 +1138,12 @@ function finalizeLoad(d){
   d.settings.projMeta=d.settings.projMeta||{};
   d.templates=d.templates||[];
   d.penalties=d.penalties||[];
-  d.agents=d.agents||[];
   (d.tasks||[]).forEach(t=>{
     if(!('scheduledWeek' in t))t.scheduledWeek=null;
     if(!('scheduledDate' in t))t.scheduledDate=null;
     if(!('difficulty' in t))t.difficulty='medium-easy';
     if(!('penalized' in t))t.penalized=false;
-    if(!('assignedAgent' in t))t.assignedAgent=null;
     if(!('salaryCredited' in t))t.salaryCredited=false;
-    if(!('requiresAgent' in t))t.requiresAgent=false;
-    if(!('executingAgentName' in t))t.executingAgentName=null;
-  });
-  d.agents.forEach(a=>{
-    if(!('isPm' in a))a.isPm=false;
-    if(!('managedProject' in a))a.managedProject=null;
   });
   return d;
 }
@@ -1441,16 +1191,11 @@ async function syncDataToSupabase(){
       const meta=db.settings.projMeta[p.id]||{};
       return{id:p.id,name:p.name,topic:p.topic,grad:meta.grad,emoji:meta.emoji,pat:meta.pat,color:meta.color,photo_url:meta.img||null,user_id:currentUserId||null};
     });
-    const agentRows=db.agents.map(a=>({
-      id:a.id,name:a.name,emoji:a.emoji||'🤖',photo_url:a.photo||null,
-      daily_salary:a.dailySalary||null,is_pm:a.isPm||false,managed_project:a.managedProject||null
-    }));
     const taskRows=db.tasks.map(t=>({
       id:t.id,title:t.title,topic:t.topic||null,project:t.project||null,
       status:t.status,priority:t.priority,difficulty:t.difficulty,
       due_date:t.dueDate||null,scheduled_date:t.scheduledDate||null,scheduled_week:t.scheduledWeek||null,
-      assigned_agent:t.assignedAgent||null,completed_date:t.completedDate||null,notes:t.notes||null,
-      requires_agent:t.requiresAgent||false,executing_agent_name:t.executingAgentName||null,
+      completed_date:t.completedDate||null,notes:t.notes||null,
       penalized:t.penalized||false,salary_credited:t.salaryCredited||false,
       created_at:t.createdAt||new Date().toISOString(),
       user_id:t.userId||null,
@@ -1488,14 +1233,13 @@ async function syncDataToSupabase(){
       deleteOrphans,
       topicRows.length   ? supabaseClient.from('topics').upsert(topicRows)     : Promise.resolve(),
       projectRows.length ? supabaseClient.from('projects').upsert(projectRows) : Promise.resolve(),
-      agentRows.length   ? supabaseClient.from('agents').upsert(agentRows)     : Promise.resolve(),
       taskRows.length    ? supabaseClient.from('tasks').upsert(taskRows)       : Promise.resolve(),
     ];
 
     const results=await Promise.all(upsertPromises);
     // Log any errors from batch upserts
     results.forEach((r,i)=>{
-      if(r?.error) console.warn(`Sync error [${['orphans','topics','projects','agents','tasks'][i]}]:`,r.error.message);
+      if(r?.error) console.warn(`Sync error [${['orphans','topics','projects','tasks'][i]}]:`,r.error.message);
     });
 
     console.log("✓ Synced to Supabase");
@@ -1557,24 +1301,18 @@ function projectTagHtml(pid){
   const r=parseInt(cs.slice(1,3),16)||60, g=parseInt(cs.slice(3,5),16)||70, b=parseInt(cs.slice(5,7),16)||160;
   return`<span class="tag" style="background:rgba(${r},${g},${b},.15);color:${c}">${escH(projectName(pid))}</span>`;
 }
-function agentChipHtml(aid){
-  const ag=db.agents.find(a=>a.id===aid);
-  if(!ag)return'';
-  return`<span style="margin-left:4px;display:inline-flex;vertical-align:middle;opacity:.8">${agentAvatarHtml(ag,10)}</span>`;
-}
 
-const PRIO_DOT_CLS = {high:'p-high',medium:'p-med',low:'p-low'};
 const STATUS_DOT_CLS = {
   backlog:'s-todo-dot',
   todo:'s-todo-dot',
   'in-progress':'s-inprog-dot',
   'doing':'s-inprog-dot',
-  review:'s-review-dot',
+
   done:'s-done-dot',
   failed:'s-failed-dot'
 };
-const STATUS_CLS   = {backlog:'s-backlog',todo:'s-todo','in-progress':'s-inprog',done:'s-done',failed:'s-failed',review:'s-review'};
-const STATUS_LABELS= {backlog:'To Do',todo:'To Do','in-progress':'Doing',done:'Done',failed:'Failed',review:'Review'};
+const STATUS_CLS   = {backlog:'s-backlog',todo:'s-todo','in-progress':'s-inprog',done:'s-done',failed:'s-failed'};
+const STATUS_LABELS= {backlog:'To Do',todo:'To Do','in-progress':'Doing',done:'Done',failed:'Failed'};
 function statusLabel(s){return STATUS_LABELS[s]||s}
 
 // Returns tasks visible to the current user: own tasks + explicitly activated friends
@@ -1618,7 +1356,7 @@ let collapsedTopics=new Set();
 let pendingSchedule={week:null,date:null};
 
 // Visual creator state
-let vcTopic='', vcProject='', vcStatus='todo', vcPriority='medium', vcDifficulty='medium-easy';
+let vcTopic='', vcProject='', vcStatus='todo', vcDifficulty='medium-easy', vcChecklist=[];
 let vcComments=[]; // [{id,text,createdAt,isFinal,attachments:[{name,type,data}]}]
 let vcChatPendingFiles=[]; // pending files for current draft (kept for compat)
 let vcFinalFiles=[]; // pending files for final comment in modal
@@ -1644,10 +1382,6 @@ let orgDragProject=null;
 let orgPickedColorIdx=0;
 // Project detail state
 let pdCalMode='done', pdCalYear=new Date().getFullYear(), pdCalMonth=new Date().getMonth(), pdSelDay=null, pdShowRemaining=false, pdShowDone=false;
-let agentImgData=null; // base64 or null
-let _agentEmoji='🤖';
-let _telegramLinks={}; // { [focusAgentId]: { ocAgentId, accountId, botUsername } }
-let _agentTgWanted=false; // desired telegram state inside modal
 
 // ─────────────────────────────────────────────
 // UTILITIES
@@ -1718,9 +1452,8 @@ function checkRecurring(){
     const exists=db.tasks.some(t=>t.fromTemplate===tmpl.id&&t.dueDate===today);
     if(!exists){
       const newTask={id:uuid(),title:tmpl.title,topic:tmpl.topic||'',project:tmpl.project||'',
-        status:'todo',priority:tmpl.priority||'medium',dueDate:today,scheduledDate:today,
+        status:'todo',dueDate:today,scheduledDate:today,
         scheduledWeek:getMondayOf(today),completedDate:null,notes:tmpl.notes||'',
-        assignedAgent:tmpl.assignedAgent||null,
         createdAt:new Date().toISOString(),fromTemplate:tmpl.id};
       db.tasks.push(newTask);
       // Insert recurring task immediately to Supabase
@@ -1730,16 +1463,13 @@ function checkRecurring(){
         topic: newTask.topic || null,
         project: newTask.project || null,
         status: newTask.status,
-        priority: newTask.priority,
+
         difficulty: 'medium-easy',
         due_date: newTask.dueDate || null,
         scheduled_date: newTask.scheduledDate || null,
         scheduled_week: newTask.scheduledWeek || null,
-        assigned_agent: newTask.assignedAgent || null,
         completed_date: newTask.completedDate || null,
         notes: newTask.notes || null,
-        requires_agent: false,
-        executing_agent_name: null,
         penalized: false,
         salary_credited: false,
         created_at: newTask.createdAt,
@@ -1764,11 +1494,11 @@ function checkPenalties(){
   const today=todayStr();
   let n=0,lost=0;
   db.tasks.forEach(t=>{
-    if(!t.scheduledDate||t.scheduledDate>=today||t.status==='done'||t.status==='review'||t.penalized)return;
+    if(!t.scheduledDate||t.scheduledDate>=today||t.status==='done'||t.penalized)return;
     t.penalized=true;
     const amount=DIFF_MONEY[t.difficulty]||0;
     db.penalties.push({id:uuid(),taskId:t.id,taskTitle:t.title,amount,
-      date:t.scheduledDate,topic:t.topic||'',project:t.project||'',difficulty:t.difficulty||'medium-easy',assignedAgent:t.assignedAgent});
+      date:t.scheduledDate,topic:t.topic||'',project:t.project||'',difficulty:t.difficulty||'medium-easy'});
     n++;lost+=amount;
   });
   if(n>0){saveData();showToast(`⚠ ${n} missed task${n>1?'s':''} — $${lost} lost`,3500);}
@@ -1793,13 +1523,6 @@ const VIEW_ITEMS=[
   {id:'recurring',icon:'↻',label:'Recurring'},
   {id:'calendar', icon:'◷',label:'Calendar'},
 ];
-
-function agentAvatarHtml(agent,size=26){
-  if(agent.photo){
-    return`<img src="${escH(agent.photo)}" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;flex-shrink:0">`;
-  }
-  return`<div style="width:${size}px;height:${size}px;border-radius:50%;background:var(--ac2);display:flex;align-items:center;justify-content:center;font-size:${Math.round(size*.5)}px;flex-shrink:0">${escH(agent.emoji||'🤖')}</div>`;
-}
 
 function renderSidebar(){
   const nav=document.getElementById('sidebar-nav');
@@ -1852,14 +1575,6 @@ function renderSidebar(){
     </div>`;
   }).join('');
 
-  // ── Agents section ──
-  const agentsActive=currentView==='agents';
-  const agentsSection=`<div style="border-top:1px solid var(--b1);margin:8px 0 0;padding-top:8px">
-    <button class="nav-item${agentsActive?' active':''}" onclick="switchView('agents')" style="padding-left:12px">
-      <span class="nav-item-icon">🤖</span>Agents
-      <span class="nav-cnt" style="margin-left:auto">${db.agents.length}</span>
-    </button>
-  </div>`;
 
   const addTopicBtn=`<button onclick="openAddTopicModal()"
     style="width:100%;margin-top:4px;padding:5px 10px;display:flex;align-items:center;gap:7px;background:none;border:1px dashed var(--b2);border-radius:7px;cursor:pointer;font-family:var(--fm);font-size:9px;color:var(--b3);letter-spacing:.06em;transition:all .12s"
@@ -1869,8 +1584,7 @@ function renderSidebar(){
   </button>`;
 
   nav.innerHTML=`<div style="margin-bottom:6px">${globalViews}</div>
-    <div style="border-top:1px solid var(--b1);padding-top:6px;margin-top:2px">${topicHtml}${addTopicBtn}</div>
-    ${agentsSection}`;
+    <div style="border-top:1px solid var(--b1);padding-top:6px;margin-top:2px">${topicHtml}${addTopicBtn}</div>`;
 
   // ── User area in sidebar ──
   const ua = document.getElementById('sb-user-area');
@@ -1975,9 +1689,9 @@ function updateHeader(){
   document.getElementById('mode-toggle').style.display='none';
   document.getElementById('static-title').style.display=isDaily?'none':'block';
   if(isDaily)document.getElementById('period-lbl').textContent=formatDateLong(selectedDay).toUpperCase();
-  const TITLES={projects:'Stats',weekly:'Weekly',planning:'Planning',recurring:'Recurring',calendar:'Calendar',stats:'Stats',organize:'Organize','project-detail':currentProjectId?projectName(currentProjectId):'Project','topic-detail':currentTopicId?topicLabel(currentTopicId):'Topic',agents:'Agents'};
+  const TITLES={projects:'Stats',weekly:'Weekly',planning:'Planning',recurring:'Recurring',calendar:'Calendar',stats:'Stats',organize:'Organize','project-detail':currentProjectId?projectName(currentProjectId):'Project','topic-detail':currentTopicId?topicLabel(currentTopicId):'Topic'};
   if(TITLES[currentView]){
-    const prefix=(activeTopic&&currentView!=='agents'&&currentView!=='project-detail')?(topicLabel(activeTopic)+' · '):'';
+    const prefix=(activeTopic&&currentView!=='project-detail')?(topicLabel(activeTopic)+' · '):'';
     document.getElementById('static-title').textContent=(prefix+TITLES[currentView]).toUpperCase();
   }
 }
@@ -1990,16 +1704,9 @@ function renderCurrentView(){
   else if(currentView==='recurring')renderRecurringView();
   else if(currentView==='calendar')renderCalendarView();
   else if(currentView==='stats')renderStatsView();
-  else if(currentView==='agents')renderAgents();
   else if(currentView==='organize')renderOrganize();
   else if(currentView==='project-detail')renderProjectDetail(currentProjectId);
   else if(currentView==='topic-detail')renderTopicDetail(currentTopicId);
-}
-
-function renderAgentBadge(agentId){
-  const ag=db.agents.find(x=>x.id===agentId);
-  if(!ag)return'';
-  return`<span class="tag" style="background:var(--s2);color:var(--wh);display:flex;align-items:center;padding:2px 4px;gap:4px;border:1px solid var(--b1)">${agentAvatarHtml(ag,12)} ${escH(ag.name)}</span>`;
 }
 
 // ─────────────────────────────────────────────
@@ -2022,13 +1729,12 @@ function taskCard(t,ctx){
     <div class="tc-meta">
       ${topicTagHtml(t.topic)}
       ${projectTagHtml(t.project)}
-      ${t.executingAgentName?`<span class="tag" style="background:rgba(90,120,152,.1);color:var(--ac);border:1px solid rgba(90,120,152,.2)">🤖 ${escH(t.executingAgentName)}</span>`
-        :t.requiresAgent?`<span class="tag" style="background:rgba(90,120,152,.15);color:var(--ac);border:1px solid rgba(90,120,152,.3)" title="Agent Execution Requested">🤖 Awaiting Agent...</span>`:''}
-      ${t.assignedAgent?renderAgentBadge(t.assignedAgent):t.person?`<span class="tag" style="background:var(--ac2);color:var(--wh)">@${escH(t.person)}</span>`:''}
+      ${t.person?`<span class="tag" style="background:var(--ac2);color:var(--wh)">@${escH(t.person)}</span>`:''}
       ${(()=>{const fu=t.userId&&t.userId!==currentUserId?allUsers.find(u=>u.id===t.userId):null;return fu?`<span class="tc-friend-badge">${userAvHtml(fu,14)}${escH(fu.username)}</span>`:''})()}
       ${ctx==='weekly'?`<span class="tag ${STATUS_CLS[effectiveStatus]||''}">${statusLabel(effectiveStatus)}</span>`:''}
       ${t.fromTemplate?`<span style="font-size:9px;color:var(--ac)">↻</span>`:''}
       ${t.difficulty&&t.difficulty!=='medium-easy'?`<span class="diff-badge diff-${t.difficulty}">${DIFF_LABELS[t.difficulty]||''}</span>`:''}
+      ${t.checklist && t.checklist.length > 0 ? `<span style="font-family:var(--fm);font-size:9px;color:var(--mu);margin-left:4px">🎯 ${t.checklist.filter(x=>x.done).length}/${t.checklist.length}</span>` : ''}
       <span class="prio-dot ${STATUS_DOT_CLS[effectiveStatus]||'s-todo-dot'}" style="margin-left:auto"></span>
       ${over?`<span style="font-size:9px;color:var(--red);font-family:var(--fm)">⚠ ${formatDate(t.dueDate)}</span>`:''}
     </div>
@@ -2155,14 +1861,12 @@ function renderTopicDetail(topicId){
         ${recentDone.map(t=>{
           const d=t.completedDate||t.scheduledDate||'';
           const dateLabel=d?new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
-          const ag=t.assignedAgent?db.agents.find(a=>a.id===t.assignedAgent):null;
           const proj=t.project?db.settings.projects.find(p=>p.id===t.project):null;
           const isFailed=t.status==='failed';
           return`<div class="pd-task-row" onclick="openVC('${t.id}')">
             <div style="font-family:var(--fm);font-size:8px;color:var(--mu);min-width:40px;flex-shrink:0">${dateLabel}</div>
             <div class="pd-task-title done" style="${isFailed?'color:var(--red)':''}">${isFailed?'✗ ':''}${escH(t.title)}</div>
             ${proj?`<span style="font-family:var(--fm);font-size:8px;background:var(--s3);color:var(--su);border-radius:4px;padding:2px 6px;flex-shrink:0;white-space:nowrap">${escH(proj.name)}</span>`:''}
-            ${ag?agentAvatarHtml(ag,16):''}
             <span style="font-family:var(--fm);font-size:9px;color:${isFailed?'var(--red)':'var(--grn)'};flex-shrink:0;min-width:28px;text-align:right">${isFailed?'-':'+'}\$${DIFF_MONEY[t.difficulty]||0}</span>
           </div>`;
         }).join('')}
@@ -2230,220 +1934,8 @@ function deleteTopic(id){
   showToast(`Topic "${label}" deleted`);
 }
 // ─────────────────────────────────────────────
-let currentAgentDetailId = null;
 
-function openAgentDetail(agentId){
-  currentAgentDetailId = agentId;
-  const ag = db.agents.find(a => a.id === agentId);
-  if(!ag) return;
-  const wrap = document.getElementById('view-content');
-  const ptasks = db.tasks.filter(t => t.assignedAgent === ag.id);
-  const done = ptasks.filter(t => t.status === 'done' || t.status === 'failed');
-  const active = ptasks.filter(t => ['todo','in-progress','review'].includes(t.status));
-  const earned = done.reduce((s,t) => s+(DIFF_MONEY[t.difficulty]||0), 0);
-  const lost = ptasks.filter(t=>t.penalized).reduce((s,t) => s+(DIFF_MONEY[t.difficulty]||0), 0);
-  const balance = earned - lost;
-  const tgLink = _telegramLinks[ag.id];
-  const ocAgentId = tgLink?.ocAgentId;
-  const botHandle = tgLink ? (tgLink.botUsername||tgLink.ocAgentId) : null;
 
-  wrap.innerHTML = `<div style="padding:20px 24px;height:100%;overflow-y:auto;display:flex;flex-direction:column;gap:14px;box-sizing:border-box">
-
-    <div style="display:flex;align-items:center;gap:10px">
-      <button onclick="currentAgentDetailId=null;renderAgents()"
-        style="font-family:var(--fm);font-size:9px;color:var(--su);background:none;border:1px solid var(--b1);padding:4px 10px;border-radius:6px;cursor:pointer;letter-spacing:.06em;transition:all .1s;flex-shrink:0"
-        onmouseover="this.style.color='var(--wh)';this.style.borderColor='var(--b2)'"
-        onmouseout="this.style.color='var(--su)';this.style.borderColor='var(--b1)'">← BACK</button>
-      <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
-        ${agentAvatarHtml(ag, 34)}
-        <div style="min-width:0">
-          <div style="font-family:var(--fm);font-size:13px;font-weight:700;color:var(--wh);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escH(ag.name)}</div>
-          ${botHandle ? `<div style="font-family:var(--fm);font-size:9px;color:var(--mu);margin-top:1px">✈️ @${escH(botHandle)}</div>` : '<div style="font-family:var(--fm);font-size:9px;color:var(--mu);margin-top:1px">no bot linked</div>'}
-        </div>
-      </div>
-      <button onclick="openAgentModal('${ag.id}')"
-        style="font-family:var(--fm);font-size:9px;color:var(--mu);background:none;border:1px solid var(--b1);padding:4px 10px;border-radius:6px;cursor:pointer;letter-spacing:.06em;flex-shrink:0;transition:all .1s"
-        onmouseover="this.style.color='var(--wh)';this.style.borderColor='var(--b2)'"
-        onmouseout="this.style.color='var(--mu)';this.style.borderColor='var(--b1)'">⚙ SETTINGS</button>
-    </div>
-
-    <div class="pd-section">
-      <div class="pd-section-title">PERFORMANCE</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">
-        <div style="text-align:center;padding:10px 6px;background:var(--s2);border-radius:8px;border:1px solid var(--b1)">
-          <div style="font-family:var(--fm);font-size:17px;font-weight:700;color:var(--grn)">+$${earned}</div>
-          <div style="font-family:var(--fm);font-size:8px;letter-spacing:.1em;color:var(--mu);margin-top:3px">EARNED</div>
-        </div>
-        <div style="text-align:center;padding:10px 6px;background:var(--s2);border-radius:8px;border:1px solid var(--b1)">
-          <div style="font-family:var(--fm);font-size:17px;font-weight:700;color:${balance>=0?'var(--wh)':'var(--red)'}">$${balance}</div>
-          <div style="font-family:var(--fm);font-size:8px;letter-spacing:.1em;color:var(--mu);margin-top:3px">BALANCE</div>
-        </div>
-        <div style="text-align:center;padding:10px 6px;background:var(--s2);border-radius:8px;border:1px solid var(--b1)">
-          <div style="font-family:var(--fm);font-size:17px;font-weight:700;color:var(--red)">-$${lost}</div>
-          <div style="font-family:var(--fm);font-size:8px;letter-spacing:.1em;color:var(--mu);margin-top:3px">LOST</div>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-        <div style="text-align:center;padding:8px 4px;background:var(--s2);border-radius:8px;border:1px solid var(--b1)">
-          <div style="font-family:var(--fm);font-size:15px;font-weight:700;color:var(--grn)">${done.length}</div>
-          <div style="font-family:var(--fm);font-size:8px;letter-spacing:.08em;color:var(--mu);margin-top:2px">DONE</div>
-        </div>
-        <div style="text-align:center;padding:8px 4px;background:var(--s2);border-radius:8px;border:1px solid var(--b1)">
-          <div style="font-family:var(--fm);font-size:15px;font-weight:700;color:var(--amb)">${active.length}</div>
-          <div style="font-family:var(--fm);font-size:8px;letter-spacing:.08em;color:var(--mu);margin-top:2px">ACTIVE</div>
-        </div>
-        <div style="text-align:center;padding:8px 4px;background:var(--s2);border-radius:8px;border:1px solid var(--b1)">
-          <div style="font-family:var(--fm);font-size:15px;font-weight:700;color:var(--grn)">${done.length}</div>
-          <div style="font-family:var(--fm);font-size:8px;letter-spacing:.08em;color:var(--mu);margin-top:2px">DONE</div>
-        </div>
-        <div style="text-align:center;padding:8px 4px;background:var(--s2);border-radius:8px;border:1px solid var(--b1)" title="Token tracking coming soon">
-          <div style="font-family:var(--fm);font-size:15px;font-weight:700;color:var(--mu)">—</div>
-          <div style="font-family:var(--fm);font-size:8px;letter-spacing:.08em;color:var(--mu);margin-top:2px">TOKENS</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="pd-section">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <div>
-          <div class="pd-section-title" style="margin-bottom:2px">AGENT IDENTITY</div>
-          <div style="font-family:var(--fm);font-size:9px;color:var(--b3)">${ocAgentId ? `IDENTITY.md — ${escH(ocAgentId)}` : 'Connect a bot to edit identity'}</div>
-        </div>
-        <div style="display:flex;gap:6px">
-          <button id="ad-edit-btn" onclick="adToggleIdentity('${ag.id}')"
-            style="font-family:var(--fm);font-size:9px;color:var(--mu);background:none;border:1px solid var(--b2);padding:4px 10px;border-radius:6px;cursor:pointer;letter-spacing:.06em;transition:all .12s"
-            onmouseover="this.style.borderColor='var(--ac)';this.style.color='var(--ac)'"
-            onmouseout="this.style.borderColor='var(--b2)';this.style.color='var(--mu)'">EDIT FILE</button>
-          <button id="ad-save-btn" onclick="adSaveIdentity('${ag.id}')"
-            style="display:none;font-family:var(--fm);font-size:9px;background:var(--ac);color:var(--wh);border:none;padding:4px 12px;border-radius:6px;cursor:pointer;letter-spacing:.06em">SAVE</button>
-        </div>
-      </div>
-      <div id="ad-editor" style="display:none">
-        <textarea id="ad-textarea" rows="18" spellcheck="false"
-          placeholder="${ocAgentId ? '' : 'No bot linked — connect a Telegram bot first.'}"
-          style="width:100%;background:#0d0f12;border:1px solid var(--b2);border-radius:8px;padding:10px 12px;font-family:'Space Mono',monospace;font-size:11px;color:#c9d1d9;resize:vertical;outline:none;line-height:1.6;box-sizing:border-box;transition:border-color .15s;tab-size:2"
-          onfocus="this.style.borderColor='var(--ac)'"
-          onblur="this.style.borderColor='var(--b2)'"
-        ></textarea>
-        <div id="ad-status" style="font-family:var(--fm);font-size:9px;color:var(--b3);margin-top:5px;min-height:14px"></div>
-      </div>
-    </div>
-
-  </div>`;
-}
-
-async function adToggleIdentity(agentId){
-  const editor=document.getElementById('ad-editor');
-  const btn=document.getElementById('ad-edit-btn');
-  const ta=document.getElementById('ad-textarea');
-  const saveBtn=document.getElementById('ad-save-btn');
-  if(!editor)return;
-  if(editor.style.display!=='none'){ editor.style.display='none'; btn.textContent='EDIT FILE'; return; }
-
-  const ag=db.agents.find(a=>a.id===agentId);
-  const ocAgentId=_telegramLinks[agentId]?.ocAgentId;
-  if(ag?.identityMd){
-    ta.value=ag.identityMd;
-  } else if(ocAgentId){
-    try{
-      const r=await fetch(`/api/identity-file/${encodeURIComponent(ocAgentId)}`);
-      const d=await r.json();
-      ta.value=d.content||'';
-    }catch(e){ ta.value=''; }
-  } else { ta.value=''; }
-
-  editor.style.display='block';
-  saveBtn.style.display='inline-block';
-  btn.textContent='COLLAPSE'; btn.disabled=false;
-  setTimeout(()=>ta.focus(),50);
-}
-
-async function adSaveIdentity(agentId){
-  const ta=document.getElementById('ad-textarea');
-  const statusEl=document.getElementById('ad-status');
-  const saveBtn=document.getElementById('ad-save-btn');
-  if(!ta)return;
-  const content=ta.value;
-  const ocAgentId=_telegramLinks[agentId]?.ocAgentId;
-
-  saveBtn.textContent='Saving…'; saveBtn.disabled=true; statusEl.textContent='';
-  try{
-    // 1. Save to Supabase agents table (requires identity_md column — see migration note)
-    const {error}=await supabaseClient.from('agents').update({identity_md: content}).eq('id', agentId);
-    if(error) throw new Error(error.message);
-    const ag=db.agents.find(a=>a.id===agentId);
-    if(ag) ag.identityMd=content;
-
-    // 2. Also persist to file + apply to bot (best-effort)
-    if(ocAgentId){
-      fetch(`/api/identity-file/${encodeURIComponent(ocAgentId)}`,{
-        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content})
-      }).catch(()=>{});
-    }
-
-    statusEl.textContent='✓ Saved to Supabase';
-    setTimeout(()=>{if(statusEl)statusEl.textContent='';},3000);
-  }catch(e){
-    statusEl.textContent='⚠ '+(e.message||'Error — run migration?');
-  }
-  finally{ saveBtn.textContent='SAVE'; saveBtn.disabled=false; }
-}
-
-function renderAgents(){
-  const wrap=document.getElementById('view-content');
-  if(db.agents.length===0){
-    wrap.innerHTML=`<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--mu)">
-      <div style="font-size:32px;margin-bottom:12px">🤖</div>
-      <div style="font-family:var(--fm);font-size:11px;letter-spacing:.08em">NO AI AGENTS YET</div>
-      <button onclick="openAgentModal()" style="margin-top:20px;padding:8px 16px;background:var(--ac);color:var(--wh);border:none;border-radius:6px;font-family:var(--fm);font-size:10px;cursor:pointer">+ CREATE FIRST AGENT</button>
-    </div>`;
-    return;
-  }
-  let html=`<div class="agents-wrap">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
-      <span style="font-family:var(--fm);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mu)">AI AGENTS</span>
-      <button onclick="openAgentModal()" style="font-family:var(--fm);font-size:9px;color:var(--ac);background:none;border:1px solid var(--b1);padding:4px 10px;border-radius:6px;cursor:pointer;letter-spacing:.06em;transition:all .1s" onmouseover="this.style.borderColor='var(--ac)'" onmouseout="this.style.borderColor='var(--b1)'">+ NEW AGENT</button>
-    </div>
-    <div class="agents-grid">`;
-  
-  db.agents.forEach(ag=>{
-    const ptasks=db.tasks.filter(t=>t.assignedAgent===ag.id);
-    const earned=ptasks.filter(t=>t.status==='done'||t.status==='failed').reduce((s,t)=>s+(DIFF_MONEY[t.difficulty]||0),0);
-    const lost=ptasks.filter(t=>t.penalized).reduce((s,t)=>s+(DIFF_MONEY[t.difficulty]||0),0);
-    const balance=earned-lost;
-    const activeTasks=ptasks.filter(t=>t.status==='todo'||t.status==='in-progress'||t.status==='review');
-
-    const tgLink=_telegramLinks[ag.id];
-    html+=`<div class="agent-card" onclick="openAgentDetail('${ag.id}')">
-      <div class="agent-card-top">
-        ${agentAvatarHtml(ag,38)}
-        <div style="flex:1;min-width:0">
-          <div class="agent-name">${escH(ag.name)}</div>
-          <div style="font-family:var(--fm);font-size:9px;color:var(--mu);margin-top:2px">${activeTasks.length} active tasks</div>
-          ${tgLink?`<div class="tg-badge">✈️ @${escH(tgLink.botUsername||tgLink.accountId)}</div>`:''}
-        </div>
-      </div>
-      <div class="agent-context">${escH(ag.context||'')}</div>
-      <div class="agent-stats-row">
-        <div class="agent-stat" style="color:var(--grn)">
-          <div class="agent-stat-val">+$${earned}</div>
-          <div class="agent-stat-lbl">EARNED</div>
-        </div>
-        <div class="agent-stat" style="color:var(--act);border-left:1px solid var(--b1)">
-          <div class="agent-stat-val">$${balance}</div>
-          <div class="agent-stat-lbl">BALANCE</div>
-        </div>
-        <div class="agent-stat" style="color:var(--red);border-left:1px solid var(--b1)">
-          <div class="agent-stat-val">-$${lost}</div>
-          <div class="agent-stat-lbl">LOST</div>
-        </div>
-      </div>
-    </div>`;
-  });
-  
-  html+=`</div></div>`;
-  wrap.innerHTML=html;
-}
 
 function renderOrganize(){
   const wrap=document.getElementById('view-content');
@@ -2636,268 +2128,6 @@ function orgDropProject(e,tid){
   renderSidebar();
   renderOrganize();
   orgDragProject=null;
-}
-
-function openAgentModal(id=null){
-  const ttl=document.getElementById('agent-modal-ttl');
-  const inpInp=document.getElementById('agent-id');
-  const inpNm=document.getElementById('agent-name');
-  const inpCtx=document.getElementById('agent-context');
-  const delBtn=document.getElementById('agent-del-btn');
-  const m=document.getElementById('agent-modal');
-  // Reset file input
-  const fi=document.getElementById('agent-photo-file'); if(fi) fi.value='';
-  if(id){
-    const a=db.agents.find(x=>x.id===id);
-    if(a){
-      ttl.textContent='Edit Agent';inpInp.value=id;
-      _agentEmoji=a.emoji||'🤖';
-      agentImgData=a.photo||null;
-      inpNm.value=a.name;inpCtx.value=a.context||'';delBtn.style.display='inline-block';
-    }
-  }else{
-    ttl.textContent='New Agent';inpInp.value='';
-    _agentEmoji='🤖'; agentImgData=null;
-    inpNm.value='';inpCtx.value='';delBtn.style.display='none';
-  }
-  // Telegram dropdown — load bots and set current selection
-  const tgSel=document.getElementById('agent-telegram-select');
-  tgSel.innerHTML='<option value="">— Not connected —</option>';
-  tgSel.disabled=true;
-  fetch('/api/telegram-bots').then(r=>r.json()).then(bots=>{
-    bots.forEach(b=>{
-      const opt=document.createElement('option');
-      opt.value=b.accountId;
-      opt.textContent=b.botUsername?`@${b.botUsername} (${b.accountId})`:b.accountId;
-      tgSel.appendChild(opt);
-    });
-    // Select current bot for this agent
-    const curLink=_telegramLinks[id];
-    if(curLink?.accountId) tgSel.value=curLink.accountId;
-    tgSel.disabled=false;
-    // Show/hide pairing trigger based on whether a bot is selected
-    tgUpdatePairingTrigger();
-  }).catch(()=>{ tgSel.disabled=false; });
-
-  updateAgentAvatarPreview();
-  m.style.display='flex';
-  document.getElementById('agent-avatar-preview').onclick = () => openEmojiPicker(val => {
-    _agentEmoji=val; agentImgData=null;
-    document.getElementById('agent-photo-remove').style.display='none';
-    updateAgentAvatarPreview();
-  });
-  setTimeout(()=>inpNm.focus(),10);
-}
-function closeAgentModal(){
-  document.getElementById('agent-modal').style.display='none';
-  tgHideAddBot();
-  tgHidePairing();
-}
-function tgShowAddBot(){
-  const f=document.getElementById('tg-add-form');
-  f.style.display='block';
-  document.getElementById('tg-add-btn').style.display='none';
-  setTimeout(()=>document.getElementById('tg-token-input').focus(),50);
-}
-function tgHideAddBot(){
-  const f=document.getElementById('tg-add-form');
-  if(f) f.style.display='none';
-  const btn=document.getElementById('tg-add-btn');
-  if(btn) btn.style.display='flex';
-  const inp=document.getElementById('tg-token-input');
-  if(inp) inp.value='';
-}
-async function tgRegisterBot(){
-  const token=document.getElementById('tg-token-input').value.trim();
-  if(!token){showToast('Paste the bot token first');return;}
-  const btn=document.querySelector('#tg-add-form button');
-  btn.textContent='Connecting…';btn.disabled=true;
-  try{
-    const r=await fetch('/api/add-telegram-bot',{method:'POST',
-      headers:{'Content-Type':'application/json'},body:JSON.stringify({token})});
-    const data=await r.json();
-    if(data.status!=='success'){showToast('⚠ '+data.message);return;}
-    // Add to dropdown and select it
-    const sel=document.getElementById('agent-telegram-select');
-    const opt=document.createElement('option');
-    opt.value=data.accountId;
-    opt.textContent=`@${data.botUsername} (${data.accountId})`;
-    sel.appendChild(opt);
-    sel.value=data.accountId;
-    tgHideAddBot();
-    tgUpdatePairingTrigger();
-    showToast(`✅ @${data.botUsername} added`);
-  }catch(e){
-    showToast('⚠ Connection error');
-  }finally{
-    btn.textContent='CONNECT BOT';btn.disabled=false;
-  }
-}
-function tgUpdatePairingTrigger(){
-  const sel=document.getElementById('agent-telegram-select');
-  const trigger=document.getElementById('tg-pair-trigger');
-  if(!sel||!trigger)return;
-  trigger.style.display=sel.value?'block':'none';
-}
-function tgShowPairing(){
-  document.getElementById('tg-pair-trigger').style.display='none';
-  const f=document.getElementById('tg-pair-form');
-  f.style.display='block';
-  setTimeout(()=>document.getElementById('tg-pair-code').focus(),50);
-}
-function tgHidePairing(){
-  document.getElementById('tg-pair-form').style.display='none';
-  tgUpdatePairingTrigger();
-  document.getElementById('tg-pair-code').value='';
-}
-async function tgApproveCode(){
-  const code=document.getElementById('tg-pair-code').value.trim();
-  if(!code){showToast('Enter the pairing code first');return;}
-  const btn=document.querySelector('#tg-pair-form button');
-  btn.textContent='…';btn.disabled=true;
-  try{
-    const r=await fetch('/api/pairing-approve',{method:'POST',
-      headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
-    const data=await r.json();
-    if(data.status!=='success'){showToast('⚠ '+data.message);return;}
-    tgHidePairing();
-    showToast('✅ Pairing approved — bot is ready');
-  }catch(e){
-    showToast('⚠ Connection error');
-  }finally{
-    btn.textContent='APPROVE';btn.disabled=false;
-  }
-}
-function updateAgentAvatarPreview(){
-  const prev=document.getElementById('agent-avatar-preview');
-  prev.innerHTML=agentAvatarHtml({emoji:_agentEmoji,photo:agentImgData},56);
-  const removeBtn=document.getElementById('agent-photo-remove');
-  if(removeBtn) removeBtn.style.display=agentImgData?'inline-block':'none';
-}
-function agentLoadPhoto(input){
-  const file=input.files[0]; if(!file)return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    agentImgData=ev.target.result;
-    updateAgentAvatarPreview();
-  };
-  reader.readAsDataURL(file);
-}
-function agentRemovePhoto(){
-  agentImgData=null;
-  const fi=document.getElementById('agent-photo-file'); if(fi) fi.value='';
-  updateAgentAvatarPreview();
-}
-function saveAgent(){
-  let id=document.getElementById('agent-id').value;
-  const nm=document.getElementById('agent-name').value.trim();
-  const ctx=document.getElementById('agent-context').value.trim();
-  if(!nm)return showToast('Agent needs a name');
-  if(id){
-    const a=db.agents.find(x=>x.id===id);
-    if(a){a.name=nm;a.emoji=_agentEmoji;a.photo=agentImgData||null;a.context=ctx;}
-    // Update agent in Supabase
-    const agentData = {
-      name: nm,
-      emoji: _agentEmoji || '🤖',
-      photo_url: agentImgData || null
-    };
-    supabaseClient.from('agents').update(agentData).eq('id',id).then(({error})=>{
-      if(error)console.error('❌ Failed to update agent in Supabase:',error);
-      else console.log('✓ Updated agent in Supabase:',id);
-    });
-  }else{
-    const newId=uuid();
-    const newAgent={id:newId,name:nm,emoji:_agentEmoji,photo:agentImgData||null,context:ctx};
-    db.agents.push(newAgent);
-    // Insert new agent immediately to Supabase
-    const agentData = {
-      id: newId,
-      name: nm,
-      emoji: _agentEmoji || '🤖',
-      photo_url: agentImgData || null,
-      daily_salary: null,
-      is_pm: false,
-      managed_project: null
-    };
-    supabaseClient.from('agents').insert(agentData).then(({error, data})=>{
-      if(error){
-        console.error('❌ Failed to insert agent to Supabase:',error);
-        console.error('Agent data sent:',agentData);
-      }else{
-        console.log('✓ Inserted agent to Supabase:',newId, data);
-      }
-    });
-  }
-  // Handle Telegram link/unlink
-  const tgSel=document.getElementById('agent-telegram-select');
-  const selectedAccountId=tgSel?tgSel.value:'';
-  const savedId=id||document.getElementById('agent-id').value;
-  const prevLink=_telegramLinks[savedId];
-  const prevAccountId=prevLink?.accountId||null;
-
-  // Helper: push identity to OpenClaw for a given ocAgentId
-  function applyIdentity(ocAgentId, overrideName, overrideEmoji, overridePersona, overrideProjId, overrideProjName){
-    const agName = overrideName || nm;
-    const agEmoji = overrideEmoji || _agentEmoji;
-    const agPersona = overridePersona !== undefined ? overridePersona : ctx;
-    // Read managedProject from the in-memory agent (set by PM assignment flow)
-    const focusAgent = db.agents.find(a => {
-      const link = Object.values(_telegramLinks).find(l => l.ocAgentId === ocAgentId);
-      return link && a.id === Object.keys(_telegramLinks).find(k => _telegramLinks[k].ocAgentId === ocAgentId);
-    });
-    const projId = overrideProjId !== undefined ? overrideProjId : (focusAgent?.managedProject || null);
-    const projName = overrideProjName !== undefined ? overrideProjName
-      : (projId ? (db.settings.projects||[]).find(p=>p.id===projId)?.name || projId : null);
-    fetch('/api/set-agent-identity',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ocAgentId, name:agName, emoji:agEmoji, persona:agPersona,
-        lockedProjectId: projId, lockedProjectName: projName})})
-      .then(r=>r.json())
-      .then(d=>{ if(d.status==='success') console.log('✓ Identity applied to',ocAgentId); else console.warn('⚠ Identity error:',d.message); })
-      .catch(e=>console.warn('⚠ Identity fetch error:',e));
-  }
-
-  if(selectedAccountId && selectedAccountId!==prevAccountId){
-    const opt=tgSel.options[tgSel.selectedIndex];
-    const botUsername=(opt.textContent.match(/@(\w+)/)||[])[1]||null;
-    fetch('/api/link-telegram',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({agentId:savedId,agentName:nm,accountId:selectedAccountId,botUsername})})
-      .then(r=>r.json()).then(data=>{
-        if(data.status==='success'){
-          _telegramLinks[savedId]={ocAgentId:data.ocAgentId,accountId:selectedAccountId,botUsername};
-          if(currentView==='agents')renderAgents();
-          applyIdentity(data.ocAgentId);
-          showToast(`✈️ @${botUsername} → OpenClaw agent "${data.ocAgentId}"`);
-        } else showToast('⚠ '+data.message);
-      }).catch(()=>showToast('⚠ Telegram link failed'));
-  }else if(selectedAccountId && selectedAccountId===prevAccountId && prevLink?.ocAgentId){
-    // Bot unchanged but name/emoji/persona may have changed — re-apply identity
-    applyIdentity(prevLink.ocAgentId);
-  }else if(!selectedAccountId && prevAccountId){
-    fetch('/api/unlink-telegram',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({agentId:savedId})})
-      .then(()=>{ delete _telegramLinks[savedId]; if(currentView==='agents')renderAgents(); });
-  }
-
-  saveData();closeAgentModal();
-  if(currentView==='agents')renderAgents();
-  else if(currentView==='planning')renderPlanning();
-  showToast('Agent saved');
-  renderSidebar();
-}
-function deleteAgent(){
-  let id=document.getElementById('agent-id').value;
-  db.agents=db.agents.filter(a=>a.id!==id);
-  db.tasks.forEach(t=>{if(t.assignedAgent===id)t.assignedAgent=null;});
-  // Delete from Supabase immediately
-  supabaseClient.from('agents').delete().eq('id',id).then(({error})=>{
-    if(error)console.error('❌ Failed to delete agent from Supabase:',error);
-    else console.log('✓ Deleted agent from Supabase:',id);
-  });
-  saveData();closeAgentModal();
-  if(currentView==='agents')renderAgents();
-  renderSidebar();
-  showToast('Agent deleted');
 }
 
 // ─────────────────────────────────────────────
@@ -3127,17 +2357,6 @@ function renderProjectDetail(projId){
 
     <div class="pd-body">
 
-      <!-- Stats bar with month period -->
-      <div class="pd-section" style="padding:14px 18px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-          <div style="font-family:var(--fm);font-size:10px;letter-spacing:.12em;color:var(--mu)">PROJECT MANAGER</div>
-          <button id="pd-pm-btn" style="font-family:var(--fm);font-size:9px;color:var(--ac);background:none;border:1px solid var(--b1);padding:4px 10px;border-radius:6px;cursor:pointer;letter-spacing:.06em">+ HIRE PM</button>
-        </div>
-        <div id="pd-pm-info" style="display:none;background:rgba(90,120,152,.08);border:1px solid var(--b2);border-radius:10px;padding:12px;margin-top:8px">
-          <!-- Populated by JS -->
-        </div>
-      </div>
-
       <!-- Project Instructions for this project -->
       <div class="pd-section" style="padding:14px 18px" id="pd-identity-section">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -3164,7 +2383,7 @@ function renderProjectDetail(projId){
           <textarea id="pd-identity-textarea"
             rows="16"
             spellcheck="false"
-            placeholder="No project instructions yet. Create projects/${projId}.md to define agent scope, folder access, and workflows."
+            placeholder="No project instructions yet. Define workflows."
             style="width:100%;background:#0d0f12;border:1px solid var(--b2);border-radius:8px;padding:10px 12px;font-family:'Space Mono',monospace;font-size:11px;color:#c9d1d9;resize:vertical;outline:none;line-height:1.6;box-sizing:border-box;transition:border-color .15s;tab-size:2"
             onfocus="this.style.borderColor='var(--ac)'"
             onblur="this.style.borderColor='var(--b2)'"
@@ -3351,7 +2570,6 @@ function renderProjectDetail(projId){
                     onclick="openVC('${t.id}')"
                     style="cursor:grab">
                     <span style="font-size:11px;color:var(--b3);flex-shrink:0;cursor:grab">⠿</span>
-                    <span class="prio-dot ${PRIO_DOT_CLS[t.priority]||'p-low'}"></span>
                     <span class="pd-task-title">${escH(t.title)}</span>
                     ${t.difficulty?`<span class="diff-badge diff-${t.difficulty}" style="flex-shrink:0">${DIFF_LABELS[t.difficulty]}</span>`:''}
                     <span class="tag ${STATUS_CLS[t.status]||''}" style="flex-shrink:0">${statusLabel(t.status)}</span>
@@ -3378,8 +2596,7 @@ function renderProjectDetail(projId){
                   ${pdCalMode==='done'
                     ?`<span style="font-size:10px;color:var(--grn)">✓</span>`
                     :`<span style="font-size:11px;color:var(--b3);flex-shrink:0;cursor:grab">⠿</span>
-                      <span class="prio-dot ${PRIO_DOT_CLS[t.priority]||'p-low'}"></span>`}
-                  <span class="pd-task-title${pdCalMode==='done'?' done':''}">${escH(t.title)}</span>
+                      <span class="pd-task-title${pdCalMode==='done'?' done':''}">${escH(t.title)}</span>`}
                   ${t.difficulty?`<span class="diff-badge diff-${t.difficulty}" style="flex-shrink:0">${DIFF_LABELS[t.difficulty]}</span>`:''}
                   ${pdCalMode==='done'
                     ?`<span style="font-family:var(--fm);font-size:10px;font-weight:700;color:var(--grn);flex-shrink:0">+$${DIFF_MONEY[t.difficulty]||0}</span>`
@@ -3411,41 +2628,6 @@ function renderProjectDetail(projId){
 
     </div>
   </div>`;
-
-  // NOW set up the PM section after HTML is rendered
-  const pmAgent=db.agents.find(a=>a.isPm && a.managedProject===projId);
-  const pmBtn=document.getElementById('pd-pm-btn');
-  const pmInfo=document.getElementById('pd-pm-info');
-  console.log('PM Section - projId:', projId, 'pmAgent:', pmAgent?.name, 'pmBtn exists:', !!pmBtn, 'pmInfo exists:', !!pmInfo);
-
-  if(pmAgent && pmInfo && pmBtn){
-    pmBtn.textContent='MANAGE PM';
-    pmBtn.style.display='none';
-    pmInfo.style.display='flex';
-    pmInfo.style.alignItems='center';
-    pmInfo.style.gap='10px';
-    pmInfo.innerHTML=`
-      ${agentAvatarHtml(pmAgent,32)}
-      <div style="flex:1">
-        <div style="font-family:var(--fm);font-size:11px;font-weight:700;color:var(--wh)">${escH(pmAgent.name)}</div>
-        <div style="font-family:var(--fm);font-size:9px;color:var(--mu)">Project Manager · Active</div>
-      </div>
-      <button onclick="pdTogglePM('${projId}')" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:14px">⚙</button>
-    `;
-  } else if(pmInfo && pmBtn) {
-    pmBtn.textContent='+ HIRE PM';
-    pmBtn.style.display='block';
-    pmInfo.style.display='none';
-    // Remove any existing listeners and set new one
-    pmBtn.removeEventListener('click', pmBtn._pmClickHandler);
-    pmBtn._pmClickHandler = () => {
-      console.log('Opening PM modal for project:', projId);
-      pdTogglePM(projId);
-    };
-    pmBtn.addEventListener('click', pmBtn._pmClickHandler);
-  } else {
-    console.warn('PM elements not found - pmBtn:', !!pmBtn, 'pmInfo:', !!pmInfo);
-  }
 }
 
 // ─────────────────────────────────────────────
@@ -3507,9 +2689,8 @@ function renderWeekly(){
         ${weekDates.map(d=>{
           const isToday=d===today;
           const doingT=tasks.filter(t=>t.scheduledDate===d&&t.status==='in-progress');
-          const reviewT=tasks.filter(t=>t.scheduledDate===d&&t.status==='review');
           const doneT=tasks.filter(t=>t.scheduledDate===d&&t.status==='done');
-          const total=doingT.length+reviewT.length+doneT.length;
+          const total=doingT.length+doneT.length;
           return`<div style="flex-shrink:0;width:380px;display:flex;flex-direction:column">
             <div class="col-hdr">
               <div class="col-hdr-left">
@@ -3523,7 +2704,7 @@ function renderWeekly(){
                 <button class="col-add" onclick="event.stopPropagation();openVC(null,'in-progress','${d}')">+</button>
               </div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;flex:1">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;flex:1">
               <div style="display:flex;flex-direction:column">
                 <div style="font-family:var(--fm);font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:#7090e0;padding:3px 4px 5px;display:flex;align-items:center;gap:4px">
                   Doing <span class="col-cnt">${doingT.length}</span>
@@ -3535,16 +2716,6 @@ function renderWeekly(){
                   ${doingT.length===0?`<div class="empty-col" style="font-size:8px">DROP</div>`:doingT.map(t=>taskCard(t,'weekly')).join('')}
                 </div>
               </div>
-              <div style="display:flex;flex-direction:column">
-                <div style="font-family:var(--fm);font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:#c080ff;padding:3px 4px 5px;display:flex;align-items:center;gap:4px">
-                  Review <span class="col-cnt">${reviewT.length}</span>
-                </div>
-                <div id="wpd-${d}-review" class="day-col drop-zone" style="border-top-color:#c080ff;min-height:120px;padding:6px;background:rgba(180,100,250,.03)"
-                  ondragover="dzOver(event,'${d}|review','weekly-progress')"
-                  ondrop="dzDrop(event,'${d}|review','weekly-progress')"
-                  ondragleave="dzLeave(event)">
-                  ${reviewT.length===0?`<div class="empty-col" style="font-size:8px">DROP</div>`:reviewT.map(t=>taskCard(t,'weekly')).join('')}
-                </div>
               </div>
               <div style="display:flex;flex-direction:column">
                 <div style="font-family:var(--fm);font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--grn);padding:3px 4px 5px;display:flex;align-items:center;gap:4px">
@@ -3678,13 +2849,11 @@ function renderDailyFilterBar(){
 
   const todoTasks=tasks.filter(t=>t.status==='todo'||t.status==='backlog');
   const doingTasks=tasks.filter(t=>t.status==='in-progress');
-  const reviewTasks=tasks.filter(t=>t.status==='review');
   const doneTasks=tasks.filter(t=>t.status==='done'||t.status==='failed');
 
   const cols=[
     {id:'todo',       label:'TO-DO',  accent:'var(--red)', border:'var(--red)', tasks:todoTasks},
     {id:'in-progress',label:'DOING',  accent:'#7090e0',    border:'#7090e0',    tasks:doingTasks},
-    {id:'review',      label:'REVIEW', accent:'#c080ff',    border:'#c080ff',    tasks:reviewTasks},
     {id:'done',       label:'DONE',   accent:'var(--grn)', border:'var(--grn)', tasks:doneTasks},
   ];
   document.getElementById('view-content').innerHTML=`
@@ -3738,18 +2907,17 @@ const _PLAN_STATUS_BORDER={
   todo:'rgba(220,75,75,.6)',
   'in-progress':'rgba(112,144,224,.7)',
   doing:'rgba(112,144,224,.7)',
-  review:'rgba(192,128,255,.7)',
+
   done:'rgba(88,192,144,.7)',
   failed:'rgba(88,192,144,.7)'
 };
 function planChipHtml(t){
   const bc=_PLAN_STATUS_BORDER[t.status]||'rgba(130,130,160,.45)';
   const topicDot=t.topic?getTopicMeta(t.topic).dot:'#6070a0';
-  const agentInfo = t.executingAgentName ? ` 🤖 ${t.executingAgentName}` : (t.requiresAgent ? ' 🤖...' : '');
   const isFriend=!!(t.userId&&t.userId!==currentUserId&&myFriendIds.includes(t.userId));
   const fu=isFriend?allUsers.find(u=>u.id===t.userId):null;
   const dragClick=isFriend?`style="cursor:default;opacity:.82;border-color:${bc}"`:`draggable="true" ondragstart="dzStart(event,'${t.id}')" onclick="openVC('${t.id}')" style="border-color:${bc}"`;
-  return`<div ${dragClick} class="plan-chip"><span style="width:6px;height:6px;border-radius:50%;background:${topicDot};flex-shrink:0"></span>${escH(t.title)}${t.project?`<span style="opacity:.45;margin-left:3px;font-size:0.88em">@${escH(projectName(t.project))}</span>`:''}<span style="font-size:8px;color:var(--ac);margin-left:4px;font-weight:700">${agentInfo}</span>${agentChipHtml(t.assignedAgent)}${fu?`<span class="tc-friend-badge" style="margin-left:4px">${userAvHtml(fu,12)}${escH(fu.username)}</span>`:''}</div>`;
+  return`<div ${dragClick} class="plan-chip"><span style="width:6px;height:6px;border-radius:50%;background:${topicDot};flex-shrink:0"></span>${escH(t.title)}${t.project?`<span style="opacity:.45;margin-left:3px;font-size:0.88em">@${escH(projectName(t.project))}</span>`:''}${fu?`<span class="tc-friend-badge" style="margin-left:4px">${userAvHtml(fu,12)}${escH(fu.username)}</span>`:''}</div>`;
 }
 
 function getPlanFiltered(){
@@ -3801,7 +2969,7 @@ function renderPlanFilterBar(){
     {id:null,     label:'All',      color:'var(--su)',  dot:'#8898b0'},
     {id:'todo',   label:'To-Do',    color:'var(--red)', dot:'var(--red)'},
     {id:'in-progress',label:'Doing',color:'#7090e0',   dot:'#7090e0'},
-    {id:'review', label:'Review',   color:'#c080ff',    dot:'#c080ff'},
+
     {id:'done',   label:'Done',     color:'var(--grn)', dot:'var(--grn)'},
   ];
   const statusChips=statusDefs.map(s=>{
@@ -3873,7 +3041,7 @@ function renderPlanning(){
                 <div class="tc-title" style="flex:1;margin-bottom:0">${escH(t.title)}</div>
                 <button class="plan-quick-today" onclick="event.stopPropagation();planAssignToday('${t.id}')">→ Today</button>
               </div>
-              <div class="tc-meta" style="padding-left:21px">${topicTagHtml(t.topic)}${projectTagHtml(t.project)}${t.assignedAgent?renderAgentBadge(t.assignedAgent):''}<span class="prio-dot ${STATUS_DOT_CLS[t.status]||'s-todo-dot'}" style="margin-left:auto"></span></div>
+              <div class="tc-meta" style="padding-left:21px">${topicTagHtml(t.topic)}${projectTagHtml(t.project)}<span class="prio-dot ${STATUS_DOT_CLS[t.status]||'s-todo-dot'}" style="margin-left:auto"></span></div>
             </div>`;}).join('')}
           <button onclick="openVC()" style="width:100%;margin-top:6px;border:1px dashed var(--b2);background:none;border-radius:8px;padding:8px;font-family:var(--fm);font-size:9px;color:var(--b3);cursor:pointer;letter-spacing:.08em;transition:color .1s"
             onmouseover="this.style.color='var(--su)'" onmouseout="this.style.color='var(--b3)'">+ NEW TASK</button>
@@ -3987,12 +3155,11 @@ function renderAllTasks(){
           <th onclick="sortAll('status')" style="width:90px">STATUS${si('status')}</th>
           <th onclick="sortAll('topic')" style="width:100px">TOPIC${si('topic')}</th>
           <th onclick="sortAll('project')" style="width:110px">PROJECT${si('project')}</th>
-          <th onclick="sortAll('executingAgentName')" style="width:110px">AGENT${si('executingAgentName')}</th>
-          <th onclick="sortAll('priority')" style="width:60px">PRIO${si('priority')}</th>
+
           <th onclick="sortAll('dueDate')" style="width:80px">DUE${si('dueDate')}</th>
         </tr></thead>
         <tbody>
-          ${sorted.length===0?`<tr><td colspan="7" class="empty-state" style="padding:40px">NO TASKS YET</td></tr>`
+          ${sorted.length===0?`<tr><td colspan="6" class="empty-state" style="padding:40px">NO TASKS YET</td></tr>`
             :sorted.map(t=>{
               const done=t.status==='done';const over=t.dueDate&&t.dueDate<todayStr()&&!done;
               const m=getTopicMeta(t.topic);
@@ -4001,8 +3168,7 @@ function renderAllTasks(){
                 <td><span class="tag ${STATUS_CLS[t.status]||''}">${statusLabel(t.status)}</span></td>
                 <td>${topicTagHtml(t.topic)||`<span style="color:var(--b3)">—</span>`}</td>
                 <td style="color:var(--su);font-size:11px">${t.project?escH(projectName(t.project)):`<span style="color:var(--b3)">—</span>`}</td>
-                <td style="color:var(--ac);font-size:10px;font-family:var(--fm)">${t.executingAgentName?`🤖 ${escH(t.executingAgentName)}`: (t.requiresAgent?'🤖...':'—')}</td>
-                <td><span class="prio-dot ${PRIO_DOT_CLS[t.priority]||'p-low'}" style="display:inline-block"></span></td>
+
                 <td style="font-family:var(--fm);font-size:9px;color:${over?'var(--red)':'var(--su)'}">${t.dueDate?formatDate(t.dueDate):`<span style="color:var(--b3)">—</span>`}</td>
               </tr>`;
             }).join('')}
@@ -4032,9 +3198,6 @@ function renderRecurringView(){
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
             ${topicTagHtml(tmpl.topic)}
             ${tmpl.project?`<span class="tag" style="background:rgba(255,255,255,.06);color:var(--su)">${escH(projectName(tmpl.project))}</span>`:''}
-            ${(()=>{const ag=tmpl.assignedAgent?db.agents.find(a=>a.id===tmpl.assignedAgent):null;
-              return ag?`<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.05);border:1px solid var(--b2);border-radius:99px;padding:2px 7px 2px 3px;font-family:var(--fm);font-size:9px;color:var(--su)">${agentAvatarHtml(ag,14)}<span>${escH(ag.name)}</span></span>`:'';
-            })()}
           </div>
         </div>
         <div style="display:flex;gap:4px;flex-shrink:0">
@@ -4092,10 +3255,6 @@ function dzStart(e,id,source=''){
 
   // Slight fade on the source card while dragging (not over a target)
   setTimeout(()=>{if(dragEl)dragEl.style.opacity='0.45';},0);
-  // Show assign dropzone if in planning view AND there are agents
-  if(currentView==='planning' && db.agents && db.agents.length>0){
-    document.getElementById('assign-dz').style.display='flex';
-  }
   // Show failed zone when dragging in daily view
   if(currentView==='daily'){
     const fz=document.getElementById('col-failed-dz');
@@ -4154,8 +3313,7 @@ function dzDropFailed(e){
 function dzDrop(e,colId,ctx){
   e.preventDefault();e.stopPropagation();
   e.currentTarget.classList.remove('drag-over');
-  document.getElementById('assign-dz').style.display='none';
-  ['todo','in-progress','done','review'].forEach(id=>{const el=document.getElementById('col-trash-'+id);if(el)el.style.display='none';});
+  ['todo','in-progress','done'].forEach(id=>{const el=document.getElementById('col-trash-'+id);if(el)el.style.display='none';});
   if(!dragTaskId){console.log('❌ dzDrop: no dragTaskId');return;}
   const t=db.tasks.find(x=>x.id===dragTaskId);
   if(!t){console.log('❌ dzDrop: task not found for id',dragTaskId);dragTaskId=null;return;}
@@ -4170,10 +3328,6 @@ function dzDrop(e,colId,ctx){
     saveData();
     renderCurrentView();
     showToast(`"${title}" deleted`);return;
-  }
-  if(ctx==='assign'){
-    const tid=dragTaskId;dragTaskId=null;
-    openAssignModal(tid);return;
   }
   if(ctx==='weekly-status'){
     t.status=colId;
@@ -4291,7 +3445,6 @@ function openVC(taskId=null,defaultStatus=null,defaultScheduledDate=null){
     const vcDelBtn = document.getElementById('vc-del-btn');
     const vcRecurBtn = document.getElementById('vc-recur-btn');
     const vcModeLbl = document.getElementById('vc-mode-lbl');
-    const vcReqAgent = document.getElementById('vc-req-agent');
 
     if(taskId){
       const t=db.tasks.find(x=>x.id===taskId);if(!t)return;
@@ -4303,8 +3456,8 @@ function openVC(taskId=null,defaultStatus=null,defaultScheduledDate=null){
       if(vcRecurBtn) vcRecurBtn.style.display=t.fromTemplate?'none':'inline-block';
       if(vcModeLbl) vcModeLbl.textContent='EDIT TASK';
       
-      vcTopic=t.topic||'';vcProject=t.project||'';vcStatus=t.status||'todo';vcPriority=t.priority||'medium';vcDifficulty=t.difficulty||'medium-easy';
-      if(vcReqAgent) vcReqAgent.checked=t.requiresAgent||false;
+      vcTopic=t.topic||'';vcProject=t.project||'';vcStatus=t.status||'todo';vcDifficulty='medium-easy';
+      vcChecklist=t.checklist?JSON.parse(JSON.stringify(t.checklist)):[];
       vcComments=JSON.parse(JSON.stringify(t.comments||[]));vcChatPendingFiles=[];vcCpPendingFiles=[];
       const existingFinal=(t.comments||[]).find(c=>c.isFinal);
       vcFinalFiles=existingFinal?JSON.parse(JSON.stringify(existingFinal.attachments||[])):[];
@@ -4318,16 +3471,15 @@ function openVC(taskId=null,defaultStatus=null,defaultScheduledDate=null){
       if(vcRecurBtn) vcRecurBtn.style.display='none';
       if(vcModeLbl) vcModeLbl.textContent='NEW TASK';
       
-      vcTopic=activeTopic||'';vcProject='';vcStatus=defaultStatus||'todo';vcPriority='medium';vcDifficulty='medium-easy';
-      if(vcReqAgent) vcReqAgent.checked=false;
+      vcTopic=activeTopic||'';vcProject='';vcStatus=defaultStatus||'todo';vcDifficulty='medium-easy';
+      vcChecklist=[];
       vcComments=[];vcChatPendingFiles=[];vcFinalFiles=[];vcCpPendingFiles=[];
       _resetFinalTextarea('');
     }
     // Reset chat panel
     vcChatPanelOpen=false;
-    const cp=document.getElementById('vc-chat-panel');if(cp)cp.style.display='none';
     renderVCPickers();
-    _vcUpdateFinalSection();
+    renderVCChecklist();
     const overlay = document.getElementById('vc-overlay');
     if(overlay) overlay.style.display='flex';
     setTimeout(()=> { if(vcTitle) vcTitle.focus(); },60);
@@ -4385,7 +3537,6 @@ function renderVCPickers(){
   const statuses=[
     {id:'todo',label:'To Do'},
     {id:'in-progress',label:'Doing'},
-    {id:'review',label:'Review'},
     {id:'done',label:'Done'}
   ];
   if (vcStatus === 'failed' || vcStatus === 'backlog') {
@@ -4394,9 +3545,7 @@ function renderVCPickers(){
   document.getElementById('vc-status-picker').innerHTML=statuses.map(s=>`
     <button class="opt-btn${vcStatus===s.id?' sel':''}" onclick="vcPickStatus('${s.id}')">${s.label}</button>`).join('');
 
-  // ── Priority picker ──
-  document.getElementById('vc-prio-picker').innerHTML=[{id:'high',label:'High'},{id:'medium',label:'Med'},{id:'low',label:'Low'}].map(p=>`
-    <button class="opt-btn${vcPriority===p.id?' sel':''}" onclick="vcPickPrio('${p.id}')">${p.label}</button>`).join('');
+
 
   // ── Difficulty picker ──
   document.getElementById('vc-diff-picker').innerHTML=Object.entries(DIFF_LABELS).map(([id,label])=>{
@@ -4459,77 +3608,10 @@ function renderVCFinalPending(){
   const el=document.getElementById('vc-final-pending');
   if(el)el.innerHTML=_pendingHtml(vcFinalFiles,'vcFinalRemoveFile');
 }
-function _vcUpdateFinalSection(){
-  const btn=document.getElementById('vc-chat-open-btn');if(!btn)return;
-  const show=vcStatus==='review'||vcStatus==='done'||vcStatus==='failed'||vcComments.length>0;
-  btn.style.display=show?'flex':'none';
-  // Badge: highlight when there are messages
-  const nonFinal=vcComments.filter(c=>!c.isFinal);
-  btn.style.borderColor=nonFinal.length>0?'var(--ac)':'var(--b2)';
-  btn.style.color=nonFinal.length>0?'var(--ac)':'var(--mu)';
-  btn.title=nonFinal.length>0?`Review Chat (${nonFinal.length} message${nonFinal.length>1?'s':''})`:'Open Review Chat';
-}
+
 
 // ── Chat panel (side) ──
-function toggleVCChatPanel(){
-  vcChatPanelOpen=!vcChatPanelOpen;
-  const panel=document.getElementById('vc-chat-panel');
-  if(panel)panel.style.display=vcChatPanelOpen?'flex':'none';
-  if(vcChatPanelOpen){
-    renderVCChatPanel();
-    renderVCFinalPending();
-    setTimeout(()=>document.getElementById('vc-cp-inp')?.focus(),80);
-  }
-  _vcUpdateFinalSection();
-}
-function renderVCChatPanel(){
-  const list=document.getElementById('vc-cp-list');if(!list)return;
-  const nonFinal=vcComments.filter(c=>!c.isFinal);
-  if(nonFinal.length===0){
-    list.innerHTML=`<div style="font-family:var(--fm);font-size:9px;color:var(--mu);padding:8px 0">No messages yet. Start the conversation.</div>`;
-  }else{
-    list.innerHTML=vcComments.map((c,i)=>{
-      if(c.isFinal)return'';
-      const dateStr=new Date(c.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
-      return`<div class="vc-cp-msg">
-        <button class="vc-cp-del" onclick="vcCpDelete(${i})">✕</button>
-        <div class="vc-cp-meta"><span>${dateStr}</span></div>
-        <div style="line-height:1.45">${escH(c.text)}</div>
-        ${_attachHtml(c.attachments)}
-      </div>`;
-    }).join('');
-  }
-  // Pending
-  const pend=document.getElementById('vc-cp-pending');
-  if(pend)pend.innerHTML=_pendingHtml(vcCpPendingFiles,'vcCpRemoveFile');
-  // Update chat count label
-  _vcUpdateFinalSection();
-  // Scroll to bottom
-  list.scrollTop=list.scrollHeight;
-}
-function vcCpPickFile(input){_readFiles(input,vcCpPendingFiles,renderVCChatPanel);}
-function vcCpRemoveFile(i){vcCpPendingFiles.splice(i,1);renderVCChatPanel();}
-function vcCpSend(){
-  const inp=document.getElementById('vc-cp-inp');
-  const text=inp.value.trim();
-  if(!text&&vcCpPendingFiles.length===0)return;
-  vcComments.push({id:uuid(),text,createdAt:new Date().toISOString(),isFinal:false,attachments:[...vcCpPendingFiles]});
-  inp.value='';vcCpPendingFiles=[];
-  renderVCChatPanel();
-}
-function vcCpDelete(i){vcComments.splice(i,1);renderVCChatPanel();}
-function vcSaveFinalComment(){
-  const ta=document.getElementById('vc-final-text');
-  const text=ta?ta.value.trim():'';
-  if(!text&&vcFinalFiles.length===0)return;
-  // Upsert: remove existing isFinal, push new one
-  vcComments=vcComments.filter(c=>!c.isFinal);
-  vcComments.push({id:uuid(),text,createdAt:new Date().toISOString(),isFinal:true,attachments:[...vcFinalFiles]});
-  // Flash "Saved"
-  const lbl=document.getElementById('vc-final-saved-lbl');
-  if(lbl){lbl.style.display='inline';setTimeout(()=>{lbl.style.display='none';},2000);}
-  _vcUpdateFinalSection();
-}
+
 function vcPickProject(p){
   vcProject=p;
   if(p){
@@ -4538,8 +3620,39 @@ function vcPickProject(p){
   }
   renderVCPickers();
 }
-function vcPickStatus(s){vcStatus=s;renderVCPickers();_vcUpdateFinalSection();}
-function vcPickPrio(p){vcPriority=p;renderVCPickers();}
+function vcPickStatus(s){vcStatus=s;renderVCPickers();}
+
+// ── Checklist Logic ──
+function renderVCChecklist(){
+  const listEl=document.getElementById('vc-checklist-list');
+  const progEl=document.getElementById('vc-checklist-prog');
+  if(!listEl||!progEl)return;
+  
+  const done=vcChecklist.filter(x=>x.done).length;
+  progEl.textContent=vcChecklist.length>0?`${done}/${vcChecklist.length}`:'';
+  
+  listEl.innerHTML=vcChecklist.map((it,idx)=>`
+    <div style="display:flex;align-items:center;gap:8px;background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:6px 10px;animation:fadeIn .2s">
+      <input type="checkbox" ${it.done?'checked':''} onchange="vcToggleChecklistItem(${idx})" style="width:14px;height:14px;cursor:pointer">
+      <span style="flex:1;font-size:12px;color:${it.done?'var(--mu)':'var(--wh)'};${it.done?'text-decoration:line-through':''}">${escH(it.text)}</span>
+      <button onclick="vcRemoveChecklistItem(${idx})" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:14px;padding:0 4px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--mu)'">&#215;</button>
+    </div>`).join('');
+}
+function vcAddChecklistItem(){
+  const inp=document.getElementById('vc-checklist-new');
+  const val=inp.value.trim();
+  if(!val)return;
+  vcChecklist.push({text:val,done:false});
+  inp.value='';renderVCChecklist();
+}
+function vcToggleChecklistItem(idx){
+  vcChecklist[idx].done=!vcChecklist[idx].done;
+  renderVCChecklist();
+}
+function vcRemoveChecklistItem(idx){
+  vcChecklist.splice(idx,1);
+  renderVCChecklist();
+}
 function vcPickDiff(d){vcDifficulty=d;renderVCPickers();}
 
 function saveVC(){
@@ -4553,11 +3666,10 @@ function saveVC(){
   if(finalText||vcFinalFiles.length){
     allComments.push({id:uuid(),text:finalText,createdAt:new Date().toISOString(),isFinal:true,attachments:[...vcFinalFiles]});
   }
-  const data={title,topic:vcTopic,project:vcProject,status:vcStatus,priority:vcPriority,difficulty:vcDifficulty,
+  const data={title,topic:vcTopic,project:vcProject,status:vcStatus,difficulty:vcDifficulty,checklist:vcChecklist,
     dueDate:dateVal,
     notes:document.getElementById('vc-notes').value.trim(),
     completedDate:vcStatus==='done'?todayStr():null,
-    requiresAgent:document.getElementById('vc-req-agent').checked,
     comments:allComments};
   
   let sDate = dateVal || pendingSchedule.date;
@@ -4588,11 +3700,8 @@ function saveVC(){
         due_date: updatedTask.dueDate || null,
         scheduled_date: updatedTask.scheduledDate || null,
         scheduled_week: updatedTask.scheduledWeek || null,
-        assigned_agent: updatedTask.assignedAgent || null,
         completed_date: updatedTask.completedDate || null,
         notes: updatedTask.notes || null,
-        requires_agent: updatedTask.requiresAgent || false,
-        executing_agent_name: updatedTask.executingAgentName || null,
         penalized: updatedTask.penalized || false,
         salary_credited: updatedTask.salaryCredited || false,
         metadata: {
@@ -4620,11 +3729,8 @@ function saveVC(){
       due_date: newTask.dueDate || null,
       scheduled_date: newTask.scheduledDate || null,
       scheduled_week: newTask.scheduledWeek || null,
-      assigned_agent: newTask.assignedAgent || null,
       completed_date: newTask.completedDate || null,
       notes: newTask.notes || null,
-      requires_agent: newTask.requiresAgent || false,
-      executing_agent_name: newTask.executingAgentName || null,
       penalized: newTask.penalized || false,
       salary_credited: newTask.salaryCredited || false,
       created_at: newTask.createdAt,
@@ -4641,13 +3747,6 @@ function saveVC(){
   }
   pendingSchedule={date:null,week:null};
   saveData();closeVC();renderCurrentView();renderSidebar();
-  if(data.requiresAgent && !id) {
-    // If it's a new task with agent required, find it by title/date since push is async-ish in db terms
-    const newT = db.tasks.find(x => x.title === data.title && x.createdAt);
-    if(newT) setTimeout(() => spawnAgentForTask(newT.id), 500);
-  } else if(data.requiresAgent && id) {
-    spawnAgentForTask(id);
-  }
   showToast(id?'Task updated':'Task created');
 }
 function deleteTaskVC(){
@@ -4992,12 +4091,7 @@ function syncRecProj(){
   sel.innerHTML=`<option value="">— none —</option>`+projs.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
   if(projs.some(p=>p.id===cur))sel.value=cur;
 }
-function fillAgentSel(elId){
-  const el=document.getElementById(elId);
-  if(!el)return;
-  const agents=db.agents||[];
-  el.innerHTML=`<option value="">— none —</option>`+agents.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
-}
+
 function buildDaySel(){
   document.getElementById('day-selector').innerHTML=['Su','Mo','Tu','We','Th','Fr','Sa'].map((lbl,d)=>`
     <button type="button" id="dbtn-${d}" class="day-btn" onclick="toggleDay(${d})">${lbl}</button>`).join('');
@@ -5010,7 +4104,7 @@ function setSelDays(days){
 }
 function toggleDay(d){document.getElementById(`dbtn-${d}`).classList.toggle('on');}
 function getSelDays(){return[0,1,2,3,4,5,6].filter(d=>document.getElementById(`dbtn-${d}`)?.classList.contains('on'));}
-let recTopic='', recProject='', recAgent='', recPriority='medium';
+let recTopic='', recProject='';
 
 function renderRecPickers(){
   // ── Topic picker ──
@@ -5042,16 +4136,7 @@ function renderRecPickers(){
   }).join('');
   document.getElementById('rec-proj-picker').innerHTML=noneCard+projCards;
 
-  // ── Agent picker ──
-  const agents=[{id:'',name:'None',emoji:'👤'},...db.agents];
-  document.getElementById('rec-agent-picker').innerHTML=agents.map(ag=>`
-    <div class="topic-chip${recAgent===ag.id?' sel':''}" onclick="recPickAgent('${ag.id}')" title="${escH(ag.name)}">
-      ${ag.photo?`<img src="${ag.photo}" style="width:12px;height:12px;border-radius:50%;object-fit:cover">`:ag.emoji||'🤖'} ${ag.name}
-    </div>`).join('');
 
-  // ── Priority picker ──
-  document.getElementById('rec-prio-picker').innerHTML=[{id:'high',label:'High'},{id:'medium',label:'Med'},{id:'low',label:'Low'}].map(p=>`
-    <button class="opt-btn${recPriority===p.id?' sel':''}" onclick="recPickPrio('${p.id}')">${p.label}</button>`).join('');
 }
 
 function recPickTopic(t){
@@ -5063,8 +4148,7 @@ function recPickTopic(t){
   renderRecPickers();
 }
 function recPickProject(p){recProject=p;renderRecPickers();}
-function recPickAgent(a){recAgent=a;renderRecPickers();}
-function recPickPrio(p){recPriority=p;renderRecPickers();}
+
 
 function openRecModal(tmplId=null){
   buildDaySel();
@@ -5077,13 +4161,12 @@ function openRecModal(tmplId=null){
     recTopic=tmpl.topic||'';
     recProject=tmpl.project||'';
     recPriority=tmpl.priority||'medium';
-    recAgent=tmpl.assignedAgent||'';
     document.getElementById('rec-notes').value=tmpl.notes||'';
     setSelDays(tmpl.days||[]);delBtn.style.display='block';
   }else{
     document.getElementById('rec-modal-ttl').textContent='New Recurring';
     document.getElementById('rec-id').value='';document.getElementById('rec-title').value='';
-    recTopic='';recProject='';recPriority='medium';recAgent='';
+    recTopic='';recProject='';
     document.getElementById('rec-notes').value='';setSelDays([]);delBtn.style.display='none';
   }
   renderRecPickers();
@@ -5098,7 +4181,7 @@ function addTaskAsRecurring(){
   openRecModal();
   document.getElementById('rec-title').value=title;
   recTopic=vcTopic;recProject=vcProject;
-  recPriority=vcPriority;recAgent='';
+
   document.getElementById('rec-notes').value=notes;
   renderRecPickers();
 }
@@ -5107,7 +4190,7 @@ function saveRecurring(){
   if(days.length===0){alert('Select at least one day.');return;}
   const id=document.getElementById('rec-id').value;
   const data={title:document.getElementById('rec-title').value.trim(),topic:recTopic,
-    project:recProject,priority:recPriority,assignedAgent:recAgent||null,
+    project:recProject,
     notes:document.getElementById('rec-notes').value.trim(),days};
   if(!data.title)return;
   if(id){
@@ -5121,7 +4204,6 @@ function saveRecurring(){
         topic: data.topic || null,
         project: data.project || null,
         priority: data.priority,
-        assigned_agent: data.assignedAgent || null,
         notes: data.notes || null,
         days: data.days
       };
@@ -5140,7 +4222,6 @@ function saveRecurring(){
       topic: data.topic || null,
       project: data.project || null,
       priority: data.priority,
-      assigned_agent: data.assignedAgent || null,
       notes: data.notes || null,
       days: data.days
     };
@@ -5501,7 +4582,6 @@ function renderStatsView(){
     ${earnedTasksSorted.map(t=>{
       const d=t.scheduledDate||t.completedDate||'';
       const dateLabel=d?new Date(d+'T00:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}):'';
-      const ag=t.assignedAgent?db.agents.find(a=>a.id===t.assignedAgent):null;
       const money=DIFF_MONEY[t.difficulty]||0;
       const finalComment=t.comments&&t.comments.find(c=>c.isFinal);
       const attachCount=t.comments?t.comments.reduce((s,c)=>s+(c.attachments?c.attachments.length:0),0):0;
@@ -5513,7 +4593,6 @@ function renderStatsView(){
           ${attachCount?`<div style="font-family:var(--fm);font-size:9px;color:var(--mu);margin-top:2px">📎 ${attachCount} attachment${attachCount>1?'s':''}</div>`:''}
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-          ${ag?agentAvatarHtml(ag,18):''}
           <span style="font-family:var(--fm);font-size:10px;color:var(--grn);font-weight:700;min-width:32px;text-align:right">+$${money}</span>
         </div>
       </div>`;
@@ -5631,204 +4710,18 @@ function renderStatsView(){
 }
 
 // ─────────────────────────────────────────────
-// ASSIGN AGENT MODAL
-// ─────────────────────────────────────────────
-function openAssignModal(taskId){
-  assignTaskId=taskId;
-  document.getElementById('assign-task-id').value=taskId;
-  const listEl=document.getElementById('assign-agent-list');
-  const noEl=document.getElementById('assign-no-agents');
-  if(!db.agents||db.agents.length===0){
-    listEl.style.display='none';noEl.style.display='block';
-  } else {
-    noEl.style.display='none';listEl.style.display='flex';
-    listEl.innerHTML=db.agents.map(ag=>{
-      const balance=(ag.earned||0)-(ag.lost||0);
-      const assignedCount=db.tasks.filter(t=>t.assignedAgent===ag.id&&t.status==='in-progress').length;
-      return`<button onclick="assignAgentToTask('${ag.id}')"
-        style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--b2);background:var(--s2);cursor:pointer;text-align:left;transition:all .12s;width:100%"
-        onmouseover="this.style.borderColor='var(--ac)';this.style.background='rgba(90,120,152,.14)'"
-        onmouseout="this.style.borderColor='var(--b2)';this.style.background='var(--s2)'">
-        ${agentAvatarHtml(ag,36)}
-        <div style="flex:1;min-width:0">
-          <div style="font-family:var(--fm);font-size:11px;font-weight:700;color:var(--wh);letter-spacing:.04em">${escH(ag.name)}</div>
-          <div style="font-family:var(--fm);font-size:9px;color:var(--mu);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escH(ag.context||'')}</div>
-        </div>
-        <div style="text-align:right;flex-shrink:0">
-          <div style="font-family:var(--fm);font-size:11px;font-weight:700;color:${balance>=0?'var(--grn)':'var(--red)'}">$${balance}</div>
-          <div style="font-family:var(--fm);font-size:9px;color:var(--mu)">${assignedCount} active</div>
-        </div>
-      </button>`;
-    }).join('');
-  }
-  document.getElementById('assign-modal').style.display='flex';
-}
-function closeAssignModal(){
-  document.getElementById('assign-modal').style.display='none';
-  assignTaskId=null;
-}
-function assignAgentToTask(agentId){
-  if(!assignTaskId)return closeAssignModal();
-  const idx=db.tasks.findIndex(t=>t.id===assignTaskId);
-  if(idx>=0){
-    const agent=db.agents.find(a=>a.id===agentId);
-    db.tasks[idx].assignedAgent=agentId;
-    db.tasks[idx].status='in-progress';
-    db.tasks[idx].completedDate=null;
-    saveData();
-    closeAssignModal();
-    renderCurrentView();
-    showToast(`Assigned to ${agent?agent.name:'Agent'} · now in progress`);
-  } else {
-    closeAssignModal();
-  }
-}
-
-function pdTogglePM(projId){
-  currentProjectId = projId;
-  const listEl=document.getElementById('assign-pm-list');
-  const noEl=document.getElementById('assign-pm-no-agents');
-  document.getElementById('assign-pm-modal').style.display='flex';
-  
-  if(!db.agents || db.agents.length===0){
-    listEl.style.display='none'; noEl.style.display='block';
-  } else {
-    noEl.style.display='none'; listEl.style.display='flex';
-    listEl.innerHTML=db.agents.map(ag=>{
-      const isPmHere = ag.isPm && ag.managedProject === projId;
-      return `<button onclick="assignPM('${projId}', '${ag.id}')" 
-        style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid ${isPmHere?'var(--ac)':'var(--b2)'};background:${isPmHere?'rgba(90,120,152,.1)':'var(--s2)'};cursor:pointer;text-align:left;transition:all .12s;width:100%"
-        onmouseover="this.style.borderColor='var(--ac)';this.style.background='rgba(90,120,152,.14)'"
-        onmouseout="this.style.borderColor='${isPmHere?'var(--ac)':'var(--b2)'}';this.style.background='${isPmHere?'rgba(90,120,152,.1)':'var(--s2)'}'">
-        ${agentAvatarHtml(ag,36)}
-        <div style="flex:1;min-width:0">
-          <div style="font-family:var(--fm);font-size:11px;font-weight:700;color:var(--wh);letter-spacing:.04em">${escH(ag.name)}</div>
-          <div style="font-family:var(--fm);font-size:9px;color:var(--mu);margin-top:2px">${isPmHere?'Current Project Manager':'Select as PM'}</div>
-        </div>
-        ${isPmHere?`<span style="color:var(--ac);font-size:14px">✓</span>`:''}
-      </button>`;
-    }).join('');
-  }
-}
-
-function closeAssignPMModal(){
-  document.getElementById('assign-pm-modal').style.display='none';
-}
-
-function assignPM(projId, agentId){
-  // Remove existing PM for this project if any
-  db.agents.forEach(a => {
-    if(a.isPm && a.managedProject === projId) {
-      a.isPm = false;
-      a.managedProject = null;
-      // Update in Supabase to remove PM status
-      supabaseClient.from('agents').update({is_pm: false, managed_project: null}).eq('id', a.id).then(({error})=>{
-        if(error)console.error('❌ Failed to update agent in Supabase:',error);
-        else console.log('✓ Updated agent in Supabase:',a.id);
-      });
-    }
-  });
-  // Set new PM
-  const agent = db.agents.find(a => a.id === agentId);
-  if(agent){
-    agent.isPm = true;
-    agent.managedProject = projId;
-    // Update in Supabase immediately
-    supabaseClient.from('agents').update({is_pm: true, managed_project: projId}).eq('id', agentId).then(({error})=>{
-      if(error)console.error('❌ Failed to update agent in Supabase:',error);
-      else console.log('✓ Updated agent in Supabase:',agentId);
-    });
-    // If this agent has a Telegram bot linked → apply project-locked identity to OpenClaw agent
-    const agentTgLink = _telegramLinks[agentId];
-    if(agentTgLink?.ocAgentId){
-      const projObj = (db.settings.projects||[]).find(p=>p.id===projId);
-      const projName = projObj?.name || projId;
-      // Use the project's own agentPersona if set, otherwise fall back to the agent's context
-      const persona = projObj?.agentPersona || agent.context || '';
-      fetch('/api/set-agent-identity',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          ocAgentId: agentTgLink.ocAgentId,
-          name: agent.name, emoji: agent.emoji||'🤖', persona,
-          lockedProjectId: projId, lockedProjectName: projName
-        })})
-        .then(r=>r.json())
-        .then(d=>{ if(d.status==='success') showToast(`${agent.name} → PM of ${projName} · identity updated`);
-                   else console.warn('⚠ Identity error:',d.message); })
-        .catch(e=>console.warn('⚠ Identity fetch error:',e));
-    }
-    saveData();
-    closeAssignPMModal();
-    renderProjectDetail(projId);
-    if(!agentTgLink?.ocAgentId) showToast(`${agent.name} is now the Project Manager`);
-  }
-}
-
-async function spawnAgentForTask(taskId){
-  const t = db.tasks.find(x => x.id === taskId);
-  if(!t || !t.requiresAgent || t.executingAgentName) return;
-
-  const pm = db.agents.find(a => a.isPm && a.managedProject === t.project);
-  if(!pm){ showToast('⚠ No PM agent assigned to this project'); return; }
-
-  const pmTgLink = _telegramLinks[pm.id];
-  const pmOcAgentId = pmTgLink?.ocAgentId || null;
-  if(!pmOcAgentId){ showToast('⚠ PM agent has no Telegram bot linked'); return; }
-
-  const projObj = (db.settings.projects||[]).find(p=>p.id===t.project);
-
-  // Assign task directly to PM
-  t.assignedAgent = pm.id;
-  t.executingAgentName = pmOcAgentId;
-  t.status = 'in-progress';
-  saveData();
-  renderCurrentView();
-  showToast(`📨 Sending task to ${pm.name}…`);
-
-  try {
-    const r = await fetch('/api/send-task-to-pm', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        taskId,
-        taskTitle: t.title,
-        taskNotes: t.notes || '',
-        projectId: t.project || null,
-        projectName: projObj?.name || null,
-        pmOcAgentId
-      })
-    });
-    const data = await r.json();
-    if(data.status === 'assigned'){
-      showToast(`✅ ${pm.name} is now working on "${t.title}"`);
-    } else {
-      showToast(`⚠ Failed: ${data.message}`);
-      t.executingAgentName = null; t.assignedAgent = null; t.status = 'todo';
-      saveData(); renderCurrentView();
-    }
-  } catch(e) {
-    showToast('⚠ Could not reach server');
-    t.executingAgentName = null; t.assignedAgent = null; t.status = 'todo';
-    saveData(); renderCurrentView();
-  }
-}
-
-
-// ─────────────────────────────────────────────
 // EVENTS
 // ─────────────────────────────────────────────
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
     if(document.getElementById('add-topic-modal').style.display!=='none')closeAddTopicModal();
     else if(document.getElementById('add-proj-modal').style.display!=='none')closeAddProjModal();
-    else if(document.getElementById('assign-modal')&&document.getElementById('assign-modal').style.display!=='none')closeAssignModal();
     else{closeVC();closeRecModal();}
   }
   if(e.key==='n'&&!['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)){e.preventDefault();openVC();}
 });
 function _dragCleanup(){
   dragTaskId=null;
-  const dz=document.getElementById('assign-dz');
-  if(dz) dz.style.display='none';
   ['todo','in-progress','done'].forEach(id=>{const el=document.getElementById('col-trash-'+id);if(el)el.style.display='none';});
   const fz=document.getElementById('col-failed-dz');if(fz)fz.style.display='none';
   const tz=document.getElementById('plan-trash-dz');

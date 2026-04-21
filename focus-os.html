@@ -1073,6 +1073,9 @@ input:checked + .slider-sm:before {
 
 
 
+      <label class="f-label">Difficulty</label>
+      <div id="rec-diff-picker" class="options-row" style="margin-bottom:14px;gap:6px"></div>
+
       <label class="f-label">Repeat on *</label>
       <div class="day-sel-wrap" id="day-selector" style="margin-bottom:14px"></div>
       
@@ -1559,7 +1562,7 @@ async function loadData(){
       }),
       templates: (tm||[]).map(x => ({
         id: x.id, title: x.title, topic: x.topic, project: x.project, priority: x.priority,
-        notes: x.notes, days: x.days
+        difficulty: x.difficulty || 'medium-easy', notes: x.notes, days: x.days
       })),
       penalties: (p||[]).map(x => ({
         id: x.id, taskId: x.task_id, amount: x.amount,
@@ -1731,7 +1734,7 @@ async function syncDataToSupabase(){
 
     const templateRows=db.templates.map(t=>({
       id:t.id,title:t.title,topic:t.topic||null,project:t.project||null,
-      priority:t.priority||'medium',notes:t.notes||null,days:t.days
+      priority:t.priority||'medium',difficulty:t.difficulty||'medium-easy',notes:t.notes||null,days:t.days
     }));
     // Only sync own penalties
     const penaltyRows=db.penalties.filter(p=>!p.userId||p.userId===currentUserId).map(p=>({
@@ -1978,9 +1981,10 @@ function checkRecurring(){
     const exists=db.tasks.some(t=>t.dueDate===today&&(t.fromTemplate===tmpl.id||t.title===tmpl.title));
     if(!exists){
       const newTask={id:uuid(),title:tmpl.title,topic:tmpl.topic||'',project:tmpl.project||'',
+        difficulty:tmpl.difficulty||'medium-easy',
         status:'todo',dueDate:today,scheduledDate:today,
         scheduledWeek:getMondayOf(today),completedDate:null,notes:tmpl.notes||'',
-        createdAt:new Date().toISOString(),fromTemplate:tmpl.id};
+        createdAt:new Date().toISOString(),fromTemplate:tmpl.id,userId:currentUserId||null};
       db.tasks.push(newTask);
       // Insert recurring task immediately to Supabase
       const taskData = {
@@ -1989,8 +1993,7 @@ function checkRecurring(){
         topic: newTask.topic || null,
         project: newTask.project || null,
         status: newTask.status,
-
-        difficulty: 'medium-easy',
+        difficulty: newTask.difficulty,
         due_date: newTask.dueDate || null,
         scheduled_date: newTask.scheduledDate || null,
         scheduled_week: newTask.scheduledWeek || null,
@@ -4717,7 +4720,7 @@ function setSelDays(days){
 }
 function toggleDay(d){document.getElementById(`dbtn-${d}`).classList.toggle('on');}
 function getSelDays(){return[0,1,2,3,4,5,6].filter(d=>document.getElementById(`dbtn-${d}`)?.classList.contains('on'));}
-let recTopic='', recProject='';
+let recTopic='', recProject='', recDifficulty='medium-easy';
 
 function renderRecPickers(){
   // ── Topic picker ──
@@ -4749,7 +4752,12 @@ function renderRecPickers(){
   }).join('');
   document.getElementById('rec-proj-picker').innerHTML=noneCard+projCards;
 
-
+  // ── Difficulty picker ──
+  const diffs=[{id:'easy',label:'Easy'},{id:'medium-easy',label:'Medium Easy'},{id:'medium-hard',label:'Medium Hard'},{id:'hard',label:'Hard'}];
+  document.getElementById('rec-diff-picker').innerHTML=diffs.map(d=>`
+    <button type="button" onclick="recPickDiff('${d.id}')" style="font-family:var(--fm);font-size:10px;letter-spacing:.07em;padding:5px 10px;border-radius:6px;border:1px solid ${recDifficulty===d.id?'var(--ac)':'var(--b2)'};background:${recDifficulty===d.id?'rgba(100,160,255,.12)':'none'};color:${recDifficulty===d.id?'var(--ac)':'var(--mu)'};cursor:pointer;transition:all .12s">
+      ${d.label} <span style="opacity:.7">$${DIFF_MONEY[d.id]}</span>
+    </button>`).join('');
 }
 
 function recPickTopic(t){
@@ -4761,6 +4769,7 @@ function recPickTopic(t){
   renderRecPickers();
 }
 function recPickProject(p){recProject=p;renderRecPickers();}
+function recPickDiff(d){recDifficulty=d;renderRecPickers();}
 
 
 function openRecModal(tmplId=null){
@@ -4774,12 +4783,13 @@ function openRecModal(tmplId=null){
     recTopic=tmpl.topic||'';
     recProject=tmpl.project||'';
     recPriority=tmpl.priority||'medium';
+    recDifficulty=tmpl.difficulty||'medium-easy';
     document.getElementById('rec-notes').value=tmpl.notes||'';
     setSelDays(tmpl.days||[]);delBtn.style.display='block';
   }else{
     document.getElementById('rec-modal-ttl').textContent='New Recurring';
     document.getElementById('rec-id').value='';document.getElementById('rec-title').value='';
-    recTopic='';recProject='';recPriority='medium';
+    recTopic='';recProject='';recPriority='medium';recDifficulty='medium-easy';
     document.getElementById('rec-notes').value='';setSelDays([]);delBtn.style.display='none';
   }
   renderRecPickers();
@@ -4803,8 +4813,9 @@ function saveRecurring(){
   if(days.length===0){alert('Select at least one day.');return;}
   const id=document.getElementById('rec-id').value;
   const priority=recPriority||'medium';
+  const difficulty=recDifficulty||'medium-easy';
   const data={title:document.getElementById('rec-title').value.trim(),topic:recTopic,
-    project:recProject,priority,
+    project:recProject,priority,difficulty,
     notes:document.getElementById('rec-notes').value.trim(),days};
   if(!data.title)return;
   if(!id && db.templates.some(t=>t.title.trim().toLowerCase()===data.title.toLowerCase())){
@@ -4820,6 +4831,7 @@ function saveRecurring(){
         topic: data.topic || null,
         project: data.project || null,
         priority: data.priority,
+        difficulty: data.difficulty,
         notes: data.notes || null,
         days: data.days
       };

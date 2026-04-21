@@ -632,7 +632,7 @@ input:checked + .slider-sm:before {
       <div id="login-msg" style="font-family:var(--fm);font-size:10px;color:var(--red);min-height:14px;text-align:center"></div>
       <button type="submit" style="padding:12px;background:var(--wh);color:var(--bg);border:none;border-radius:10px;font-family:var(--fg);font-size:14px;font-weight:700;cursor:pointer;transition:opacity .12s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">Log In</button>
     </form>
-    <button class="user-card-new" style="width:100%;flex-direction:row;min-height:auto;padding:10px 16px;gap:10px;border-radius:10px" onclick="hideLoginScreen();openCreateUserModal()">
+    <button class="user-card-new" style="width:100%;flex-direction:row;min-height:auto;padding:10px 16px;gap:10px;border-radius:10px" onclick="openCreateUserModal()">
       <span style="font-size:18px">＋</span>
       <span style="font-family:var(--fm);font-size:11px;letter-spacing:.1em;text-transform:uppercase">Create New User</span>
     </button>
@@ -1484,14 +1484,10 @@ function vcClearCover(){
 const DEFAULTS = {
   tasks:[], templates:[], penalties:[],
   settings:{
-    topics:['social-media','master','app'],
-    topicMeta:{},   // user-defined or user-customized topics
-    projects:[
-      {id:'twitter',        name:'Twitter',        topic:'social-media'},
-      {id:'roast-my-focus', name:'Roast My Focus', topic:'app'         },
-      {id:'deep-learning',  name:'Deep Learning',  topic:'master'      },
-    ],
-    projMeta:{},    // user-defined project visuals
+    topics:[],
+    topicMeta:{},
+    projects:[],
+    projMeta:{},
   },
   lastRecurringCheck:null
 };
@@ -5460,6 +5456,7 @@ function openCreateUserModal(){
 function closeCreateUserModal(){
   document.getElementById('cu-modal').style.display = 'none';
   closeAvPicker();
+  if(!currentUserId) showLoginScreen();
 }
 let _avPickerCtx = 'create'; // 'create' | 'edit'
 function openAvPicker(ctx='create'){
@@ -6017,7 +6014,6 @@ function toggleHideFriend(friendId){
 async function init(){
   selectedWeek=getMondayOf(new Date()); selectedDay=todayStr();
   expandedWeeks.add(selectedWeek);
-  collapsedTopics.add('social-media'); collapsedTopics.add('master'); collapsedTopics.add('app');
 
   // ── If no user selected, show login screen first ──
   if(!currentUserId){

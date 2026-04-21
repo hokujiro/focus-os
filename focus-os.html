@@ -1687,14 +1687,15 @@ async function syncDataToSupabase(){
       const meta=db.settings.projMeta[p.id]||{};
       return{id:p.id,name:p.name,topic:p.topic,grad:meta.grad,emoji:meta.emoji,pat:meta.pat,color:meta.color,photo_url:meta.img||null,user_id:currentUserId||null};
     });
-    const taskRows=db.tasks.map(t=>({
+    // Only upsert own tasks — never touch other users' rows
+    const taskRows=db.tasks.filter(t=>!t.userId||t.userId===currentUserId).map(t=>({
       id:t.id,title:t.title,topic:t.topic||null,project:t.project||null,
       status:t.status,priority:t.priority,difficulty:t.difficulty,
       due_date:t.dueDate||null,scheduled_date:t.scheduledDate||null,scheduled_week:t.scheduledWeek||null,
       completed_date:t.completedDate||null,notes:t.notes||null,
       penalized:t.penalized||false,salary_credited:t.salaryCredited||false,
       created_at:t.createdAt||new Date().toISOString(),
-      user_id:t.userId||null,
+      user_id:currentUserId||null,
       metadata:{fromTemplate:t.fromTemplate,comments:t.comments||[],coverImage:t.coverImage||null}
     }));
 
@@ -1704,8 +1705,10 @@ async function syncDataToSupabase(){
       last_recurring_check:db.lastRecurringCheck,updated_at:new Date().toISOString()
     });
 
-    // Fetch remote task IDs for reconciliation (run in parallel with upserts)
-    const remoteTasksPromise=supabaseClient.from('tasks').select('id');
+    // Fetch only OWN remote task IDs for reconciliation — never touch other users' rows
+    const remoteTasksPromise=currentUserId
+      ? supabaseClient.from('tasks').select('id').eq('user_id',currentUserId)
+      : Promise.resolve({data:[]});
 
     const [
       {error:e1},
@@ -1713,11 +1716,11 @@ async function syncDataToSupabase(){
     ]=await Promise.all([settingsPromise,remoteTasksPromise]);
     if(e1) console.warn("Settings sync error:",e1.message);
 
-    // Delete orphaned tasks + upsert everything else — all in parallel
+    // Delete own orphaned tasks (tasks deleted locally but still in Supabase)
     const deleteOrphans=(async()=>{
-      if(!remoteTasks) return;
-      const localIds=new Set(db.tasks.map(t=>t.id));
-      const toDelete=remoteTasks.map(r=>r.id).filter(id=>!localIds.has(id));
+      if(!remoteTasks||!currentUserId) return;
+      const localOwnIds=new Set(db.tasks.filter(t=>!t.userId||t.userId===currentUserId).map(t=>t.id));
+      const toDelete=remoteTasks.map(r=>r.id).filter(id=>!localOwnIds.has(id));
       if(toDelete.length>0){
         const{error:eDel}=await supabaseClient.from('tasks').delete().in('id',toDelete);
         if(eDel) console.warn('Task reconcile-delete error:',eDel.message);

@@ -78,7 +78,7 @@ body[data-theme="notion"] .task-card:hover{border-color:#bdbdbd}
 @property --doing-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
 @keyframes doing-spin{to{--doing-angle:360deg}}
 .task-card.is-doing{position:relative;z-index:0;border-color:transparent}
-.task-card.is-doing::before{content:'';position:absolute;inset:0;border-radius:10px;padding:1.5px;background:conic-gradient(from var(--doing-angle),transparent 0%,var(--col-doing) 35%,transparent 65%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:doing-spin 1s linear infinite;z-index:-1}
+.task-card.is-doing::before{content:'';position:absolute;inset:0;border-radius:10px;padding:1.5px;background:conic-gradient(from var(--doing-angle),transparent 0%,var(--col-doing) 35%,transparent 65%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:doing-spin 1s linear infinite;z-index:-1}
 body[data-theme="notion"] .task-card.is-doing{border-color:transparent}
 .tc-title{font-size:var(--content-size);line-height:1.4;color:var(--wh);margin-bottom:6px}
 .tc-title.done{text-decoration:line-through;color:var(--mu)}
@@ -1574,6 +1574,42 @@ async function loadData(){
       users: (u||[]).map(x=>({id:x.id,username:x.username,avatarEmoji:x.avatar_emoji||'👤',color:x.color||'#5a7898',createdAt:x.created_at})),
       friendIds: (fr||[]).map(x=>x.friend_id)
     };
+
+    // Deduplicate templates by title — keep the first occurrence, delete the rest
+    {
+      const seen = new Map();
+      const dupIds = [];
+      d.templates = d.templates.filter(t => {
+        if(seen.has(t.title)){dupIds.push(t.id);return false;}
+        seen.set(t.title,t.id);return true;
+      });
+      if(dupIds.length>0){
+        supabaseClient.from('templates').delete().in('id',dupIds).then(({error})=>{
+          if(error)console.warn('⚠ template dedup delete:',error.message);
+          else console.log(`✓ Removed ${dupIds.length} duplicate template(s)`);
+        });
+        // Remove tasks spawned by duplicate templates
+        const dupTaskIds=d.tasks.filter(t=>dupIds.includes(t.fromTemplate)).map(t=>t.id);
+        d.tasks=d.tasks.filter(t=>!dupIds.includes(t.fromTemplate));
+        if(dupTaskIds.length>0){
+          supabaseClient.from('tasks').delete().in('id',dupTaskIds).then(({error})=>{
+            if(error)console.warn('⚠ dup-task delete:',error.message);
+            else console.log(`✓ Removed ${dupTaskIds.length} duplicate recurring task(s)`);
+          });
+        }
+      }
+    }
+
+    // Load public topics for each friend
+    const fIds = d.friendIds;
+    if(fIds.length > 0){
+      const {data: fTopics} = await supabaseClient.from('topics').select('id,user_id').in('user_id', fIds).eq('is_public', true);
+      friendPublicTopics = {};
+      (fTopics||[]).forEach(t=>{
+        if(!friendPublicTopics[t.user_id]) friendPublicTopics[t.user_id] = new Set();
+        friendPublicTopics[t.user_id].add(t.id);
+      });
+    } else { friendPublicTopics = {}; }
     return finalizeLoad(d);
   }catch(e){
     console.warn("❌ Supabase load failed, falling back to localStorage:", e);
@@ -1649,7 +1685,7 @@ async function syncDataToSupabase(){
     // Prepare all upsert payloads
     const topicRows=db.settings.topics.map(tId=>{
       const meta=db.settings.topicMeta[tId]||{};
-      return{id:tId,label:meta.label||tId,color:meta.color,dot:meta.dot,user_id:currentUserId||null};
+      return{id:tId,label:meta.label||tId,color:meta.color,dot:meta.dot,is_public:meta.isPublic||false,user_id:currentUserId||null};
     });
     const projectRows=db.settings.projects.map(p=>{
       const meta=db.settings.projMeta[p.id]||{};
@@ -1693,17 +1729,23 @@ async function syncDataToSupabase(){
       }
     })();
 
+    const templateRows=db.templates.map(t=>({
+      id:t.id,title:t.title,topic:t.topic||null,project:t.project||null,
+      priority:t.priority||'medium',notes:t.notes||null,days:t.days
+    }));
+
     const upsertPromises=[
       deleteOrphans,
-      topicRows.length   ? supabaseClient.from('topics').upsert(topicRows)     : Promise.resolve(),
-      projectRows.length ? supabaseClient.from('projects').upsert(projectRows) : Promise.resolve(),
-      taskRows.length    ? supabaseClient.from('tasks').upsert(taskRows)       : Promise.resolve(),
+      topicRows.length    ? supabaseClient.from('topics').upsert(topicRows)       : Promise.resolve(),
+      projectRows.length  ? supabaseClient.from('projects').upsert(projectRows)   : Promise.resolve(),
+      taskRows.length     ? supabaseClient.from('tasks').upsert(taskRows)         : Promise.resolve(),
+      templateRows.length ? supabaseClient.from('templates').upsert(templateRows) : Promise.resolve(),
     ];
 
     const results=await Promise.all(upsertPromises);
     // Log any errors from batch upserts
     results.forEach((r,i)=>{
-      if(r?.error) console.warn(`Sync error [${['orphans','topics','projects','tasks'][i]}]:`,r.error.message);
+      if(r?.error) console.warn(`Sync error [${['orphans','topics','projects','tasks','templates'][i]}]:`,r.error.message);
     });
 
     console.log("✓ Synced to Supabase");
@@ -1718,6 +1760,7 @@ let currentUserId = localStorage.getItem('focusUserId') || null;
 let currentUser   = null;
 let allUsers      = [];
 let myFriendIds   = [];
+let friendPublicTopics = {}; // { userId: Set<topicId> } — only public topics per friend
 let hiddenFriendIds = new Set(JSON.parse(localStorage.getItem('focusHiddenFriends')||'[]'));
 let activeFriendFilters = new Set(JSON.parse(localStorage.getItem('focusActiveFriendFilters')||'[]'));
 
@@ -1788,7 +1831,11 @@ function statusLabel(s){return STATUS_LABELS[s]||s}
 function getFilteredBase(){
   return db.tasks.filter(t=>{
     if(!t.userId || t.userId===currentUserId) return true;
-    if(myFriendIds.includes(t.userId) && activeFriendFilters.has(t.userId)) return true;
+    if(myFriendIds.includes(t.userId) && activeFriendFilters.has(t.userId)){
+      if(!t.topic) return false;
+      const pub = friendPublicTopics[t.userId];
+      return pub && pub.has(t.topic);
+    }
     return false;
   });
 }
@@ -1918,8 +1965,8 @@ function checkRecurring(){
   if(db.lastRecurringCheck===today)return;
   const dow=new Date().getDay();let n=0;
   db.templates.forEach(tmpl=>{
-    if(!tmpl.days.includes(dow))return;
-    const exists=db.tasks.some(t=>t.fromTemplate===tmpl.id&&t.dueDate===today);
+    if(!tmpl.days || !tmpl.days.includes(dow))return;
+    const exists=db.tasks.some(t=>t.dueDate===today&&(t.fromTemplate===tmpl.id||t.title===tmpl.title));
     if(!exists){
       const newTask={id:uuid(),title:tmpl.title,topic:tmpl.topic||'',project:tmpl.project||'',
         status:'todo',dueDate:today,scheduledDate:today,
@@ -3372,8 +3419,8 @@ function renderDailyFilterBar(){
         <span style="font-family:var(--fm);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mu)">Backlog <span style="font-weight:400;color:var(--b3)">${backlogTasks.length}</span></span>
         <span style="font-family:var(--fm);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--b3)">${_wkLabel}</span>
       </div>
-      <div style="display:flex;flex-wrap:wrap;gap:5px"
-        ondragover="event.preventDefault()" ondrop="(function(e){e.preventDefault();if(!dragTaskId)return;const t=db.tasks.find(x=>x.id===dragTaskId);if(t){t.scheduledDate=null;t.scheduledWeek='${weekMonday}';if(t.status==='in-progress')t.status='todo';saveData();renderDaily();}})()">
+      <div class="drop-zone" style="display:flex;flex-wrap:wrap;gap:5px;min-height:30px;padding:6px;border-radius:8px;border:1px dashed transparent"
+        ondragover="dzOver(event,'backlog','daily')" ondragleave="dzLeave(event)" ondrop="event.preventDefault();dzLeave(event);if(dragTaskId){const t=db.tasks.find(x=>x.id===dragTaskId);if(t){t.scheduledDate=null;t.scheduledWeek='${weekMonday}';if(t.status!=='backlog')t.status='todo';saveData();renderDaily();}}">
         ${backlogTasks.length===0
           ?`<span style="font-family:var(--fm);font-size:11px;color:var(--b2);font-style:italic">No unscheduled tasks this week — drag here to unschedule</span>`
           :backlogTasks.map(t=>{
@@ -3953,6 +4000,7 @@ function dzPlanUnschedule(e){
   }
   // Unschedule
   t.scheduledWeek=null;t.scheduledDate=null;
+  if(t.status!=='backlog')t.status='todo';
   // Reorder db.tasks so the task appears at the chosen position among unscheduled tasks
   const unscheduledBefore=getPlanFiltered().filter(x=>!x.scheduledWeek&&x.id!==t.id);
   db.tasks=db.tasks.filter(x=>x.id!==t.id); // remove from current position
@@ -4721,7 +4769,7 @@ function openRecModal(tmplId=null){
   }else{
     document.getElementById('rec-modal-ttl').textContent='New Recurring';
     document.getElementById('rec-id').value='';document.getElementById('rec-title').value='';
-    recTopic='';recProject='';
+    recTopic='';recProject='';recPriority='medium';
     document.getElementById('rec-notes').value='';setSelDays([]);delBtn.style.display='none';
   }
   renderRecPickers();
@@ -4744,15 +4792,18 @@ function saveRecurring(){
   const days=getSelDays();
   if(days.length===0){alert('Select at least one day.');return;}
   const id=document.getElementById('rec-id').value;
+  const priority=recPriority||'medium';
   const data={title:document.getElementById('rec-title').value.trim(),topic:recTopic,
-    project:recProject,
+    project:recProject,priority,
     notes:document.getElementById('rec-notes').value.trim(),days};
   if(!data.title)return;
+  if(!id && db.templates.some(t=>t.title.trim().toLowerCase()===data.title.toLowerCase())){
+    alert('Ya existe un template con ese nombre.');return;
+  }
   if(id){
     const idx=db.templates.findIndex(t=>t.id===id);
     if(idx>=0){
       db.templates[idx]={...db.templates[idx],...data};
-      // Update in Supabase
       const templateData = {
         id: id,
         title: data.title,
@@ -4762,7 +4813,7 @@ function saveRecurring(){
         notes: data.notes || null,
         days: data.days
       };
-      supabaseClient.from('templates').update(templateData).eq('id',id).then(({error})=>{
+      supabaseClient.from('templates').upsert(templateData).then(({error})=>{
         if(error)console.error('❌ Failed to update template in Supabase:',error);
         else console.log('✓ Updated template in Supabase:',id);
       });
@@ -4770,7 +4821,6 @@ function saveRecurring(){
   }else{
     const newId=uuid();
     db.templates.push({id:newId,...data});
-    // Insert new template immediately to Supabase
     const templateData = {
       id: newId,
       title: data.title,
@@ -4780,12 +4830,12 @@ function saveRecurring(){
       notes: data.notes || null,
       days: data.days
     };
-    supabaseClient.from('templates').insert(templateData).then(({error})=>{
+    supabaseClient.from('templates').upsert(templateData).then(({error})=>{
       if(error)console.error('❌ Failed to insert template to Supabase:',error);
       else console.log('✓ Inserted template to Supabase:',newId);
     });
   }
-  db.lastRecurringCheck=null;saveData();closeRecModal();renderCurrentView();
+  db.lastRecurringCheck=null;checkRecurring();saveData();closeRecModal();renderCurrentView();
   showToast(id?'Template updated':'Template created');
 }
 function deleteRecurring(){
@@ -4817,14 +4867,15 @@ function renderCalendarView(){
   const startOffset=(startDow+6)%7; // Mon-first: Mon=0…Sun=6
 
   // Filter completed tasks (failed treated as done)
-  let tasks=getFilteredBase().filter(t=>(t.status==='done'||t.status==='failed')&&t.completedDate);
+  let tasks=getFilteredBase().filter(t=>t.status==='done'||t.status==='failed');
   if(activeTopic)tasks=tasks.filter(t=>t.topic===activeTopic);
   if(calTopicFilter)tasks=tasks.filter(t=>t.topic===calTopicFilter);
   if(calProjFilter)tasks=tasks.filter(t=>t.project===calProjFilter);
 
   const byDate={};
   tasks.forEach(t=>{
-    const d=t.completedDate;
+    const d=t.scheduledDate||t.completedDate;
+    if(!d)return;
     if(!byDate[d])byDate[d]=[];
     byDate[d].push(t);
   });

@@ -1773,7 +1773,9 @@ function getTopicMeta(t){
 }
 function getProjMeta(id){
   const builtin=PROJ_META_BUILTIN[id]||{grad:'linear-gradient(135deg,#111,#222)',emoji:'📁',color:'#8898b0',pat:'dots'};
-  const user=db.settings.projMeta[id]||{};
+  const raw=db.settings.projMeta[id]||{};
+  // Only override builtin values with non-null user data so null fields fall back to defaults
+  const user=Object.fromEntries(Object.entries(raw).filter(([,v])=>v!=null));
   return{...builtin,...user};
 }
 function topicLabel(t){return getTopicMeta(t).label}
@@ -1787,7 +1789,7 @@ function projThumbInner(pm){
 }
 function projThumbBgStyle(pm){
   const src=pm.img||pm.photoUrl;
-  return src?'background:var(--s2)':'background:'+(pm.grad||pm.color);
+  return src?'background:var(--s2)':'background:'+(pm.grad||pm.color||'#1a1a2e');
 }
 
 // Topic tag inline style (works for any topic, built-in or custom)
@@ -2103,7 +2105,7 @@ function renderSidebar(){
             ondragend="navProjDragEnd()"
             onclick="openProjectDetail('${p.id}')"
             style="padding-left:14px;gap:8px;cursor:grab">
-            <span style="width:16px;height:16px;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;${pm.img?'background:var(--s2)':'background:'+pm.grad}">${pm.emoji}</span>
+            <span style="width:16px;height:16px;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;${pm.img?'background:var(--s2)':'background:'+pm.grad}">${pm.emoji||'📁'}</span>
             <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escH(p.name)}</span>
           </button>`;
         }).join('')}
@@ -2403,7 +2405,7 @@ function renderTopicDetail(topicId){
                 <div style="height:48px;${projThumbBgStyle(pm)};position:relative;overflow:hidden">
                   ${projThumbInner(pm)}
                   <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 20%,rgba(9,9,16,.75) 100%)"></div>
-                  <div style="position:absolute;bottom:5px;left:8px;font-size:18px;line-height:1">${pm.emoji}</div>
+                  <div style="position:absolute;bottom:5px;left:8px;font-size:18px;line-height:1">${pm.emoji||'📁'}</div>
                 </div>
                 <div style="padding:8px 10px 10px">
                   <div style="font-family:var(--fg);font-size:12px;color:var(--wh);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escH(p.name)}</div>
@@ -2527,7 +2529,7 @@ function renderOrganize(){
             ondragstart="orgDragProjectStart(event,'${p.id}')"
             ondragend="orgDragProjectEnd()"
             onclick="event.stopPropagation();orgSelectProject('${p.id}')">
-            <span style="font-size:14px;line-height:1">${pm.emoji}</span>
+            <span style="font-size:14px;line-height:1">${pm.emoji||'📁'}</span>
             <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escH(p.name)}</span>
           </div>`;
         }).join('')}
@@ -2722,7 +2724,7 @@ function renderProjectsHub(){
           ondragleave="dzLeave(event)">
           <div class="proj-thumb" style="${projThumbBgStyle(pm)}" onclick="openProjectDetail('${p.id}')">
             ${projThumbInner(pm)}
-            <span class="proj-thumb-emoji" style="position:relative;z-index:1">${pm.emoji}</span>
+            <span class="proj-thumb-emoji" style="position:relative;z-index:1">${pm.emoji||'📁'}</span>
           </div>
           <button onclick="event.stopPropagation();openAddProjModal('${p.id}')" style="position:absolute;top:8px;right:8px;background:rgba(9,9,16,.7);border:1px solid rgba(255,255,255,.1);color:var(--su);border-radius:5px;padding:3px 7px;font-family:var(--fm);font-size:11px;cursor:pointer;letter-spacing:.06em;backdrop-filter:blur(4px);transition:color .1s;z-index:2" onmouseover="this.style.color='var(--wh)'" onmouseout="this.style.color='var(--su)'">✏ EDIT</button>
           <div class="proj-drop-hint">DROP HERE</div>
@@ -2910,7 +2912,7 @@ function renderProjectDetail(projId){
       <button class="pd-back" onclick="switchView('projects')">← Projects</button>
       <button class="pd-edit-btn" onclick="openAddProjModal('${projId}')">✏ Edit Style</button>
       <div class="pd-hero-content">
-        <div class="pd-hero-emoji">${pm.emoji}</div>
+        <div class="pd-hero-emoji">${pm.emoji||'📁'}</div>
         <div class="pd-hero-info">
           <div class="pd-hero-name">${escH(proj.name)}</div>
           <div class="pd-hero-meta">
@@ -4121,7 +4123,7 @@ function renderVCPickers(){
     return`<div class="proj-pick-card${vcProject===p.id?' sel':''}" onclick="vcPickProject('${p.id}')">
       <div class="proj-pick-thumb" style="${projThumbBgStyle(pm)}">
         ${projThumbInner(pm)}
-        <span style="font-size:22px;position:relative;z-index:1">${pm.emoji}</span>
+        <span style="font-size:22px;position:relative;z-index:1">${pm.emoji||'📁'}</span>
       </div>
       <div class="proj-pick-name">${escH(p.name)}</div>
     </div>`;
@@ -4732,7 +4734,7 @@ function renderRecPickers(){
     return`<div class="proj-pick-card${recProject===p.id?' sel':''}" onclick="recPickProject('${p.id}')">
       <div class="proj-pick-thumb" style="${projThumbBgStyle(pm)};height:50px">
         ${projThumbInner(pm)}
-        <span style="font-size:18px;position:relative;z-index:1">${pm.emoji}</span>
+        <span style="font-size:18px;position:relative;z-index:1">${pm.emoji||'📁'}</span>
       </div>
       <div class="proj-pick-name" style="font-size:11px">${escH(p.name)}</div>
     </div>`;
@@ -4912,7 +4914,7 @@ function renderCalendarView(){
       ${db.settings.topics.map(t=>{const m=getTopicMeta(t);const sel=calTopicFilter===t;return`<div class="opt-btn${sel?' sel':''}" style="cursor:pointer;padding:4px 9px;display:flex;align-items:center;gap:5px" onclick="calSetTopic('${t}')"><span style="width:6px;height:6px;border-radius:50%;background:${m.dot};display:inline-block"></span>${m.label}</div>`;}).join('')}
       ${calTopicFilter?`<span style="font-family:var(--fm);font-size:11px;color:var(--b2);margin:0 2px">|</span><span class="cal-filter-label">PROJ</span>
         <div class="opt-btn${!calProjFilter?' sel':''}" style="cursor:pointer;padding:4px 9px" onclick="calSetProj(null)">All</div>
-        ${projects.map(p=>{const pm=getProjMeta(p.id);const sel=calProjFilter===p.id;return`<div class="opt-btn${sel?' sel':''}" style="cursor:pointer;padding:4px 9px" onclick="calSetProj('${p.id}')">${pm.emoji} ${escH(p.name)}</div>`;}).join('')}`:''}
+        ${projects.map(p=>{const pm=getProjMeta(p.id);const sel=calProjFilter===p.id;return`<div class="opt-btn${sel?' sel':''}" style="cursor:pointer;padding:4px 9px" onclick="calSetProj('${p.id}')">${pm.emoji||'📁'} ${escH(p.name)}</div>`;}).join('')}`:''}
       ${myFriendIds.length>0?`<span style="font-family:var(--fm);font-size:11px;color:var(--b2);margin:0 2px">|</span><span class="cal-filter-label">FRIENDS</span>${myFriendIds.map(fid=>{const f=allUsers.find(u=>u.id===fid);if(!f)return'';const on=activeFriendFilters.has(fid);return`<button onclick="toggleFriendFilter('${fid}')" style="display:flex;align-items:center;gap:4px;font-family:var(--fm);font-size:11px;padding:3px 8px;border-radius:99px;border:1px solid ${on?f.color||'var(--ac)':'var(--b2)'};background:${on?'rgba(90,120,152,.2)':'none'};color:${on?'var(--wh)':'var(--su)'};cursor:pointer;transition:all .1s">${userAvHtml(f,13)}${escH(f.username)}</button>`;}).join('')}`:''}
     </div>
     <div class="cal-grid">

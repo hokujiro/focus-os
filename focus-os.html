@@ -1882,6 +1882,7 @@ let calTopicFilter=null, calProjFilter=null;
 // Stats view state
 let statsMode='month', statsYear=new Date().getFullYear(), statsMonth=new Date().getMonth();
 let statsEarnedOpen=false;
+let statsEarnedTab='completed'; // 'completed' | 'missed'
 let statsProjExpanded=false, statsProjMode='month', statsProjYear=new Date().getFullYear(), statsProjMonth=new Date().getMonth();
 
 // Add-project modal state
@@ -5109,6 +5110,7 @@ function statsProjNext(){
 function statsSetProjMode(m){statsProjMode=m;renderStatsView();}
 function toggleStatsProjExpanded(){statsProjExpanded=!statsProjExpanded;renderStatsView();}
 function toggleStatsEarned(){statsEarnedOpen=!statsEarnedOpen;renderStatsView();}
+function statsSetEarnedTab(tab){statsEarnedTab=tab;renderStatsView();}
 
 function renderPeriodPicker(year,month,mode,prevFn,nextFn,modeFn){
   const btnBase='font-family:var(--fm);font-size:11px;padding:3px 9px;border-radius:6px;border:1px solid var(--b2);cursor:pointer;letter-spacing:.06em;transition:all .1s;';
@@ -5176,36 +5178,38 @@ function renderStatsView(){
   const picker = renderPeriodPicker(statsYear,statsMonth,statsMode,'statsPeriodPrev','statsPeriodNext','statsSetMode');
 
   // ── Net Earned card ──
-  // Build earned task list sorted by date desc
-  const earnedTasksSorted=[...periodDone].sort((a,b)=>{
-    const da=a.scheduledDate||a.completedDate||'';
-    const db2=b.scheduledDate||b.completedDate||'';
-    return db2.localeCompare(da);
-  });
-  // ── Earned task list panel (shown between top cards and Top Projects) ──
-  const earnedPanelHtml=statsEarnedOpen&&earnedTasksSorted.length>0?`
+  const periodCompleted=[...periodDone].filter(t=>t.status==='done').sort((a,b)=>(b.scheduledDate||b.completedDate||'').localeCompare(a.scheduledDate||a.completedDate||''));
+  const periodFailed=[...periodDone].filter(t=>t.status==='failed').sort((a,b)=>(b.scheduledDate||b.completedDate||'').localeCompare(a.scheduledDate||a.completedDate||''));
+  const panelList=statsEarnedTab==='completed'?periodCompleted:periodFailed;
+  const panelEmpty=panelList.length===0;
+
+  // ── Earned task list panel ──
+  const tabBtn=(tab,label,count)=>`<button onclick="event.stopPropagation();statsSetEarnedTab('${tab}')" style="font-family:var(--fm);font-size:10px;letter-spacing:.08em;padding:4px 10px;border-radius:5px;border:1px solid ${statsEarnedTab===tab?'var(--ac)':'var(--b2)'};background:${statsEarnedTab===tab?'rgba(100,160,255,.12)':'none'};color:${statsEarnedTab===tab?'var(--ac)':'var(--mu)'};cursor:pointer;transition:all .12s">${label} <span style="opacity:.7">${count}</span></button>`;
+  const earnedPanelHtml=statsEarnedOpen?`
   <div class="stats-card" style="padding:0;overflow:hidden">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid var(--b1)">
-      <div style="font-family:var(--fm);font-size:10px;letter-spacing:.1em;color:var(--su)">COMPLETED TASKS · ${periodLabel(statsYear,statsMonth,statsMode).toUpperCase()}</div>
+      <div style="display:flex;gap:6px">${tabBtn('completed','Completed',periodCompleted.length)}${tabBtn('missed','Missed',periodFailed.length)}</div>
       <button onclick="toggleStatsEarned()" style="font-family:var(--fm);font-size:11px;color:var(--mu);background:none;border:none;cursor:pointer;letter-spacing:.05em;padding:0">✕ Close</button>
     </div>
     <div style="padding:0 16px">
-    ${earnedTasksSorted.map(t=>{
+    ${panelEmpty?`<div style="padding:32px 0;text-align:center;font-family:var(--fm);font-size:11px;color:var(--b3);letter-spacing:.08em">NO ${statsEarnedTab==='completed'?'COMPLETED':'MISSED'} TASKS THIS PERIOD</div>`
+    :panelList.map(t=>{
       const d=t.scheduledDate||t.completedDate||'';
       const dateLabel=d?new Date(d+'T00:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}):'';
       const money=DIFF_MONEY[t.difficulty]||0;
+      const isMissed=t.status==='failed';
       const finalComment=t.comments&&t.comments.find(c=>c.isFinal);
       const attachCount=t.comments?t.comments.reduce((s,c)=>s+(c.attachments?c.attachments.length:0),0):0;
       return`<div onclick="openVC('${t.id}')" style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .1s" onmouseover="this.style.background='rgba(255,255,255,.025)'" onmouseout="this.style.background='none'">
         <div style="min-width:76px;font-family:var(--fm);font-size:11px;color:var(--mu);padding-top:2px;flex-shrink:0">${dateLabel}</div>
         <div style="flex:1;min-width:0">
-          <div style="font-family:var(--fg);font-size:12px;color:var(--wh);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escH(t.title)}</div>
+          <div style="font-family:var(--fg);font-size:12px;color:${isMissed?'var(--red)':'var(--wh)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escH(t.title)}</div>
           <div style="display:flex;align-items:center;gap:4px;margin-top:4px;flex-wrap:wrap">${topicTagHtml(t.topic)}${projectTagHtml(t.project)}</div>
           ${finalComment?`<div style="font-family:var(--fg);font-size:11px;color:var(--mu);margin-top:2px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">★ ${escH(finalComment.text)}</div>`:''}
           ${attachCount?`<div style="font-family:var(--fm);font-size:11px;color:var(--mu);margin-top:2px">📎 ${attachCount} attachment${attachCount>1?'s':''}</div>`:''}
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-          <span style="font-family:var(--fm);font-size:10px;color:var(--grn);font-weight:700;min-width:32px;text-align:right">+$${money}</span>
+          <span style="font-family:var(--fm);font-size:10px;color:${isMissed?'var(--red)':'var(--grn)'};font-weight:700;min-width:32px;text-align:right">${isMissed?'−':'+'}\$${money}</span>
         </div>
       </div>`;
     }).join('')}

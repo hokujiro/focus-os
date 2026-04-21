@@ -5184,8 +5184,13 @@ function renderStatsView(){
 
   // ── Net Earned card ──
   const periodCompleted=[...periodDone].filter(t=>t.status==='done').sort((a,b)=>(b.scheduledDate||b.completedDate||'').localeCompare(a.scheduledDate||a.completedDate||''));
-  const periodFailed=[...periodDone].filter(t=>t.status==='failed').sort((a,b)=>(b.scheduledDate||b.completedDate||'').localeCompare(a.scheduledDate||a.completedDate||''));
-  const panelList=statsEarnedTab==='completed'?periodCompleted:periodFailed;
+  // Missed = tasks that have a penalty in the period (matches the subtitle count)
+  const periodMissedTasks=periodPens.map(pen=>{
+    const t=base.find(x=>x.id===pen.taskId);
+    return t||{id:pen.taskId,title:pen.taskTitle||'(deleted task)',topic:pen.topic,project:pen.project,
+      difficulty:pen.difficulty,scheduledDate:pen.date,completedDate:pen.date,status:'failed',comments:[]};
+  }).sort((a,b)=>(b.scheduledDate||'').localeCompare(a.scheduledDate||''));
+  const panelList=statsEarnedTab==='completed'?periodCompleted:periodMissedTasks;
   const panelEmpty=panelList.length===0;
 
   // ── Earned task list panel ──
@@ -5193,7 +5198,7 @@ function renderStatsView(){
   const earnedPanelHtml=statsEarnedOpen?`
   <div class="stats-card" style="padding:0;overflow:hidden">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid var(--b1)">
-      <div style="display:flex;gap:6px">${tabBtn('completed','Completed',periodCompleted.length)}${tabBtn('missed','Missed',periodFailed.length)}</div>
+      <div style="display:flex;gap:6px">${tabBtn('completed','Completed',periodCompleted.length)}${tabBtn('missed','Missed',periodMissedTasks.length)}</div>
       <button onclick="toggleStatsEarned()" style="font-family:var(--fm);font-size:11px;color:var(--mu);background:none;border:none;cursor:pointer;letter-spacing:.05em;padding:0">✕ Close</button>
     </div>
     <div style="padding:0 16px">
@@ -5202,7 +5207,7 @@ function renderStatsView(){
       const d=t.scheduledDate||t.completedDate||'';
       const dateLabel=d?new Date(d+'T00:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}):'';
       const money=DIFF_MONEY[t.difficulty]||0;
-      const isMissed=t.status==='failed';
+      const isMissed=statsEarnedTab==='missed';
       const finalComment=t.comments&&t.comments.find(c=>c.isFinal);
       const attachCount=t.comments?t.comments.reduce((s,c)=>s+(c.attachments?c.attachments.length:0),0):0;
       return`<div onclick="openVC('${t.id}')" style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .1s" onmouseover="this.style.background='rgba(255,255,255,.025)'" onmouseout="this.style.background='none'">

@@ -1563,7 +1563,8 @@ async function loadData(){
       })),
       penalties: (p||[]).map(x => ({
         id: x.id, taskId: x.task_id, amount: x.amount,
-        date: x.date, topic: x.topic, project: x.project
+        date: x.date, topic: x.topic, project: x.project,
+        userId: x.user_id || null
       })),
       settings: { topics, topicMeta, projects, projMeta },
       lastRecurringCheck: (s||{}).last_recurring_check,
@@ -1732,6 +1733,11 @@ async function syncDataToSupabase(){
       id:t.id,title:t.title,topic:t.topic||null,project:t.project||null,
       priority:t.priority||'medium',notes:t.notes||null,days:t.days
     }));
+    // Only sync own penalties
+    const penaltyRows=db.penalties.filter(p=>!p.userId||p.userId===currentUserId).map(p=>({
+      id:p.id,task_id:p.taskId,amount:p.amount,date:p.date,
+      topic:p.topic||null,project:p.project||null,user_id:currentUserId||null
+    }));
 
     const upsertPromises=[
       deleteOrphans,
@@ -1739,12 +1745,13 @@ async function syncDataToSupabase(){
       projectRows.length  ? supabaseClient.from('projects').upsert(projectRows)   : Promise.resolve(),
       taskRows.length     ? supabaseClient.from('tasks').upsert(taskRows)         : Promise.resolve(),
       templateRows.length ? supabaseClient.from('templates').upsert(templateRows) : Promise.resolve(),
+      penaltyRows.length  ? supabaseClient.from('penalties').upsert(penaltyRows)  : Promise.resolve(),
     ];
 
     const results=await Promise.all(upsertPromises);
     // Log any errors from batch upserts
     results.forEach((r,i)=>{
-      if(r?.error) console.warn(`Sync error [${['orphans','topics','projects','tasks','templates'][i]}]:`,r.error.message);
+      if(r?.error) console.warn(`Sync error [${['orphans','topics','projects','tasks','templates','penalties'][i]}]:`,r.error.message);
     });
 
     console.log("✓ Synced to Supabase");
@@ -2013,11 +2020,12 @@ function checkPenalties(){
   const today=todayStr();
   let n=0,lost=0;
   db.tasks.forEach(t=>{
+    if(t.userId&&t.userId!==currentUserId)return; // skip other users' tasks
     if(!t.scheduledDate||t.scheduledDate>=today||t.status==='done'||t.penalized)return;
     t.penalized=true;
     const amount=DIFF_MONEY[t.difficulty]||0;
     db.penalties.push({id:uuid(),taskId:t.id,taskTitle:t.title,amount,
-      date:t.scheduledDate,topic:t.topic||'',project:t.project||'',difficulty:t.difficulty||'medium-easy'});
+      date:t.scheduledDate,topic:t.topic||'',project:t.project||'',difficulty:t.difficulty||'medium-easy',userId:currentUserId||null});
     n++;lost+=amount;
   });
   if(n>0){saveData();showToast(`⚠ ${n} missed task${n>1?'s':''} — $${lost} lost`,3500);}
@@ -5138,7 +5146,13 @@ function renderStatsView(){
   // Base task/penalty sets (own tasks only — friends only appear in daily/planning/calendar)
   const ownTasks = db.tasks.filter(t=>!t.userId||t.userId===currentUserId);
   const base = activeTopic ? ownTasks.filter(t=>t.topic===activeTopic) : ownTasks;
-  const basePens = activeTopic ? db.penalties.filter(p=>p.topic===activeTopic) : db.penalties;
+  const ownPens = db.penalties.filter(p=>{
+    if(p.userId) return p.userId===currentUserId;
+    // Legacy penalties without userId: check via associated task
+    const t=db.tasks.find(x=>x.id===p.taskId);
+    return !t||!t.userId||t.userId===currentUserId;
+  });
+  const basePens = activeTopic ? ownPens.filter(p=>p.topic===activeTopic) : ownPens;
 
   // Period-filtered for Net Earned + Completion
   const periodDone = tasksDoneInPeriod(base, statsYear, statsMonth, statsMode);

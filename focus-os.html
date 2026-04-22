@@ -68,9 +68,11 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.5)}
 .view-content{flex:1;overflow:auto}
 
 /* ── TASK CARDS ── */
-.task-card{background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:10px 12px;cursor:grab;transition:border-color .1s,transform .1s;user-select:none}
+.task-card{background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:10px 12px;cursor:grab;transition:border-color .1s,transform .1s;user-select:none;position:relative}
 body[data-theme="notion"] .task-card{background:#ffffff;border-color:#e0e0e0}
 body[data-theme="notion"] .task-card:hover{border-color:#bdbdbd}
+body[data-theme="notion"] .task-card.friend-task{background:#f3f3f3;border-color:#d4d4d4;border-style:dashed;opacity:1!important}
+body[data-theme="notion"] .task-card.friend-task .tc-title{color:#555}
 .task-card:hover{border-color:var(--b3);transform:translateY(-1px)}
 .task-card:active{cursor:grabbing}
 .task-card.is-done{border-color:var(--b1)}
@@ -112,6 +114,43 @@ body[data-theme="notion"] .task-card.is-doing{border-color:transparent}
 .vc-chat-send-btn:hover{opacity:.85}
 .vc-chat-attach-btn{font-size:15px;background:none;border:1px solid var(--b2);border-radius:7px;width:30px;height:30px;cursor:pointer;color:var(--mu);flex-shrink:0;transition:all .1s}
 .vc-chat-attach-btn:hover{border-color:var(--ac);color:var(--ac)}
+
+/* ── TASK COMMENTS MODAL ── */
+#tc-modal{position:fixed;inset:0;background:rgba(5,5,12,.82);z-index:10500;display:flex;align-items:flex-end;justify-content:flex-end;padding:24px;pointer-events:none;opacity:0;transition:opacity .18s}
+#tc-modal.open{opacity:1;pointer-events:all}
+.tc-modal-box{width:360px;max-height:70vh;background:var(--s1);border:1px solid var(--b3);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transform:translateY(20px);transition:transform .18s;box-shadow:0 8px 40px rgba(0,0,0,.45)}
+#tc-modal.open .tc-modal-box{transform:translateY(0)}
+.tc-modal-hdr{padding:13px 15px 11px;border-bottom:1px solid var(--b1);display:flex;align-items:flex-start;gap:10px;flex-shrink:0}
+.tc-modal-title{font-size:13px;font-weight:600;color:var(--wh);line-height:1.3;flex:1}
+.tc-modal-sub{font-family:var(--fm);font-size:10px;color:var(--mu);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+.tc-modal-close{background:none;border:none;color:var(--mu);cursor:pointer;font-size:18px;line-height:1;padding:0;flex-shrink:0;transition:color .1s}
+.tc-modal-close:hover{color:var(--wh)}
+.tc-msg-list{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:9px;min-height:80px}
+.tc-msg-empty{font-family:var(--fm);font-size:11px;color:var(--mu);text-align:center;padding:16px 0;letter-spacing:.05em}
+.tc-msg{background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:8px 11px;font-size:12px;color:var(--wh)}
+.tc-msg.mine{border-color:rgba(90,120,152,.4);background:rgba(90,120,152,.12)}
+.tc-msg-meta{font-family:var(--fm);font-size:11px;color:var(--mu);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.tc-msg-inp-row{flex-shrink:0;padding:10px 12px;border-top:1px solid var(--b1);display:flex;gap:7px}
+.tc-msg-inp{flex:1;background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:7px 11px;font-family:var(--fg);font-size:12px;color:var(--wh);outline:none;transition:border-color .1s;resize:none}
+.tc-msg-inp:focus{border-color:var(--ac)}
+.tc-msg-inp::placeholder{color:var(--mu)}
+.tc-msg-send{font-family:var(--fm);font-size:11px;padding:7px 13px;border-radius:8px;background:var(--ac);border:none;color:var(--wh);cursor:pointer;letter-spacing:.05em;flex-shrink:0;transition:opacity .1s}
+.tc-msg-send:hover{opacity:.85}
+/* Chat badge on task cards */
+.tc-chat-btn{display:inline-flex;align-items:center;gap:3px;font-family:var(--fm);font-size:11px;padding:2px 7px;border-radius:99px;border:1px solid var(--b2);background:none;color:var(--mu);cursor:pointer;transition:all .12s;line-height:1.4;flex-shrink:0}
+.tc-chat-btn:hover{border-color:var(--ac);color:var(--ac)}
+.tc-chat-btn.has-unread{border-color:var(--ac);color:var(--ac)}
+.tc-unread-dot{width:6px;height:6px;border-radius:50%;background:var(--ac);display:inline-block;animation:pulse 1.5s infinite}
+/* Sidebar unread badge */
+.sb-notif-dot{width:7px;height:7px;border-radius:50%;background:var(--ac);display:inline-block;margin-left:5px;animation:pulse 1.5s infinite;flex-shrink:0}
+body[data-theme="notion"] .tc-msg{background:#f5f5f5;border-color:#e0e0e0;color:#2f2f2f}
+body[data-theme="notion"] .tc-msg.mine{background:#e8eef6;border-color:#c8d4e8}
+body[data-theme="notion"] .tc-modal-box{background:#fff;border-color:#e0e0e0}
+/* Notion: fix buttons with --ac bg that need white text */
+body[data-theme="notion"] .vc-chat-send-btn,
+body[data-theme="notion"] .tc-msg-send,
+body[data-theme="notion"] .plan-sel-bar-btn.primary,
+body[data-theme="notion"] .notion-ac-btn { color: #ffffff !important; }
 
 /* ── DROP ZONE ── */
 .drop-zone{transition:background .12s,border-color .12s}
@@ -713,7 +752,7 @@ input:checked + .slider-sm:before {
           <input type="range" id="cu-crop-zoom" min="1" max="4" step="0.01" value="1" oninput="updateCropTransform()" style="flex:1;cursor:pointer">
           <span style="font-size:10px;color:var(--mu)">+</span>
         </div>
-        <button onclick="applyCrop()" style="padding:8px 16px;background:var(--ac);color:var(--wh);border:none;border-radius:8px;font-family:var(--fm);font-size:11px;font-weight:700;cursor:pointer;transition:opacity .12s;letter-spacing:.05em" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">APPLY CROP ✓</button>
+        <button onclick="applyCrop()" class="notion-ac-btn" style="padding:8px 16px;background:var(--ac);color:var(--wh);border:none;border-radius:8px;font-family:var(--fm);font-size:11px;font-weight:700;cursor:pointer;transition:opacity .12s;letter-spacing:.05em" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">APPLY CROP ✓</button>
       </div>
       <button id="cu-photo-remove" onclick="removeCUPhoto()" style="display:none;background:none;border:none;font-family:var(--fm);font-size:11px;color:var(--red);cursor:pointer;letter-spacing:.05em;text-align:center">✕ Remove photo</button>
       <!-- Divider -->
@@ -925,6 +964,24 @@ input:checked + .slider-sm:before {
         <button class="btn-cancel" onclick="closeVC()">Cancel</button>
         <button class="btn-save" onclick="saveVC()">Save Task</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TASK COMMENTS MODAL ═══ -->
+<div id="tc-modal" onclick="if(event.target===this)closeTaskChat()">
+  <div class="tc-modal-box" onclick="event.stopPropagation()">
+    <div class="tc-modal-hdr">
+      <div style="flex:1;min-width:0">
+        <div class="tc-modal-sub">Comments</div>
+        <div class="tc-modal-title" id="tc-modal-title">—</div>
+      </div>
+      <button class="tc-modal-close" onclick="closeTaskChat()">&#215;</button>
+    </div>
+    <div class="tc-msg-list" id="tc-msg-list"></div>
+    <div class="tc-msg-inp-row">
+      <textarea class="tc-msg-inp" id="tc-msg-inp" rows="1" placeholder="Write a comment…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendTaskComment()}"></textarea>
+      <button class="tc-msg-send" onclick="sendTaskComment()">Send</button>
     </div>
   </div>
 </div>
@@ -1402,7 +1459,7 @@ function renderCustomEditor(){
     </div>
     <div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end">
       <button onclick="resetCustomEditor()" style="font-family:var(--fm);font-size:11px;color:var(--mu);background:none;border:1px solid var(--b2);border-radius:7px;padding:6px 12px;cursor:pointer;transition:all .1s" onmouseover="this.style.borderColor='var(--b3)';this.style.color='var(--su)'" onmouseout="this.style.borderColor='var(--b2)';this.style.color='var(--mu)'">Reset</button>
-      <button onclick="saveCustomTheme()" style="font-family:var(--fm);font-size:11px;color:var(--wh);background:var(--ac);border:none;border-radius:7px;padding:6px 14px;cursor:pointer">Save as Custom</button>
+      <button onclick="saveCustomTheme()" class="notion-ac-btn" style="font-family:var(--fm);font-size:11px;color:var(--wh);background:var(--ac);border:none;border-radius:7px;padding:6px 14px;cursor:pointer">Save as Custom</button>
     </div>`;
 }
 
@@ -1600,16 +1657,42 @@ async function loadData(){
       }
     }
 
-    // Load public topics for each friend
+    // Load public topics and projects for each friend
     const fIds = d.friendIds;
     if(fIds.length > 0){
-      const {data: fTopics} = await supabaseClient.from('topics').select('id,user_id').in('user_id', fIds).eq('is_public', true);
+      const [{data: fTopics, error: fTopicsErr}, {data: fProjects}] = await Promise.all([
+        supabaseClient.from('topics').select('id,user_id,color,dot,label,is_public').in('user_id', fIds).eq('is_public', true),
+        supabaseClient.from('projects').select('id,user_id,name,topic,grad,emoji,pat,color').in('user_id', fIds)
+      ]);
+      if(fTopicsErr) console.warn('⚠ friendPublicTopics load error:', fTopicsErr.message);
       friendPublicTopics = {};
+      friendsMeta = {};
       (fTopics||[]).forEach(t=>{
         if(!friendPublicTopics[t.user_id]) friendPublicTopics[t.user_id] = new Set();
         friendPublicTopics[t.user_id].add(t.id);
+        if(!friendsMeta[t.user_id]) friendsMeta[t.user_id] = {topicMeta:{},projects:[],projMeta:{}};
+        friendsMeta[t.user_id].topicMeta[t.id] = {color:t.color,dot:t.dot,label:t.label};
       });
-    } else { friendPublicTopics = {}; }
+      (fProjects||[]).forEach(p=>{
+        if(!friendsMeta[p.user_id]) friendsMeta[p.user_id] = {topicMeta:{},projects:[],projMeta:{}};
+        friendsMeta[p.user_id].projects.push({id:p.id,name:p.name,topic:p.topic});
+        friendsMeta[p.user_id].projMeta[p.id] = {grad:p.grad,emoji:p.emoji,pat:p.pat,color:p.color};
+      });
+      const friendTaskCount = d.tasks.filter(t=>fIds.includes(t.userId)).length;
+      console.log(`✓ Friends: ${fIds.length} friends, ${fTopics?.length||0} public topics, ${friendTaskCount} friend tasks loaded`);
+    } else { friendPublicTopics = {}; friendsMeta = {}; }
+
+    // Load comments for all visible tasks (own + friends)
+    const allVisibleIds = d.tasks.map(t=>t.id);
+    if(allVisibleIds.length > 0){
+      const {data: commentsData} = await supabaseClient.from('comments').select('*').in('task_id', allVisibleIds);
+      taskComments = {};
+      (commentsData||[]).forEach(c=>{
+        if(!taskComments[c.task_id]) taskComments[c.task_id] = [];
+        taskComments[c.task_id].push({id:c.id,taskId:c.task_id,userId:c.user_id,text:c.text,createdAt:c.created_at});
+      });
+    } else { taskComments = {}; }
+
     return finalizeLoad(d);
   }catch(e){
     console.warn("❌ Supabase load failed, falling back to localStorage:", e);
@@ -1770,26 +1853,37 @@ let currentUser   = null;
 let allUsers      = [];
 let myFriendIds   = [];
 let friendPublicTopics = {}; // { userId: Set<topicId> } — only public topics per friend
+let friendsMeta = {};        // { userId: { topicMeta, projects, projMeta } }
 let hiddenFriendIds = new Set(JSON.parse(localStorage.getItem('focusHiddenFriends')||'[]'));
 let activeFriendFilters = new Set(JSON.parse(localStorage.getItem('focusActiveFriendFilters')||'[]'));
+let taskComments = {};       // { taskId: [{id,taskId,userId,text,createdAt}] }
+let lastReadComments = JSON.parse(localStorage.getItem('focusLastReadComments')||'{}'); // {taskId: ISO}
+let tcOpenTaskId = null;     // currently open task chat
 
 // ─────────────────────────────────────────────
 // METADATA HELPERS (dynamic — support custom topics/projects)
 // ─────────────────────────────────────────────
-function getTopicMeta(t){
+function getTopicMeta(t, userId){
   const builtin=TOPIC_META_BUILTIN[t]||{color:'#8898b0',dot:'#6070a0',label:t||'None'};
-  const user=db.settings.topicMeta[t]||{};
+  const isFriend = userId && userId !== currentUserId;
+  const raw = isFriend ? (friendsMeta[userId]?.topicMeta[t]||{}) : (db.settings.topicMeta[t]||{});
+  const user=Object.fromEntries(Object.entries(raw).filter(([,v])=>v!=null));
   return{...builtin,...user};
 }
-function getProjMeta(id){
+function getProjMeta(id, userId){
   const builtin=PROJ_META_BUILTIN[id]||{grad:'linear-gradient(135deg,#111,#222)',emoji:'📁',color:'#8898b0',pat:'dots'};
-  const raw=db.settings.projMeta[id]||{};
+  const isFriend = userId && userId !== currentUserId;
+  const raw = isFriend ? (friendsMeta[userId]?.projMeta[id]||{}) : (db.settings.projMeta[id]||{});
   // Only override builtin values with non-null user data so null fields fall back to defaults
   const user=Object.fromEntries(Object.entries(raw).filter(([,v])=>v!=null));
   return{...builtin,...user};
 }
-function topicLabel(t){return getTopicMeta(t).label}
-function projectName(id){return(db.settings.projects.find(p=>p.id===id)||{}).name||id||'—'}
+function topicLabel(t, userId){return getTopicMeta(t, userId).label}
+function projectName(id, userId){
+  const isFriend = userId && userId !== currentUserId;
+  const list = isFriend ? (friendsMeta[userId]?.projects||[]) : db.settings.projects;
+  return(list.find(p=>p.id===id)||{}).name||id||'—';
+}
 
 // Returns the inner HTML for a project thumbnail div (handles both image and gradient)
 function projThumbInner(pm){
@@ -1803,9 +1897,9 @@ function projThumbBgStyle(pm){
 }
 
 // Topic tag inline style (works for any topic, built-in or custom)
-function topicTagHtml(t){
+function topicTagHtml(t, userId){
   if(!t)return'';
-  const m=getTopicMeta(t);
+  const m=getTopicMeta(t, userId);
   const c=m.color||'#8898b0';
   const dot=m.dot||c;
   const cs=c.startsWith('#')?c:'#8898b0';
@@ -1814,15 +1908,15 @@ function topicTagHtml(t){
   if(isLight) return`<span class="tag" style="background:${dot};color:#fff">${m.label}</span>`;
   return`<span class="tag" style="background:rgba(${r},${g},${b},.2);color:${c}">${m.label}</span>`;
 }
-function projectTagHtml(pid){
+function projectTagHtml(pid, userId){
   if(!pid)return'';
-  const pm=getProjMeta(pid);
+  const pm=getProjMeta(pid, userId);
   const c=pm.color||'var(--su)';
   const cs=c.startsWith('#')?c:'#5a78e8';
   const r=parseInt(cs.slice(1,3),16)||60, g=parseInt(cs.slice(3,5),16)||70, b=parseInt(cs.slice(5,7),16)||160;
   const isLight=THEMES.find(th=>th.id===getAppearance().theme)?.dark===false;
-  if(isLight) return`<span class="tag" style="background:rgba(${r},${g},${b},.15);color:${cs};border:1px solid rgba(${r},${g},${b},.45)">${escH(projectName(pid))}</span>`;
-  return`<span class="tag" style="background:rgba(${r},${g},${b},.15);color:${c}">${escH(projectName(pid))}</span>`;
+  if(isLight) return`<span class="tag" style="background:rgba(${r},${g},${b},.15);color:${cs};border:1px solid rgba(${r},${g},${b},.45)">${escH(projectName(pid,userId))}</span>`;
+  return`<span class="tag" style="background:rgba(${r},${g},${b},.15);color:${c}">${escH(projectName(pid,userId))}</span>`;
 }
 
 const STATUS_DOT_CLS = {
@@ -1838,11 +1932,11 @@ const STATUS_CLS   = {backlog:'s-backlog',todo:'s-todo','in-progress':'s-inprog'
 const STATUS_LABELS= {backlog:'To Do',todo:'To Do','in-progress':'Doing',done:'Done',failed:'Failed'};
 function statusLabel(s){return STATUS_LABELS[s]||s}
 
-// Returns tasks visible to the current user: own tasks + explicitly activated friends
+// Returns tasks visible to the current user: own tasks + friends (unless hidden) with public topics
 function getFilteredBase(){
   return db.tasks.filter(t=>{
     if(!t.userId || t.userId===currentUserId) return true;
-    if(myFriendIds.includes(t.userId) && activeFriendFilters.has(t.userId)){
+    if(myFriendIds.includes(t.userId) && !hiddenFriendIds.has(t.userId)){
       if(!t.topic) return false;
       const pub = friendPublicTopics[t.userId];
       return pub && pub.has(t.topic);
@@ -1857,9 +1951,10 @@ function getFiltered(){
   });
 }
 function toggleFriendFilter(userId){
-  if(activeFriendFilters.has(userId)) activeFriendFilters.delete(userId);
-  else activeFriendFilters.add(userId);
-  localStorage.setItem('focusActiveFriendFilters',JSON.stringify([...activeFriendFilters]));
+  if(hiddenFriendIds.has(userId)) hiddenFriendIds.delete(userId);
+  else hiddenFriendIds.add(userId);
+  localStorage.setItem('focusHiddenFriends',JSON.stringify([...hiddenFriendIds]));
+  renderFriendsList();
   renderCurrentView();
 }
 
@@ -2145,10 +2240,11 @@ function renderSidebar(){
   if(ua){
     if(currentUser){
       const fCount = myFriendIds.length;
+      const unreadCount = totalUnreadCount();
       ua.innerHTML=`<div class="sb-user" onclick="openFriendsModal()" title="Manage friends">
         ${userAvHtml(currentUser,26)}
         <div style="flex:1;overflow:hidden">
-          <div class="sb-user-name">${escH(currentUser.username)}</div>
+          <div class="sb-user-name" style="display:flex;align-items:center;gap:4px">${escH(currentUser.username)}<span class="sb-notif-dot-wrap">${unreadCount>0?`<span class="sb-notif-dot" title="${unreadCount} unread comment${unreadCount>1?'s':''}"></span>`:''}</span></div>
           <div class="sb-user-meta">${fCount} friend${fCount!==1?'s':''} · tap to manage</div>
         </div>
         <button onclick="event.stopPropagation();showLoginScreen()" title="Switch user" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:11px;padding:3px 5px;border-radius:4px;transition:color .1s" onmouseover="this.style.color='var(--wh)'" onmouseout="this.style.color='var(--mu)'">⇄</button>
@@ -2281,9 +2377,14 @@ function taskCard(t,ctx){
       :` onclick="openVC('${t.id}')"`);
   const cardBase=`class="task-card${failed&&!showAsDone?' is-failed':(done||showAsDone)?' is-done':t.status==='in-progress'?' is-doing':''}${isFriendTask?' friend-task':''}"`;
   const cardStyle=`style="${isFriendTask?'cursor:default;opacity:.82':(isRecurring&&ctx==='daily'?'cursor:default':'')}"`;
+  const _tcComments = taskComments[t.id]||[];
+  const _tcUnread = hasUnreadComments(t.id);
+  const chatBtn = isFriendTask
+    ? `<button class="tc-chat-btn${_tcUnread?' has-unread':''}" data-taskid="${t.id}" onclick="openTaskChat('${t.id}',event)" title="Comments" style="position:absolute;top:8px;right:8px;padding:2px 6px;border-radius:6px">${_tcUnread?'<span class=\'tc-unread-dot\'></span>':'💬'}${_tcComments.length?` ${_tcComments.length}`:''}</button>`
+    : '';
   const metaRow=`<div class="tc-meta">
-      ${topicTagHtml(t.topic)}
-      ${projectTagHtml(t.project)}
+      ${topicTagHtml(t.topic, t.userId)}
+      ${projectTagHtml(t.project, t.userId)}
       ${t.person?`<span class="tag" style="background:var(--ac2);color:var(--wh)">@${escH(t.person)}</span>`:''}
       ${(()=>{const fu=t.userId&&t.userId!==currentUserId?allUsers.find(u=>u.id===t.userId):null;return fu?`<span class="tc-friend-badge">${userAvHtml(fu,14)}${escH(fu.username)}</span>`:''})()}
       ${ctx==='weekly'?`<span class="tag ${STATUS_CLS[effectiveStatus]||''}">${statusLabel(effectiveStatus)}</span>`:''}
@@ -2299,6 +2400,7 @@ function taskCard(t,ctx){
     const mode=getKanbanImageMode();
     if(mode==='background'){
       return`<div${dragAttrs}${clickAttr} ${cardBase} ${cardStyle} style="${isFriendTask?'cursor:default;opacity:.82':''}padding:0;overflow:hidden">
+        ${chatBtn}
         <div class="tc-cover-bg-wrap">
           <img src="${escH(t.coverImage)}" onerror="this.parentElement.remove()">
           <div class="tc-cover-bg-overlay"></div>
@@ -2309,6 +2411,7 @@ function taskCard(t,ctx){
     }
     // thumbnail mode
     return`<div${dragAttrs}${clickAttr} ${cardBase} ${cardStyle} style="${isFriendTask?'cursor:default;opacity:.82':''}padding:0;overflow:hidden">
+      ${chatBtn}
       <img class="tc-cover-thumb" src="${escH(t.coverImage)}" onerror="this.style.display='none'">
       <div class="tc-cover-content">
         <div class="tc-title${done||showAsDone?' done':failed?' failed':''}" style="margin-bottom:6px">${escH(t.title)}</div>
@@ -2319,6 +2422,7 @@ function taskCard(t,ctx){
 
   return`<div${dragAttrs}${clickAttr}
     ${cardBase} ${cardStyle}>
+    ${chatBtn}
     <div class="tc-title${done||showAsDone?' done':failed?' failed':''}">${escH(t.title)}</div>
     ${metaRow}
   </div>`;
@@ -2471,7 +2575,7 @@ function renderTopicDetail(topicId){
               </div>
             </div>
             <div style="display:flex;justify-content:flex-end;padding-top:4px">
-              <button onclick="saveTopicConfig('${topicId}')" style="background:var(--ac);color:var(--wh);border:none;border-radius:7px;padding:8px 20px;font-family:var(--fm);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.06em;transition:background .12s" onmouseover="this.style.background='var(--ac2)'" onmouseout="this.style.background='var(--ac)'">Update Topic</button>
+              <button onclick="saveTopicConfig('${topicId}')" class="notion-ac-btn" style="background:var(--ac);color:var(--wh);border:none;border-radius:7px;padding:8px 20px;font-family:var(--fm);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.06em;transition:background .12s" onmouseover="this.style.background='var(--ac2)'" onmouseout="this.style.background='var(--ac)'">Update Topic</button>
             </div>
             <div style="border-top:1px solid var(--b1);margin-top:8px;padding-top:14px">
               <button onclick="deleteTopic('${topicId}')" style="background:none;color:#e05c5c;border:1px solid #e05c5c44;border-radius:7px;padding:6px 14px;font-family:var(--fm);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.06em;transition:all .12s" onmouseover="this.style.background='#e05c5c22'" onmouseout="this.style.background='none'">🗑 Delete Topic</button>
@@ -2576,7 +2680,7 @@ function renderOrganize(){
           </div>
         </div>
         <div style="display:flex;gap:8px;flex:1;align-items:flex-end">
-          <button onclick="orgSaveTopic('${orgSelectedTopic}')" style="flex:1;background:var(--ac);color:var(--wh);border:none;border-radius:7px;padding:8px;font-family:var(--fm);font-size:10px;font-weight:700;cursor:pointer">Save</button>
+          <button onclick="orgSaveTopic('${orgSelectedTopic}')" class="notion-ac-btn" style="flex:1;background:var(--ac);color:var(--wh);border:none;border-radius:7px;padding:8px;font-family:var(--fm);font-size:10px;font-weight:700;cursor:pointer">Save</button>
           <button onclick="orgDeleteTopic('${orgSelectedTopic}')" style="background:var(--red);color:var(--wh);border:none;border-radius:7px;padding:8px 12px;font-family:var(--fm);font-size:10px;font-weight:700;cursor:pointer">Delete</button>
         </div>
       </div>`;
@@ -2600,7 +2704,7 @@ function renderOrganize(){
             </select>
           </div>
           <div style="display:flex;gap:8px;flex:1;align-items:flex-end">
-            <button onclick="orgSaveProject('${orgSelectedProject}')" style="flex:1;background:var(--ac);color:var(--wh);border:none;border-radius:7px;padding:8px;font-family:var(--fm);font-size:10px;font-weight:700;cursor:pointer">Save</button>
+            <button onclick="orgSaveProject('${orgSelectedProject}')" class="notion-ac-btn" style="flex:1;background:var(--ac);color:var(--wh);border:none;border-radius:7px;padding:8px;font-family:var(--fm);font-size:10px;font-weight:700;cursor:pointer">Save</button>
             <button onclick="orgDeleteProject('${orgSelectedProject}')" style="background:var(--red);color:var(--wh);border:none;border-radius:7px;padding:8px 12px;font-family:var(--fm);font-size:10px;font-weight:700;cursor:pointer">Delete</button>
           </div>
         </div>`;
@@ -3378,7 +3482,7 @@ function renderDailyFilterBar(){
   const friendRow=friends.length>0?`
     <div style="padding:4px 16px 8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--b1)">
       <span style="font-family:var(--fm);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);flex-shrink:0">Friends:</span>
-      ${friends.map(f=>{const on=activeFriendFilters.has(f.id);return`<button onclick="toggleFriendFilter('${f.id}')" style="display:flex;align-items:center;gap:5px;font-family:var(--fm);font-size:11px;padding:3px 8px;border-radius:99px;border:1px solid ${on?f.color||'var(--ac)':'var(--b2)'};background:${on?'rgba(90,120,152,.2)':'none'};color:${on?'var(--wh)':'var(--su)'};cursor:pointer;transition:all .1s">${userAvHtml(f,14)}${escH(f.username)}</button>`;}).join('')}
+      ${friends.map(f=>{const on=!hiddenFriendIds.has(f.id);return`<button onclick="toggleFriendFilter('${f.id}')" style="display:flex;align-items:center;gap:5px;font-family:var(--fm);font-size:11px;padding:3px 8px;border-radius:99px;border:1px solid ${on?f.color||'var(--ac)':'var(--b2)'};background:${on?'rgba(90,120,152,.2)':'none'};color:${on?'var(--wh)':'var(--su)'};cursor:pointer;transition:all .1s">${userAvHtml(f,14)}${escH(f.username)}</button>`;}).join('')}
     </div>`:''
 
   return`<div style="flex-shrink:0">
@@ -3442,12 +3546,12 @@ function renderDailyFilterBar(){
           ?`<span style="font-family:var(--fm);font-size:11px;color:var(--b2);font-style:italic">No unscheduled tasks this week — drag here to unschedule</span>`
           :backlogTasks.map(t=>{
             const bc=_PLAN_STATUS_BORDER[t.status]||'rgba(130,130,160,.45)';
-            const topicDot=t.topic?getTopicMeta(t.topic).dot:'#6070a0';
+            const topicDot=t.topic?getTopicMeta(t.topic,t.userId).dot:'#6070a0';
             return`<div draggable="true" ondragstart="dzStart(event,'${t.id}')" onclick="openVC('${t.id}')"
               class="plan-chip" style="border-color:${bc};cursor:grab">
               <span style="width:6px;height:6px;border-radius:50%;background:${topicDot};flex-shrink:0"></span>
               ${escH(t.title)}
-              ${t.project?`<span style="opacity:.45;margin-left:3px;font-size:.88em">@${escH(projectName(t.project))}</span>`:''}
+              ${t.project?`<span style="opacity:.45;margin-left:3px;font-size:.88em">@${escH(projectName(t.project,t.userId))}</span>`:''}
             </div>`;
           }).join('')}
       </div>
@@ -3517,11 +3621,11 @@ const _PLAN_STATUS_BORDER={
 };
 function planChipHtml(t){
   const bc=_PLAN_STATUS_BORDER[t.status]||'rgba(130,130,160,.45)';
-  const topicDot=t.topic?getTopicMeta(t.topic).dot:'#6070a0';
+  const topicDot=t.topic?getTopicMeta(t.topic, t.userId).dot:'#6070a0';
   const isFriend=!!(t.userId&&t.userId!==currentUserId&&myFriendIds.includes(t.userId));
   const fu=isFriend?allUsers.find(u=>u.id===t.userId):null;
   const dragClick=isFriend?`style="cursor:default;opacity:.82;border-color:${bc}"`:`draggable="true" ondragstart="dzStart(event,'${t.id}')" onclick="openVC('${t.id}')" style="border-color:${bc}"`;
-  return`<div ${dragClick} class="plan-chip"><span style="width:6px;height:6px;border-radius:50%;background:${topicDot};flex-shrink:0"></span>${escH(t.title)}${t.project?`<span style="opacity:.45;margin-left:3px;font-size:0.88em">@${escH(projectName(t.project))}</span>`:''}${fu?`<span class="tc-friend-badge" style="margin-left:4px">${userAvHtml(fu,12)}${escH(fu.username)}</span>`:''}</div>`;
+  return`<div ${dragClick} class="plan-chip"><span style="width:6px;height:6px;border-radius:50%;background:${topicDot};flex-shrink:0"></span>${escH(t.title)}${t.project?`<span style="opacity:.45;margin-left:3px;font-size:0.88em">@${escH(projectName(t.project,t.userId))}</span>`:''}${fu?`<span class="tc-friend-badge" style="margin-left:4px">${userAvHtml(fu,12)}${escH(fu.username)}</span>`:''}</div>`;
 }
 
 function getPlanFiltered(){
@@ -3597,7 +3701,7 @@ function renderPlanFilterBar(){
   const planFriendRow=planFriends.length>0?`
     <div style="padding:0 14px 7px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
       <span style="font-family:var(--fm);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);flex-shrink:0;min-width:42px">Friends:</span>
-      ${planFriends.map(f=>{const on=activeFriendFilters.has(f.id);return`<button onclick="toggleFriendFilter('${f.id}')" style="display:flex;align-items:center;gap:5px;font-family:var(--fm);font-size:11px;padding:3px 8px;border-radius:99px;border:1px solid ${on?f.color||'var(--ac)':'var(--b2)'};background:${on?'rgba(90,120,152,.2)':'none'};color:${on?'var(--wh)':'var(--su)'};cursor:pointer;transition:all .1s">${userAvHtml(f,14)}${escH(f.username)}</button>`;}).join('')}
+      ${planFriends.map(f=>{const on=!hiddenFriendIds.has(f.id);return`<button onclick="toggleFriendFilter('${f.id}')" style="display:flex;align-items:center;gap:5px;font-family:var(--fm);font-size:11px;padding:3px 8px;border-radius:99px;border:1px solid ${on?f.color||'var(--ac)':'var(--b2)'};background:${on?'rgba(90,120,152,.2)':'none'};color:${on?'var(--wh)':'var(--su)'};cursor:pointer;transition:all .1s">${userAvHtml(f,14)}${escH(f.username)}</button>`;}).join('')}
     </div>`:''
 
   return`<div style="flex-shrink:0">
@@ -5774,13 +5878,24 @@ async function confirmCreateUser(){
 }
 
 // ── Topic public/private toggle ──
-function toggleTopicPublic(topicId){
+async function toggleTopicPublic(topicId){
   const meta = db.settings.topicMeta[topicId] || {};
   meta.isPublic = !meta.isPublic;
   db.settings.topicMeta[topicId] = meta;
-  saveData();
   renderCurrentView();
   showToast(meta.isPublic ? '🌐 Topic is now public' : '🔒 Topic is now private');
+  // Direct UPDATE to Supabase so the change persists immediately
+  const {error} = await supabaseClient.from('topics')
+    .update({is_public: meta.isPublic})
+    .eq('id', topicId)
+    .eq('user_id', currentUserId);
+  if(error){
+    console.error('❌ Failed to update topic visibility:', error.message, error);
+    showToast('⚠ Error saving — check console');
+  } else {
+    console.log(`✓ Topic "${topicId}" is_public=${meta.isPublic}`);
+  }
+  saveData();
 }
 
 // ── Friends modal ──
@@ -5909,7 +6024,7 @@ async function searchFriendsLive(){
       <div style="display:flex;align-items:center;gap:10px;padding:6px;background:rgba(255,255,255,0.03);border-radius:6px">
         ${userAvHtml(u, 22)}
         <span style="font-size:11px;color:var(--wh);flex:1">${escH(u.username)}</span>
-        ${isFriend ? `<span style="font-size:11px;color:var(--mu)">Friends</span>` : `<button onclick="sendFriendRequest('${u.id}')" style="padding:4px 8px;background:var(--ac);border:none;border-radius:4px;font-size:11px;color:var(--wh);cursor:pointer">Send Request</button>`}
+        ${isFriend ? `<span style="font-size:11px;color:var(--mu)">Friends</span>` : `<button onclick="sendFriendRequest('${u.id}')" class="notion-ac-btn" style="padding:4px 8px;background:var(--ac);border:none;border-radius:4px;font-size:11px;color:var(--wh);cursor:pointer">Send Request</button>`}
       </div>`;
   }).join('');
 }
@@ -6055,6 +6170,109 @@ function toggleHideFriend(friendId){
   renderCurrentView();
 }
 
+// ─────────────────────────────────────────────
+// TASK COMMENTS (cross-user chat)
+// ─────────────────────────────────────────────
+function hasUnreadComments(taskId){
+  const comments = taskComments[taskId] || [];
+  const lastRead = lastReadComments[taskId] || '1970-01-01';
+  return comments.some(c => c.userId !== currentUserId && c.createdAt > lastRead);
+}
+
+function totalUnreadCount(){
+  return Object.keys(taskComments).filter(id => hasUnreadComments(id)).length;
+}
+
+function openTaskChat(taskId, event){
+  if(event) event.stopPropagation();
+  tcOpenTaskId = taskId;
+  const task = db.tasks.find(t=>t.id===taskId);
+  document.getElementById('tc-modal-title').textContent = task?.title || 'Task';
+  renderTaskChatMessages();
+  document.getElementById('tc-modal').classList.add('open');
+  // Mark as read
+  lastReadComments[taskId] = new Date().toISOString();
+  localStorage.setItem('focusLastReadComments', JSON.stringify(lastReadComments));
+  setTimeout(()=>{ document.getElementById('tc-msg-inp').focus(); }, 180);
+  renderSidebarNotifDot();
+}
+
+function closeTaskChat(){
+  document.getElementById('tc-modal').classList.remove('open');
+  tcOpenTaskId = null;
+}
+
+function renderTaskChatMessages(){
+  const list = document.getElementById('tc-msg-list');
+  if(!list) return;
+  const comments = (taskComments[tcOpenTaskId]||[]).slice().sort((a,b)=>a.createdAt.localeCompare(b.createdAt));
+  if(comments.length === 0){
+    list.innerHTML = `<div class="tc-msg-empty">No comments yet. Be the first!</div>`;
+    return;
+  }
+  list.innerHTML = comments.map(c=>{
+    const author = allUsers.find(u=>u.id===c.userId);
+    const isMine = c.userId === currentUserId;
+    const name = author?.username || 'Unknown';
+    const time = new Date(c.createdAt).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    return`<div class="tc-msg${isMine?' mine':''}">
+      <div class="tc-msg-meta">${userAvHtml(author||{avatarEmoji:'👤',color:'#5a7898'},14)}<strong style="color:var(--wh)">${escH(name)}</strong><span>${time}</span></div>
+      <div style="white-space:pre-wrap">${escH(c.text)}</div>
+    </div>`;
+  }).join('');
+  list.scrollTop = list.scrollHeight;
+}
+
+async function sendTaskComment(){
+  const inp = document.getElementById('tc-msg-inp');
+  const text = inp?.value?.trim();
+  if(!text || !tcOpenTaskId || !currentUserId) return;
+  inp.value = '';
+  const newComment = {id:uuid(), taskId:tcOpenTaskId, userId:currentUserId, text, createdAt:new Date().toISOString()};
+  if(!taskComments[tcOpenTaskId]) taskComments[tcOpenTaskId] = [];
+  taskComments[tcOpenTaskId].push(newComment);
+  renderTaskChatMessages();
+  renderSidebarNotifDot();
+  const {error} = await supabaseClient.from('comments').insert({
+    id: newComment.id, task_id: newComment.taskId, user_id: newComment.userId,
+    text: newComment.text, created_at: newComment.createdAt
+  });
+  if(error) console.error('❌ Comment save error:', error.message);
+}
+
+function renderSidebarNotifDot(){
+  const count = totalUnreadCount();
+  const els = document.querySelectorAll('.sb-notif-dot-wrap');
+  els.forEach(el => {
+    el.innerHTML = count > 0 ? `<span class="sb-notif-dot" title="${count} unread comment${count>1?'s':''}"></span>` : '';
+  });
+  // Also re-render current view so chat buttons update
+  const cards = document.querySelectorAll('.task-card');
+  cards.forEach(card => {
+    const btn = card.querySelector('.tc-chat-btn');
+    if(!btn) return;
+    const taskId = btn.dataset.taskid;
+    if(!taskId) return;
+    const comments = taskComments[taskId]||[];
+    const unread = hasUnreadComments(taskId);
+    btn.innerHTML = `${unread?'<span class="tc-unread-dot"></span>':'💬'} ${comments.length||''}`;
+    btn.classList.toggle('has-unread', unread);
+  });
+}
+
+async function refreshTaskComments(){
+  const allIds = db.tasks.map(t=>t.id);
+  if(!allIds.length) return;
+  const {data} = await supabaseClient.from('comments').select('*').in('task_id', allIds);
+  taskComments = {};
+  (data||[]).forEach(c=>{
+    if(!taskComments[c.task_id]) taskComments[c.task_id] = [];
+    taskComments[c.task_id].push({id:c.id,taskId:c.task_id,userId:c.user_id,text:c.text,createdAt:c.created_at});
+  });
+  renderSidebarNotifDot();
+  if(tcOpenTaskId) renderTaskChatMessages();
+}
+
 async function init(){
   selectedWeek=getMondayOf(new Date()); selectedDay=todayStr();
   expandedWeeks.add(selectedWeek);
@@ -6098,6 +6316,11 @@ async function init(){
       db=finalizeLoad(JSON.parse(JSON.stringify(DEFAULTS)));
       renderSidebar(); switchView('daily');
     }
+  }
+
+  // Poll for new comments every 30s when friends exist
+  if(myFriendIds.length > 0){
+    setInterval(refreshTaskComments, 30000);
   }
 
 }

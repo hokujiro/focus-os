@@ -415,9 +415,10 @@ input:checked + .slider-sm:before {
 #fs-task-meta{font-family:var(--fm);font-size:10px;color:#404080;margin-top:3px;letter-spacing:.06em}
 .fs-end-btn{padding:8px 22px;border-radius:8px;border:none;background:#5060b8;color:#fff;font-family:var(--fm);font-size:11px;font-weight:700;letter-spacing:.08em;cursor:pointer;transition:opacity .12s;flex-shrink:0}
 .fs-end-btn:hover{opacity:.85}
-#fs-body{display:flex;flex:1;overflow:hidden}
-/* Timer panel */
-#fs-timer-panel{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:40px 48px}
+#fs-body{position:relative;flex:1;overflow:hidden;display:flex}
+/* Timer panel — absolutely centered over the full body */
+#fs-timer-panel{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:40px 48px;pointer-events:none}
+#fs-timer-panel>*{pointer-events:auto}
 .fs-session-lbl{font-family:var(--fm);font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#2c2c5c}
 .fs-big-timer{font-size:5rem;font-weight:800;color:#e0dcf8;letter-spacing:.08em;font-variant-numeric:tabular-nums;line-height:1;text-shadow:0 0 40px rgba(96,112,200,.25)}
 /* Pomo bar */
@@ -435,9 +436,9 @@ input:checked + .slider-sm:before {
 .fs-pause-btn:hover{border-color:#5060b8;color:#c8c4e8;background:rgba(80,96,184,.1)}
 .fs-pause-btn.paused{border-color:#50b880;color:#50b880}
 .fs-pause-btn.paused:hover{background:rgba(80,184,128,.1)}
-/* Checklist panel */
-#fs-checklist-panel{width:340px;flex-shrink:0;border-left:1px solid #10101e;display:flex;flex-direction:column;background:#06060c}
-.fs-cl-hdr{padding:18px 18px 12px;border-bottom:1px solid #10101e;flex-shrink:0}
+/* Checklist panel — floats on the right, z-index above timer */
+#fs-checklist-panel{width:320px;flex-shrink:0;border-left:1px solid #10101e;display:flex;flex-direction:column;background:#06060c;margin-left:auto;z-index:1}
+.fs-cl-hdr{padding:16px 16px 0;flex-shrink:0}
 .fs-cl-hdr-title{font-family:var(--fm);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#404080}
 .fs-cl-hdr-sub{font-family:var(--fm);font-size:10px;color:#252550;margin-top:4px}
 .fs-cl-list{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:7px}
@@ -447,7 +448,7 @@ input:checked + .slider-sm:before {
 .fs-cl-row input[type=checkbox]{width:14px;height:14px;cursor:pointer;flex-shrink:0;accent-color:#5060b8}
 .fs-cl-row-text{font-size:13px;color:#b8b4d8;flex:1;line-height:1.35}
 .fs-cl-row.done .fs-cl-row-text{text-decoration:line-through;color:#303050}
-.fs-cl-add-row{flex-shrink:0;padding:10px 14px;border-top:1px solid #10101e;display:flex;gap:7px}
+.fs-cl-add-row{flex-shrink:0;padding:10px 14px;border-bottom:1px solid #10101e;display:flex;gap:7px}
 .fs-cl-inp{flex:1;background:#0c0c18;border:1px solid #14142a;border-radius:7px;padding:8px 11px;font-family:var(--fg);font-size:12px;color:#b8b4d8;outline:none;transition:border-color .12s}
 .fs-cl-inp:focus{border-color:#5060b8}
 .fs-cl-inp::placeholder{color:#202040}
@@ -975,23 +976,12 @@ body[data-theme="notion"] .tc-time-badge{color:#666}
     </div>
 
     <div class="vc-div"></div>
-    <div class="vc-section">
-      <div class="vc-sec-label">Notes</div>
-      <textarea id="vc-notes" class="vc-notes" rows="2" placeholder="Optional notes..."></textarea>
-    </div>
-
-    <div class="vc-div"></div>
-    <div class="vc-section">
-      <div class="vc-sec-label">Cover Image <span style="font-family:var(--fm);font-size:11px;color:var(--mu);letter-spacing:.04em;text-transform:none;font-weight:400">(Daily Kanban only)</span></div>
-      <div id="vc-cover-preview" style="margin-bottom:8px"></div>
-      <div style="display:flex;gap:8px">
-        <div class="img-upload-zone" style="flex:1;padding:10px 14px;min-height:unset;flex-direction:row;gap:8px;justify-content:flex-start" onclick="document.getElementById('vc-cover-file').click()">
-          <span style="font-size:16px">🖼</span>
-          <span class="img-upload-lbl" id="vc-cover-lbl">Click to upload image from PC</span>
-        </div>
-        <button onclick="vcClearCover()" style="font-family:var(--fm);font-size:11px;padding:0 12px;border-radius:7px;border:1px solid var(--b2);background:none;color:var(--su);cursor:pointer;transition:all .1s;flex-shrink:0" onmouseover="this.style.color='var(--red)';this.style.borderColor='var(--red)'" onmouseout="this.style.color='var(--su)';this.style.borderColor='var(--b2)'">Clear</button>
-      </div>
+    <div class="vc-section" style="flex-direction:row;align-items:center;gap:10px;padding-top:4px;padding-bottom:4px">
+      <div id="vc-cover-preview" style="display:none"></div>
+      <button onclick="document.getElementById('vc-cover-file').click()" id="vc-cover-btn" style="font-family:var(--fm);font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--mu);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .1s" onmouseover="this.style.borderColor='var(--b3)';this.style.color='var(--su)'" onmouseout="this.style.borderColor='var(--b2)';this.style.color='var(--mu)'">🖼 <span id="vc-cover-lbl">Cover</span></button>
+      <button onclick="vcClearCover()" id="vc-cover-clear" style="display:none;font-family:var(--fm);font-size:11px;padding:4px 8px;border-radius:6px;border:1px solid var(--b2);background:none;color:var(--mu);cursor:pointer;transition:all .1s" onmouseover="this.style.color='var(--red)';this.style.borderColor='var(--red)'" onmouseout="this.style.color='var(--mu)';this.style.borderColor='var(--b2)'">✕</button>
       <input type="file" id="vc-cover-file" style="display:none" accept="image/*" onchange="vcHandleCoverUpload(this)">
+      <textarea id="vc-notes" style="display:none"></textarea>
     </div>
     <div class="vc-div"></div>
     <div class="vc-section">
@@ -1064,11 +1054,11 @@ body[data-theme="notion"] .tc-time-badge{color:#666}
         <div class="fs-cl-hdr-title">Tareas de la sesión</div>
         <div class="fs-cl-hdr-sub">Se añadirán al checklist de la tarea al finalizar</div>
       </div>
-      <div class="fs-cl-list" id="fs-cl-list"></div>
       <div class="fs-cl-add-row">
         <input class="fs-cl-inp" id="fs-cl-inp" placeholder="Añadir tarea a esta sesión…" onkeydown="if(event.key==='Enter')fsAddItem()">
         <button class="fs-cl-add-btn" onclick="fsAddItem()">+</button>
       </div>
+      <div class="fs-cl-list" id="fs-cl-list"></div>
     </div>
   </div>
 </div>
@@ -1637,20 +1627,24 @@ function vcHandleCoverUpload(input){
   const reader = new FileReader();
   reader.onload = e => {
     vcCoverImageData = e.target.result;
-    const el = document.getElementById('vc-cover-preview');
-    const lbl = document.getElementById('vc-cover-lbl');
-    if(el) el.innerHTML = `<img src="${vcCoverImageData}" style="width:100%;height:100px;object-fit:cover;border-radius:9px;border:1px solid var(--b1);display:block;margin-bottom:0">`;
-    if(lbl) lbl.textContent = file.name;
+    const prev = document.getElementById('vc-cover-preview');
+    const lbl  = document.getElementById('vc-cover-lbl');
+    const clr  = document.getElementById('vc-cover-clear');
+    if(prev){ prev.style.display='block'; prev.innerHTML=`<img src="${escH(vcCoverImageData)}" style="height:32px;width:48px;object-fit:cover;border-radius:5px;border:1px solid var(--b2);display:block">`; }
+    if(lbl) lbl.textContent = '✓ '+file.name.slice(0,18)+(file.name.length>18?'…':'');
+    if(clr) clr.style.display='block';
   };
   reader.readAsDataURL(file);
   input.value = '';
 }
 function vcClearCover(){
   vcCoverImageData = null;
-  const el  = document.getElementById('vc-cover-preview');
-  const lbl = document.getElementById('vc-cover-lbl');
-  if(el)  el.innerHTML = '';
-  if(lbl) lbl.textContent = 'Click to upload image from PC';
+  const prev = document.getElementById('vc-cover-preview');
+  const lbl  = document.getElementById('vc-cover-lbl');
+  const clr  = document.getElementById('vc-cover-clear');
+  if(prev){ prev.style.display='none'; prev.innerHTML=''; }
+  if(lbl) lbl.textContent = 'Cover';
+  if(clr) clr.style.display='none';
 }
 
 const DEFAULTS = {
@@ -4289,8 +4283,16 @@ function openVC(taskId=null,defaultStatus=null,defaultScheduledDate=null){
       vcCoverImageData = t.coverImage || null;
       const coverPrev=document.getElementById('vc-cover-preview');
       const coverLbl=document.getElementById('vc-cover-lbl');
-      if(coverPrev) coverPrev.innerHTML=vcCoverImageData?`<img src="${escH(vcCoverImageData)}" style="width:100%;height:100px;object-fit:cover;border-radius:9px;border:1px solid var(--b1);display:block">`:'' ;
-      if(coverLbl) coverLbl.textContent=vcCoverImageData?'Image loaded — click to replace':'Click to upload image from PC';
+      const coverClr=document.getElementById('vc-cover-clear');
+      if(vcCoverImageData){
+        if(coverPrev){coverPrev.style.display='block';coverPrev.innerHTML=`<img src="${escH(vcCoverImageData)}" style="height:32px;width:48px;object-fit:cover;border-radius:5px;border:1px solid var(--b2);display:block">`;}
+        if(coverLbl) coverLbl.textContent='✓ cover';
+        if(coverClr) coverClr.style.display='block';
+      } else {
+        if(coverPrev){coverPrev.style.display='none';coverPrev.innerHTML='';}
+        if(coverLbl) coverLbl.textContent='Cover';
+        if(coverClr) coverClr.style.display='none';
+      }
       vcComments=JSON.parse(JSON.stringify(t.comments||[]));vcChatPendingFiles=[];vcCpPendingFiles=[];
       const existingFinal=(t.comments||[]).find(c=>c.isFinal);
       vcFinalFiles=existingFinal?JSON.parse(JSON.stringify(existingFinal.attachments||[])):[];
@@ -4311,8 +4313,10 @@ function openVC(taskId=null,defaultStatus=null,defaultScheduledDate=null){
       vcCoverImageData = null;
       const coverPrevN=document.getElementById('vc-cover-preview');
       const coverLblN=document.getElementById('vc-cover-lbl');
-      if(coverPrevN) coverPrevN.innerHTML='';
-      if(coverLblN) coverLblN.textContent='Click to upload image from PC';
+      const coverClrN=document.getElementById('vc-cover-clear');
+      if(coverPrevN){coverPrevN.style.display='none';coverPrevN.innerHTML='';}
+      if(coverLblN) coverLblN.textContent='Cover';
+      if(coverClrN) coverClrN.style.display='none';
     }
     // Reset chat panel
     vcChatPanelOpen=false;

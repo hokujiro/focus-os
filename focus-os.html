@@ -2274,9 +2274,13 @@ function taskCard(t,ctx){
   const effectiveStatus=showAsDone?'done':t.status;
   const isFriendTask=!!(t.userId&&t.userId!==currentUserId&&myFriendIds.includes(t.userId));
   const dragAttrs=isFriendTask?'':` draggable="true" ondragstart="dzStart(event,'${t.id}','${ctx}')"`;
-  const clickAttr=isFriendTask?'':` onclick="openVC('${t.id}')"`;
+  const isRecurring=!!t.fromTemplate;
+  const clickAttr=isFriendTask?''
+    :(isRecurring&&ctx==='daily'
+      ?` onclick="showToast('↻ Edit template in Recurring view')"`
+      :` onclick="openVC('${t.id}')"`);
   const cardBase=`class="task-card${failed&&!showAsDone?' is-failed':(done||showAsDone)?' is-done':t.status==='in-progress'?' is-doing':''}${isFriendTask?' friend-task':''}"`;
-  const cardStyle=`style="${isFriendTask?'cursor:default;opacity:.82':''}"`;
+  const cardStyle=`style="${isFriendTask?'cursor:default;opacity:.82':(isRecurring&&ctx==='daily'?'cursor:default':'')}"`;
   const metaRow=`<div class="tc-meta">
       ${topicTagHtml(t.topic)}
       ${projectTagHtml(t.project)}

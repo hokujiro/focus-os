@@ -405,6 +405,62 @@ input:checked + .slider-sm:before {
 .rec-card{background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:14px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;cursor:pointer;transition:border-color .1s;margin-bottom:8px}
 .rec-card:hover{border-color:var(--b2)}
 
+/* ── FOCUS SESSION ── */
+#focus-session{position:fixed;inset:0;z-index:60000;background:#08080f;display:none;flex-direction:column}
+#fs-header{display:flex;align-items:center;gap:14px;padding:16px 24px;border-bottom:1px solid #13132a;flex-shrink:0}
+.fs-back-btn{background:none;border:1px solid #1e1e3a;color:#5060a0;cursor:pointer;font-size:12px;padding:6px 12px;border-radius:7px;font-family:var(--fm);letter-spacing:.06em;transition:all .12s;flex-shrink:0}
+.fs-back-btn:hover{color:#c8c4e8;border-color:#3040a0}
+#fs-task-info{flex:1;min-width:0}
+#fs-task-title{font-size:15px;font-weight:700;color:#d8d4f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#fs-task-meta{font-family:var(--fm);font-size:10px;color:#404080;margin-top:3px;letter-spacing:.06em}
+.fs-end-btn{padding:8px 22px;border-radius:8px;border:none;background:#5060b8;color:#fff;font-family:var(--fm);font-size:11px;font-weight:700;letter-spacing:.08em;cursor:pointer;transition:opacity .12s;flex-shrink:0}
+.fs-end-btn:hover{opacity:.85}
+#fs-body{display:flex;flex:1;overflow:hidden}
+/* Timer panel */
+#fs-timer-panel{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:40px 48px}
+.fs-session-lbl{font-family:var(--fm);font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#2c2c5c}
+.fs-big-timer{font-size:5rem;font-weight:800;color:#e0dcf8;letter-spacing:.08em;font-variant-numeric:tabular-nums;line-height:1;text-shadow:0 0 40px rgba(96,112,200,.25)}
+/* Pomo bar */
+#fs-pomo-wrap{width:100%;max-width:320px}
+.fs-pomo-bar-bg{height:4px;background:#14142a;border-radius:99px;overflow:hidden;margin-bottom:6px}
+.fs-pomo-bar-fill{height:100%;background:linear-gradient(90deg,#5060b8,#7090e0);border-radius:99px;transition:width .9s linear;width:0%}
+.fs-pomo-meta{display:flex;justify-content:space-between;font-family:var(--fm);font-size:10px;color:#303060;letter-spacing:.06em}
+/* Total */
+.fs-total-wrap{text-align:center}
+.fs-total-num{font-size:1.6rem;font-weight:700;color:#6070c8;letter-spacing:.04em}
+.fs-total-lbl{font-family:var(--fm);font-size:10px;color:#303060;text-transform:uppercase;letter-spacing:.12em;margin-top:3px}
+/* Controls */
+.fs-controls{display:flex;gap:10px}
+.fs-pause-btn{padding:10px 26px;border-radius:9px;border:1px solid #252550;background:none;color:#6070a0;font-family:var(--fm);font-size:11px;font-weight:700;letter-spacing:.08em;cursor:pointer;transition:all .12s;min-width:120px}
+.fs-pause-btn:hover{border-color:#5060b8;color:#c8c4e8;background:rgba(80,96,184,.1)}
+.fs-pause-btn.paused{border-color:#50b880;color:#50b880}
+.fs-pause-btn.paused:hover{background:rgba(80,184,128,.1)}
+/* Checklist panel */
+#fs-checklist-panel{width:340px;flex-shrink:0;border-left:1px solid #10101e;display:flex;flex-direction:column;background:#06060c}
+.fs-cl-hdr{padding:18px 18px 12px;border-bottom:1px solid #10101e;flex-shrink:0}
+.fs-cl-hdr-title{font-family:var(--fm);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#404080}
+.fs-cl-hdr-sub{font-family:var(--fm);font-size:10px;color:#252550;margin-top:4px}
+.fs-cl-list{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:7px}
+.fs-cl-empty{font-family:var(--fm);font-size:11px;color:#202040;text-align:center;padding:24px 0}
+.fs-cl-row{display:flex;align-items:center;gap:9px;background:#0c0c18;border:1px solid #14142a;border-radius:8px;padding:9px 12px;transition:border-color .1s}
+.fs-cl-row.done{opacity:.5}
+.fs-cl-row input[type=checkbox]{width:14px;height:14px;cursor:pointer;flex-shrink:0;accent-color:#5060b8}
+.fs-cl-row-text{font-size:13px;color:#b8b4d8;flex:1;line-height:1.35}
+.fs-cl-row.done .fs-cl-row-text{text-decoration:line-through;color:#303050}
+.fs-cl-add-row{flex-shrink:0;padding:10px 14px;border-top:1px solid #10101e;display:flex;gap:7px}
+.fs-cl-inp{flex:1;background:#0c0c18;border:1px solid #14142a;border-radius:7px;padding:8px 11px;font-family:var(--fg);font-size:12px;color:#b8b4d8;outline:none;transition:border-color .12s}
+.fs-cl-inp:focus{border-color:#5060b8}
+.fs-cl-inp::placeholder{color:#202040}
+.fs-cl-add-btn{background:#5060b8;border:none;border-radius:7px;color:#fff;padding:8px 13px;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .1s;flex-shrink:0;line-height:1}
+.fs-cl-add-btn:hover{opacity:.85}
+/* Task card badges */
+.tc-time-badge{font-family:var(--fm);font-size:10px;color:var(--ac);display:inline-flex;align-items:center;gap:2px;opacity:.8}
+.tc-focus-btn{display:inline-flex;align-items:center;gap:3px;font-family:var(--fm);font-size:11px;padding:2px 8px;border-radius:99px;border:1px solid rgba(96,112,200,.35);background:rgba(96,112,200,.07);color:#7080c0;cursor:pointer;transition:all .12s;flex-shrink:0}
+.tc-focus-btn:hover{border-color:#6070c8;color:#e0dcf8;background:rgba(96,112,200,.18)}
+body[data-theme="notion"] .tc-focus-btn{border-color:rgba(47,47,47,.25);background:rgba(47,47,47,.05);color:#666}
+body[data-theme="notion"] .tc-focus-btn:hover{border-color:#2f2f2f;color:#111;background:rgba(47,47,47,.1)}
+body[data-theme="notion"] .tc-time-badge{color:#666}
+
 /* ── MAINTENANCE BANNER ── */
 #maint-banner{position:fixed;top:0;left:0;right:0;z-index:99998;background:linear-gradient(90deg,#d97706,#b45309);color:#fff;padding:10px 48px 10px 16px;font-family:var(--fm);font-size:12px;letter-spacing:.03em;display:flex;align-items:center;gap:10px;box-shadow:0 2px 12px rgba(0,0,0,.3);animation:slideDown .3s ease}
 @keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
@@ -969,6 +1025,49 @@ input:checked + .slider-sm:before {
       <div class="vc-actions">
         <button class="btn-cancel" onclick="closeVC()">Cancel</button>
         <button class="btn-save" onclick="saveVC()">Save Task</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FOCUS SESSION ═══ -->
+<div id="focus-session">
+  <div id="fs-header">
+    <button class="fs-back-btn" onclick="closeFocusSession()">← Volver</button>
+    <div id="fs-task-info">
+      <div id="fs-task-title"></div>
+      <div id="fs-task-meta"></div>
+    </div>
+    <button class="fs-end-btn" onclick="endFocusSession()">✓ Finalizar sesión</button>
+  </div>
+  <div id="fs-body">
+    <div id="fs-timer-panel">
+      <div class="fs-session-lbl">Tiempo de sesión</div>
+      <div class="fs-big-timer" id="fs-timer">00:00:00</div>
+      <div id="fs-pomo-wrap">
+        <div class="fs-pomo-bar-bg"><div class="fs-pomo-bar-fill" id="fs-pomo-fill"></div></div>
+        <div class="fs-pomo-meta">
+          <span>Pomodoro</span>
+          <span id="fs-pomo-remaining">25:00 restantes</span>
+        </div>
+      </div>
+      <div class="fs-total-wrap">
+        <div class="fs-total-num" id="fs-total-num">—</div>
+        <div class="fs-total-lbl">total invertido</div>
+      </div>
+      <div class="fs-controls">
+        <button class="fs-pause-btn" id="fs-pause-btn" onclick="toggleFocusPause()">⏸ Pausa</button>
+      </div>
+    </div>
+    <div id="fs-checklist-panel">
+      <div class="fs-cl-hdr">
+        <div class="fs-cl-hdr-title">Tareas de la sesión</div>
+        <div class="fs-cl-hdr-sub">Se añadirán al checklist de la tarea al finalizar</div>
+      </div>
+      <div class="fs-cl-list" id="fs-cl-list"></div>
+      <div class="fs-cl-add-row">
+        <input class="fs-cl-inp" id="fs-cl-inp" placeholder="Añadir tarea a esta sesión…" onkeydown="if(event.key==='Enter')fsAddItem()">
+        <button class="fs-cl-add-btn" onclick="fsAddItem()">+</button>
       </div>
     </div>
   </div>
@@ -1627,6 +1726,7 @@ async function loadData(){
           fromTemplate: meta.fromTemplate, createdAt: x.created_at,
           comments: meta.comments || [],
           coverImage: meta.coverImage || null,
+          timeInvested: meta.timeInvested || 0,
           userId: x.user_id || null
         };
       }),
@@ -1739,6 +1839,7 @@ function finalizeLoad(d){
     if(!('difficulty' in t))t.difficulty='medium-easy';
     if(!('penalized' in t))t.penalized=false;
     if(!('salaryCredited' in t))t.salaryCredited=false;
+    if(!('timeInvested' in t))t.timeInvested=0;
   });
   return d;
 }
@@ -1796,7 +1897,7 @@ async function syncDataToSupabase(){
       penalized:t.penalized||false,salary_credited:t.salaryCredited||false,
       created_at:t.createdAt||new Date().toISOString(),
       user_id:currentUserId||null,
-      metadata:{fromTemplate:t.fromTemplate,comments:t.comments||[],coverImage:t.coverImage||null}
+      metadata:{fromTemplate:t.fromTemplate,comments:t.comments||[],coverImage:t.coverImage||null,timeInvested:t.timeInvested||0}
     }));
 
     // Fire everything in parallel
@@ -2395,6 +2496,9 @@ function taskCard(t,ctx){
   const chatBtn = isFriendTask
     ? `<button class="tc-chat-btn${_tcUnread?' has-unread':''}" data-taskid="${t.id}" onclick="openTaskChat('${t.id}',event)" title="Comments" style="position:absolute;top:8px;right:8px;padding:2px 6px;border-radius:6px">${_tcUnread?'<span class=\'tc-unread-dot\'></span>':'💬'}${_tcComments.length?` ${_tcComments.length}`:''}</button>`
     : '';
+  const canFocus = !isFriendTask && !isRecurring && t.status==='in-progress';
+  const focusBtn = canFocus ? `<button class="tc-focus-btn" onclick="openFocusSession('${t.id}',event)" title="Iniciar sesión de trabajo">▶ Focus</button>` : '';
+  const timeBadge = (t.timeInvested>0&&!isFriendTask) ? `<span class="tc-time-badge">⏱ ${formatFsTime(t.timeInvested)}</span>` : '';
   const metaRow=`<div class="tc-meta">
       ${topicTagHtml(t.topic, t.userId)}
       ${projectTagHtml(t.project, t.userId)}
@@ -2404,6 +2508,8 @@ function taskCard(t,ctx){
       ${t.fromTemplate?`<span style="font-size:11px;color:var(--ac)">↻</span>`:''}
       ${t.difficulty&&t.difficulty!=='medium-easy'?`<span class="diff-badge diff-${t.difficulty}">${DIFF_LABELS[t.difficulty]||''}</span>`:''}
       ${t.checklist&&t.checklist.length>0?`<span style="font-family:var(--fm);font-size:11px;color:var(--mu);margin-left:4px">🎯 ${t.checklist.filter(x=>x.done).length}/${t.checklist.length}</span>`:''}
+      ${timeBadge}
+      ${focusBtn}
       <span class="prio-dot ${STATUS_DOT_CLS[effectiveStatus]||'s-todo-dot'}" style="margin-left:auto"></span>
       ${over?`<span style="font-size:11px;color:var(--red);font-family:var(--fm)">⚠ ${formatDate(t.dueDate)}</span>`:''}
     </div>`;
@@ -6284,6 +6390,163 @@ async function refreshTaskComments(){
   });
   renderSidebarNotifDot();
   if(tcOpenTaskId) renderTaskChatMessages();
+}
+
+// ─────────────────────────────────────────────
+// FOCUS SESSION
+// ─────────────────────────────────────────────
+let fsTaskId = null;
+let fsElapsed = 0;      // seconds accumulated (before current run)
+let fsResumeAt = null;  // Date.now() when last resumed
+let fsPaused = false;
+let fsInterval = null;
+let fsChecklist = [];   // [{text, done}]
+const FS_POMO = 25 * 60; // 25-min pomodoro block
+
+function formatFsTime(secs){
+  if(!secs) return '0m';
+  const h=Math.floor(secs/3600), m=Math.floor((secs%3600)/60), s=secs%60;
+  if(h>0) return h+'h '+(m>0?m+'m':'');
+  if(m>0) return m+'m'+(s>0?' '+s+'s':'');
+  return s+'s';
+}
+function formatFsTimeLong(secs){
+  if(!secs) return '—';
+  const h=Math.floor(secs/3600), m=Math.floor((secs%3600)/60), s=secs%60;
+  if(h>0) return h+'h '+(m>0?m+'m ':'');
+  if(m>0) return m+'m '+(s>0?s+'s':'');
+  return s+'s';
+}
+function fsCurrentElapsed(){
+  if(fsPaused||!fsResumeAt) return fsElapsed;
+  return fsElapsed + Math.floor((Date.now()-fsResumeAt)/1000);
+}
+
+function openFocusSession(taskId, event){
+  if(event) event.stopPropagation();
+  const t = db.tasks.find(x=>x.id===taskId);
+  if(!t) return;
+  fsTaskId=taskId; fsElapsed=0; fsResumeAt=null; fsPaused=false; fsChecklist=[];
+  clearInterval(fsInterval);
+
+  // Fill header
+  document.getElementById('fs-task-title').textContent = t.title;
+  const meta=[];
+  if(t.topic) meta.push(getTopicMeta(t.topic).label);
+  if(t.project) meta.push(projectName(t.project));
+  document.getElementById('fs-task-meta').textContent = meta.join(' · ');
+
+  // Reset UI
+  document.getElementById('fs-timer').textContent='00:00:00';
+  document.getElementById('fs-pomo-fill').style.width='0%';
+  document.getElementById('fs-pomo-remaining').textContent='25:00 restantes';
+  document.getElementById('fs-total-num').textContent=formatFsTimeLong(t.timeInvested||0);
+  document.getElementById('fs-pause-btn').textContent='⏸ Pausa';
+  document.getElementById('fs-pause-btn').classList.remove('paused');
+  renderFsChecklist();
+
+  // Show overlay
+  const el=document.getElementById('focus-session');
+  el.style.display='flex';
+  closeVC();
+
+  // Start timer
+  fsResumeAt=Date.now();
+  fsInterval=setInterval(fsTick,1000);
+  setTimeout(()=>document.getElementById('fs-cl-inp').focus(),350);
+}
+
+function closeFocusSession(){
+  clearInterval(fsInterval); fsInterval=null;
+  document.getElementById('focus-session').style.display='none';
+  fsTaskId=null;
+}
+
+function endFocusSession(){
+  const elapsed=fsCurrentElapsed();
+  clearInterval(fsInterval); fsInterval=null;
+
+  const t=db.tasks.find(x=>x.id===fsTaskId);
+  if(t){
+    t.timeInvested=(t.timeInvested||0)+elapsed;
+    if(fsChecklist.length>0){
+      if(!t.checklist) t.checklist=[];
+      fsChecklist.forEach(item=>{
+        if(!t.checklist.some(ex=>ex.text.trim()===item.text.trim()))
+          t.checklist.push({text:item.text,done:item.done});
+      });
+    }
+    saveData();
+    renderCurrentView();
+  }
+
+  document.getElementById('focus-session').style.display='none';
+  fsTaskId=null;
+  if(elapsed>0) showToast('✓ Sesión guardada — '+formatFsTime(elapsed)+' invertidos');
+}
+
+function toggleFocusPause(){
+  fsPaused=!fsPaused;
+  const btn=document.getElementById('fs-pause-btn');
+  if(fsPaused){
+    fsElapsed+=Math.floor((Date.now()-fsResumeAt)/1000);
+    fsResumeAt=null;
+    clearInterval(fsInterval); fsInterval=null;
+    btn.textContent='▶ Continuar'; btn.classList.add('paused');
+  } else {
+    fsResumeAt=Date.now();
+    fsInterval=setInterval(fsTick,1000);
+    btn.textContent='⏸ Pausa'; btn.classList.remove('paused');
+  }
+}
+
+function fsTick(){
+  const cur=fsCurrentElapsed();
+  // Timer display HH:MM:SS
+  const h=Math.floor(cur/3600), m=Math.floor((cur%3600)/60), s=cur%60;
+  document.getElementById('fs-timer').textContent=
+    String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  // Pomodoro bar (fills over 25 min)
+  const pomoPos=cur%FS_POMO;
+  document.getElementById('fs-pomo-fill').style.width=(pomoPos/FS_POMO*100)+'%';
+  const rem=FS_POMO-pomoPos;
+  document.getElementById('fs-pomo-remaining').textContent=
+    String(Math.floor(rem/60)).padStart(2,'0')+':'+String(rem%60).padStart(2,'0')+' restantes';
+  // Flash on pomo complete
+  if(cur>0&&cur%FS_POMO===0){
+    const fill=document.getElementById('fs-pomo-fill');
+    fill.style.background='linear-gradient(90deg,#50b880,#70d8a0)';
+    setTimeout(()=>fill.style.background='linear-gradient(90deg,#5060b8,#7090e0)',1800);
+  }
+  // Total time
+  const t=db.tasks.find(x=>x.id===fsTaskId);
+  document.getElementById('fs-total-num').textContent=formatFsTimeLong((t?.timeInvested||0)+cur);
+}
+
+function fsAddItem(){
+  const inp=document.getElementById('fs-cl-inp');
+  const text=inp?.value?.trim();
+  if(!text) return;
+  fsChecklist.push({text,done:false});
+  inp.value='';
+  renderFsChecklist();
+}
+function fsToggleItem(idx){
+  fsChecklist[idx].done=!fsChecklist[idx].done;
+  renderFsChecklist();
+}
+function renderFsChecklist(){
+  const list=document.getElementById('fs-cl-list');
+  if(!list) return;
+  if(!fsChecklist.length){
+    list.innerHTML=`<div class="fs-cl-empty">Añade tareas para esta sesión</div>`;
+    return;
+  }
+  list.innerHTML=fsChecklist.map((item,i)=>`
+    <div class="fs-cl-row${item.done?' done':''}">
+      <input type="checkbox" ${item.done?'checked':''} onchange="fsToggleItem(${i})">
+      <span class="fs-cl-row-text">${escH(item.text)}</span>
+    </div>`).join('');
 }
 
 // ── Maintenance banner ──

@@ -1721,6 +1721,7 @@ async function loadData(){
           comments: meta.comments || [],
           coverImage: meta.coverImage || null,
           timeInvested: meta.timeInvested || 0,
+          checklist: meta.checklist || [],
           userId: x.user_id || null
         };
       }),
@@ -1891,7 +1892,7 @@ async function syncDataToSupabase(){
       penalized:t.penalized||false,salary_credited:t.salaryCredited||false,
       created_at:t.createdAt||new Date().toISOString(),
       user_id:currentUserId||null,
-      metadata:{fromTemplate:t.fromTemplate,comments:t.comments||[],coverImage:t.coverImage||null,timeInvested:t.timeInvested||0}
+      metadata:{fromTemplate:t.fromTemplate,comments:t.comments||[],coverImage:t.coverImage||null,timeInvested:t.timeInvested||0,checklist:t.checklist||[]}
     }));
 
     // Fire everything in parallel
@@ -2102,6 +2103,9 @@ let statsMode='month', statsYear=new Date().getFullYear(), statsMonth=new Date()
 let statsEarnedOpen=false;
 let statsEarnedTab='completed'; // 'completed' | 'missed'
 let statsProjExpanded=false, statsProjMode='month', statsProjYear=new Date().getFullYear(), statsProjMonth=new Date().getMonth();
+let statsViewMode='calendar'; // 'calendar' | 'chart'
+let statsFriendsSort='tasks'; // 'tasks' | 'money'
+let statsSelectedFriend=null;
 
 // Add-project modal state
 let apGradIdx=0, apEmoji='📁', apImgData=null, apEditId=null;
@@ -4481,20 +4485,28 @@ function renderVCChecklist(){
       <button onclick="vcRemoveChecklistItem(${idx})" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:14px;padding:0 4px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--mu)'">&#215;</button>
     </div>`).join('');
 }
+function vcSaveChecklistNow(){
+  const id=document.getElementById('vc-id')?.value;
+  if(!id) return;
+  const t=db.tasks.find(x=>x.id===id);
+  if(!t) return;
+  t.checklist=vcChecklist.map(x=>({text:x.text,done:x.done}));
+  saveData();
+}
 function vcAddChecklistItem(){
   const inp=document.getElementById('vc-checklist-new');
   const val=inp.value.trim();
   if(!val)return;
   vcChecklist.push({text:val,done:false});
-  inp.value='';renderVCChecklist();
+  inp.value='';renderVCChecklist();vcSaveChecklistNow();
 }
 function vcToggleChecklistItem(idx){
   vcChecklist[idx].done=!vcChecklist[idx].done;
-  renderVCChecklist();
+  renderVCChecklist();vcSaveChecklistNow();
 }
 function vcRemoveChecklistItem(idx){
   vcChecklist.splice(idx,1);
-  renderVCChecklist();
+  renderVCChecklist();vcSaveChecklistNow();
 }
 function vcPickDiff(d){vcDifficulty=d;renderVCPickers();}
 
@@ -4552,7 +4564,9 @@ function saveVC(){
         metadata: {
           fromTemplate: updatedTask.fromTemplate,
           comments: updatedTask.comments || [],
-          coverImage: updatedTask.coverImage || null
+          coverImage: updatedTask.coverImage || null,
+          timeInvested: updatedTask.timeInvested || 0,
+          checklist: updatedTask.checklist || []
         }
       };
       supabaseClient.from('tasks').update(taskData).eq('id',id).then(({error})=>{
@@ -5106,34 +5120,45 @@ function deleteRecurring(){
 // ─────────────────────────────────────────────
 // CALENDAR VIEW
 // ─────────────────────────────────────────────
-function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendarView();}
-function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendarView();}
-function calGoToday(){calYear=new Date().getFullYear();calMonth=new Date().getMonth();renderCalendarView();}
-function calSetTopic(t){calTopicFilter=calTopicFilter===t?null:t;calProjFilter=null;renderCalendarView();}
-function calSetProj(p){calProjFilter=calProjFilter===p?null:p;renderCalendarView();}
+function _rerenderCal(){currentView==='projects'?renderStatsView():renderCalendarView();}
+function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}_rerenderCal();}
+function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}_rerenderCal();}
+function calGoToday(){calYear=new Date().getFullYear();calMonth=new Date().getMonth();_rerenderCal();}
+function calSetTopic(t){calTopicFilter=calTopicFilter===t?null:t;calProjFilter=null;_rerenderCal();}
+function calSetProj(p){calProjFilter=calProjFilter===p?null:p;_rerenderCal();}
 
-function renderCalendarView(){
+function buildCalendarHtml(showFilters=true, friendId=null, showTodo=false){
   const today=todayStr();
   const firstDay=new Date(calYear,calMonth,1);
   const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
-  const startDow=firstDay.getDay(); // 0=Sun
-  const startOffset=(startDow+6)%7; // Mon-first: Mon=0…Sun=6
+  const startDow=firstDay.getDay();
+  const startOffset=(startDow+6)%7;
 
-  // Filter completed tasks (failed treated as done)
-  let tasks=getFilteredBase().filter(t=>t.status==='done'||t.status==='failed');
-  if(activeTopic)tasks=tasks.filter(t=>t.topic===activeTopic);
-  if(calTopicFilter)tasks=tasks.filter(t=>t.topic===calTopicFilter);
-  if(calProjFilter)tasks=tasks.filter(t=>t.project===calProjFilter);
+  let tasks;
+  if(showTodo){
+    tasks=getFilteredBase().filter(t=>t.status==='todo'&&t.scheduledDate);
+    if(activeTopic)tasks=tasks.filter(t=>t.topic===activeTopic);
+    if(calTopicFilter)tasks=tasks.filter(t=>t.topic===calTopicFilter);
+    if(calProjFilter)tasks=tasks.filter(t=>t.project===calProjFilter);
+  } else if(friendId){
+    tasks=db.tasks.filter(t=>t.userId===friendId&&(t.status==='done'||t.status==='failed'));
+    if(calTopicFilter)tasks=tasks.filter(t=>t.topic===calTopicFilter);
+    if(calProjFilter)tasks=tasks.filter(t=>t.project===calProjFilter);
+  } else {
+    tasks=getFilteredBase().filter(t=>t.status==='done'||t.status==='failed');
+    if(activeTopic)tasks=tasks.filter(t=>t.topic===activeTopic);
+    if(calTopicFilter)tasks=tasks.filter(t=>t.topic===calTopicFilter);
+    if(calProjFilter)tasks=tasks.filter(t=>t.project===calProjFilter);
+  }
 
   const byDate={};
   tasks.forEach(t=>{
-    const d=t.scheduledDate||t.completedDate;
+    const d=showTodo?t.scheduledDate:(t.scheduledDate||t.completedDate);
     if(!d)return;
     if(!byDate[d])byDate[d]=[];
     byDate[d].push(t);
   });
 
-  // Build cell array (always 42 cells = 6 rows)
   const cells=[];
   for(let i=0;i<startOffset;i++){const d=new Date(calYear,calMonth,1-(startOffset-i));cells.push({date:localDateStr(d),other:true});}
   for(let d=1;d<=daysInMonth;d++){
@@ -5144,12 +5169,23 @@ function renderCalendarView(){
 
   const monthLabel=firstDay.toLocaleDateString('en-US',{month:'long',year:'numeric'});
   const totalDone=tasks.length;
-
-  // Filter chips
   const projects=calTopicFilter?db.settings.projects.filter(p=>p.topic===calTopicFilter):db.settings.projects;
 
-  document.getElementById('view-content').innerHTML=`
-  <div class="cal-wrap">
+  // Topics for filter chips — use friend's topics when filtering a friend
+  const filterTopics = friendId
+    ? [...new Set(db.tasks.filter(t=>t.userId===friendId).map(t=>t.topic).filter(Boolean))]
+    : db.settings.topics;
+
+  const topicChips=`<span class="cal-filter-label">TOPIC</span>
+    <div class="opt-btn${!calTopicFilter?' sel':''}" style="cursor:pointer;padding:4px 9px" onclick="calSetTopic(null)">All</div>
+    ${filterTopics.map(t=>{const m=getTopicMeta(t,friendId||null);const sel=calTopicFilter===t;return`<div class="opt-btn${sel?' sel':''}" style="cursor:pointer;padding:4px 9px;display:flex;align-items:center;gap:5px" onclick="calSetTopic('${t}')"><span style="width:6px;height:6px;border-radius:50%;background:${m.dot};display:inline-block"></span>${m.label}</div>`;}).join('')}
+    ${!friendId&&calTopicFilter?`<span style="font-family:var(--fm);font-size:11px;color:var(--b2);margin:0 2px">|</span><span class="cal-filter-label">PROJ</span>
+      <div class="opt-btn${!calProjFilter?' sel':''}" style="cursor:pointer;padding:4px 9px" onclick="calSetProj(null)">All</div>
+      ${projects.map(p=>{const pm=getProjMeta(p.id);const sel=calProjFilter===p.id;return`<div class="opt-btn${sel?' sel':''}" style="cursor:pointer;padding:4px 9px" onclick="calSetProj('${p.id}')">${pm.emoji||'📁'} ${escH(p.name)}</div>`;}).join('')}`:''}`;
+
+  const friendChips=myFriendIds.length>0?`<span style="font-family:var(--fm);font-size:11px;color:var(--b2);margin:0 2px">|</span><span class="cal-filter-label">FRIENDS</span>${myFriendIds.map(fid=>{const f=allUsers.find(u=>u.id===fid);if(!f)return'';const on=!hiddenFriendIds.has(fid);return`<button onclick="toggleFriendFilter('${fid}')" style="display:flex;align-items:center;gap:4px;font-family:var(--fm);font-size:11px;padding:3px 8px;border-radius:99px;border:1px solid ${on?f.color||'var(--ac)':'var(--b2)'};background:${on?'rgba(90,120,152,.2)':'none'};color:${on?'var(--wh)':'var(--su)'};cursor:pointer;transition:all .1s">${userAvHtml(f,13)}${escH(f.username)}</button>`;}).join('')}`:'';
+
+  return`
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
       <div style="display:flex;align-items:center;gap:8px">
         <button class="period-btn" onclick="calPrev()">&#8249;</button>
@@ -5157,17 +5193,10 @@ function renderCalendarView(){
         <button class="period-btn" onclick="calNext()">&#8250;</button>
         <button class="btn-today" onclick="calGoToday()">TODAY</button>
       </div>
-      <span style="font-family:var(--fm);font-size:11px;color:var(--mu)">${totalDone} completed</span>
+      <span style="font-family:var(--fm);font-size:11px;color:var(--mu)">${totalDone} ${showTodo?'scheduled':'completed'}</span>
     </div>
-    <div class="cal-filters">
-      <span class="cal-filter-label">TOPIC</span>
-      <div class="opt-btn${!calTopicFilter?' sel':''}" style="cursor:pointer;padding:4px 9px" onclick="calSetTopic(null)">All</div>
-      ${db.settings.topics.map(t=>{const m=getTopicMeta(t);const sel=calTopicFilter===t;return`<div class="opt-btn${sel?' sel':''}" style="cursor:pointer;padding:4px 9px;display:flex;align-items:center;gap:5px" onclick="calSetTopic('${t}')"><span style="width:6px;height:6px;border-radius:50%;background:${m.dot};display:inline-block"></span>${m.label}</div>`;}).join('')}
-      ${calTopicFilter?`<span style="font-family:var(--fm);font-size:11px;color:var(--b2);margin:0 2px">|</span><span class="cal-filter-label">PROJ</span>
-        <div class="opt-btn${!calProjFilter?' sel':''}" style="cursor:pointer;padding:4px 9px" onclick="calSetProj(null)">All</div>
-        ${projects.map(p=>{const pm=getProjMeta(p.id);const sel=calProjFilter===p.id;return`<div class="opt-btn${sel?' sel':''}" style="cursor:pointer;padding:4px 9px" onclick="calSetProj('${p.id}')">${pm.emoji||'📁'} ${escH(p.name)}</div>`;}).join('')}`:''}
-      ${myFriendIds.length>0?`<span style="font-family:var(--fm);font-size:11px;color:var(--b2);margin:0 2px">|</span><span class="cal-filter-label">FRIENDS</span>${myFriendIds.map(fid=>{const f=allUsers.find(u=>u.id===fid);if(!f)return'';const on=activeFriendFilters.has(fid);return`<button onclick="toggleFriendFilter('${fid}')" style="display:flex;align-items:center;gap:4px;font-family:var(--fm);font-size:11px;padding:3px 8px;border-radius:99px;border:1px solid ${on?f.color||'var(--ac)':'var(--b2)'};background:${on?'rgba(90,120,152,.2)':'none'};color:${on?'var(--wh)':'var(--su)'};cursor:pointer;transition:all .1s">${userAvHtml(f,13)}${escH(f.username)}</button>`;}).join('')}`:''}
-    </div>
+    ${showFilters!==false?`<div class="cal-filters">${topicChips}${showFilters===true?friendChips:''}</div>`:''}
+
     <div class="cal-grid">
       ${['MON','TUE','WED','THU','FRI','SAT','SUN'].map(d=>`<div class="cal-day-hdr">${d}</div>`).join('')}
       ${cells.map(cell=>{
@@ -5179,7 +5208,7 @@ function renderCalendarView(){
         return`<div class="cal-cell${cell.other?' other-month':''}${isToday?' today':''}${ct.length>0?' has-tasks':''}">
           <div style="display:flex;align-items:baseline;justify-content:space-between">
             <div class="cal-date-num${isToday?' today':''}">${parseInt(cell.date.split('-')[2])}</div>
-            ${dayMoney>0?`<span style="font-family:var(--fm);font-size:11px;font-weight:700;color:var(--grn)">+$${dayMoney}</span>`:''}
+            ${!showTodo&&dayMoney>0?`<span style="font-family:var(--fm);font-size:11px;font-weight:700;color:var(--grn)">+$${dayMoney}</span>`:''}
           </div>
           ${show.map(t=>{
             const m=getTopicMeta(t.topic);
@@ -5188,17 +5217,21 @@ function renderCalendarView(){
             const r=parseInt(c.slice(1,3),16)||136,g=parseInt(c.slice(3,5),16)||152,b=parseInt(c.slice(5,7),16)||176;
             const calIsFriend=!!(t.userId&&t.userId!==currentUserId&&myFriendIds.includes(t.userId));
             const isLight=THEMES.find(th=>th.id===getAppearance().theme)?.dark===false;
-            const chipBg=isLight?dot:`rgba(${r},${g},${b},.18)`;
-            const chipColor=isLight?'#fff':c;
-            return`<div class="cal-task-chip" ${calIsFriend?'':'onclick="event.stopPropagation();openVC(\''+t.id+'\')"'}
-              style="background:${chipBg};color:${chipColor};${calIsFriend?'cursor:default;opacity:.8':''}"
+            const chipBg=showTodo?'none':(isLight?dot:`rgba(${r},${g},${b},.18)`);
+            const chipColor=isLight&&!showTodo?'#fff':c;
+            const chipBorder=showTodo?`border:1px dashed ${c};`:'';
+            return`<div class="cal-task-chip" onclick="event.stopPropagation();openVC('${t.id}')"
+              style="background:${chipBg};color:${chipColor};${chipBorder}${calIsFriend?'cursor:default;opacity:.8':''}"
               title="${escH(t.title)}${calIsFriend?' (friend)':''}">${escH(t.title)}</div>`;
           }).join('')}
           ${more>0?`<div class="cal-more">+${more} more</div>`:''}
         </div>`;
       }).join('')}
-    </div>
-  </div>`;
+    </div>`;
+}
+
+function renderCalendarView(){
+  document.getElementById('view-content').innerHTML=`<div class="cal-wrap">${buildCalendarHtml(true,null,true)}</div>`;
 }
 
 // ─────────────────────────────────────────────
@@ -5242,8 +5275,9 @@ function renderDonutChart(projData){
 }
 
 // ── Line chart: cumulative earnings over time per topic ──
-function renderLineChart(topicItems){
-  const allDone=db.tasks.filter(t=>(t.status==='done'||t.status==='failed')&&(t.scheduledDate||t.completedDate));
+function renderLineChart(topicItems, filterUserId=null){
+  let allDone=db.tasks.filter(t=>(t.status==='done'||t.status==='failed')&&(t.scheduledDate||t.completedDate));
+  if(filterUserId) allDone=allDone.filter(t=>t.userId===filterUserId);
   if(!allDone.length)return`<div class="empty-state" style="padding:20px 0"><span class="empty-icon">◉</span>Complete tasks to see the chart</div>`;
 
   // Group by day — use scheduledDate (planning date) with fallback to completedDate
@@ -5367,6 +5401,9 @@ function statsSetProjMode(m){statsProjMode=m;renderStatsView();}
 function toggleStatsProjExpanded(){statsProjExpanded=!statsProjExpanded;renderStatsView();}
 function toggleStatsEarned(){statsEarnedOpen=!statsEarnedOpen;renderStatsView();}
 function statsSetEarnedTab(tab){statsEarnedTab=tab;renderStatsView();}
+function statsSetViewMode(m){statsViewMode=m;renderStatsView();}
+function statsSetFriendsSort(s){statsFriendsSort=s;renderStatsView();}
+function statsSelectFriend(fid){statsSelectedFriend=statsSelectedFriend===fid?null:fid;calTopicFilter=null;calProjFilter=null;renderStatsView();}
 
 function renderPeriodPicker(year,month,mode,prevFn,nextFn,modeFn){
   const btnBase='font-family:var(--fm);font-size:11px;padding:3px 9px;border-radius:6px;border:1px solid var(--b2);cursor:pointer;letter-spacing:.06em;transition:all .1s;';
@@ -5498,6 +5535,7 @@ function renderStatsView(){
     <div class="stats-sub" style="margin-top:4px">${periodDone.length} tasks completed · ${periodPens.length} missed</div>
   </div>`;
 
+
   // ── Task Completion card ──
   const completionCard=`<div class="stats-card">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
@@ -5516,7 +5554,7 @@ function renderStatsView(){
     </div>
   </div>`;
 
-  // ── Projects card ──
+  // ── Projects card (kept for left panel) ──
   const projPicker = renderPeriodPicker(pY,pM,pMode,'statsProjPrev','statsProjNext','statsSetProjMode');
   const projListHtml = projRows.length===0
     ?`<div class="empty-state" style="padding:14px 0">No projects yet</div>`
@@ -5575,20 +5613,134 @@ function renderStatsView(){
   const legendHtml=topicItems.map(t=>`<span style="display:flex;align-items:center;gap:4px;font-family:var(--fm);font-size:11px;color:${t.meta.color}"><span style="width:14px;height:2px;background:${t.meta.color};display:inline-block;border-radius:1px"></span>${t.meta.label}</span>`).join('')+
     (topicItems.length>1?`<span style="display:flex;align-items:center;gap:4px;font-family:var(--fm);font-size:11px;color:var(--su)"><span style="width:14px;height:1px;border-top:1px dashed rgba(255,255,255,.25);display:inline-block"></span>Total</span>`:'');
 
-  const chartCard=`<div class="stats-card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-      <div class="stats-title" style="margin:0">Accumulated Earnings Over Time</div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">${legendHtml}</div>
-    </div>
-    ${renderLineChart(topicItems)}
+
+  // built after allChartTopics is defined — placeholder, replaced below
+  const viewToggle='';
+
+  // ── Top Friends data ──
+  const friendRows = myFriendIds.map(fid=>{
+    const u = allUsers.find(x=>x.id===fid);
+    if(!u) return null;
+    const ftasks = db.tasks.filter(t=>t.userId===fid && t.status==='done');
+    const fmoney = ftasks.reduce((s,t)=>s+(DIFF_MONEY[t.difficulty]||0),0);
+    return {u, done:ftasks.length, money:fmoney};
+  }).filter(Boolean).sort((a,b)=>statsFriendsSort==='money'?b.money-a.money:b.done-a.done);
+
+  const sortBtn=(s,label)=>`<button onclick="statsSetFriendsSort('${s}')" style="font-family:var(--fm);font-size:10px;letter-spacing:.08em;padding:3px 9px;border-radius:5px;border:1px solid ${statsFriendsSort===s?'var(--ac)':'var(--b2)'};background:${statsFriendsSort===s?'rgba(100,160,255,.12)':'none'};color:${statsFriendsSort===s?'var(--ac)':'var(--mu)'};cursor:pointer;transition:all .12s">${label}</button>`;
+
+  // validate selected friend still exists
+  const selFid = statsSelectedFriend && friendRows.find(r=>r.u.id===statsSelectedFriend) ? statsSelectedFriend : null;
+  const selUser = selFid ? allUsers.find(u=>u.id===selFid) : null;
+
+  // ── Right panel: calendar/chart filtered by friend if selected ──
+  const chartTopicItems = (selFid
+    ? [...new Set(db.tasks.filter(t=>t.userId===selFid&&(t.status==='done'||t.status==='failed')).map(t=>t.topic).filter(Boolean))]
+        .map(tid=>({id:tid, meta:getTopicMeta(tid, selFid)}))
+    : topicItems
+  ).filter(t=>!calTopicFilter||t.id===calTopicFilter);
+
+  const allChartTopics = selFid
+    ? [...new Set(db.tasks.filter(t=>t.userId===selFid&&(t.status==='done'||t.status==='failed')).map(t=>t.topic).filter(Boolean))].map(tid=>({id:tid,meta:getTopicMeta(tid,selFid)}))
+    : topicItems;
+
+  const miniTopicChips=`<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+    <div class="opt-btn${!calTopicFilter?' sel':''}" style="cursor:pointer;padding:2px 7px;font-size:10px" onclick="calSetTopic(null)">All</div>
+    ${allChartTopics.map(t=>{const sel=calTopicFilter===t.id;return`<div class="opt-btn${sel?' sel':''}" style="cursor:pointer;padding:2px 7px;font-size:10px;display:flex;align-items:center;gap:4px" onclick="calSetTopic('${t.id}')"><span style="width:5px;height:5px;border-radius:50%;background:${t.meta.dot||t.meta.color};flex-shrink:0;display:inline-block"></span>${t.meta.label}</div>`;}).join('')}
   </div>`;
+
+  const viewHeader=`<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+    <div style="display:flex;gap:6px;flex-shrink:0">
+      <button onclick="statsSetViewMode('calendar')" style="font-family:var(--fm);font-size:11px;font-weight:700;letter-spacing:.1em;padding:5px 14px;border-radius:7px;border:1px solid ${statsViewMode==='calendar'?'var(--ac)':'var(--b2)'};background:${statsViewMode==='calendar'?'rgba(100,160,255,.12)':'none'};color:${statsViewMode==='calendar'?'var(--ac)':'var(--su)'};cursor:pointer;transition:all .12s">CALENDAR</button>
+      <button onclick="statsSetViewMode('chart')" style="font-family:var(--fm);font-size:11px;font-weight:700;letter-spacing:.1em;padding:5px 14px;border-radius:7px;border:1px solid ${statsViewMode==='chart'?'var(--ac)':'var(--b2)'};background:${statsViewMode==='chart'?'rgba(100,160,255,.12)':'none'};color:${statsViewMode==='chart'?'var(--ac)':'var(--su)'};cursor:pointer;transition:all .12s">EARNINGS CHART</button>
+    </div>
+    ${miniTopicChips}
+  </div>`;
+
+  const friendChartCard=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div class="stats-title" style="margin:0">Accumulated Earnings Over Time</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">${chartTopicItems.map(t=>`<span style="display:flex;align-items:center;gap:4px;font-family:var(--fm);font-size:11px;color:${t.meta.color}"><span style="width:14px;height:2px;background:${t.meta.color};display:inline-block;border-radius:1px"></span>${t.meta.label}</span>`).join('')}${chartTopicItems.length>1?`<span style="display:flex;align-items:center;gap:4px;font-family:var(--fm);font-size:11px;color:var(--su)"><span style="width:14px;height:1px;border-top:1px dashed rgba(255,255,255,.25);display:inline-block"></span>Total</span>`:''}</div>
+    </div>
+    ${renderLineChart(chartTopicItems, selFid||null)}`;
+
+  const rightContent=statsViewMode==='calendar'
+    ?`<div class="cal-wrap" style="margin:0">${buildCalendarHtml(false, selFid||null)}</div>`
+    :friendChartCard;
+
+  const friendHeader = selUser ? `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+    <div style="display:flex;align-items:center;gap:8px">
+      ${userAvHtml(selUser,22)}
+      <span style="font-family:var(--fm);font-size:11px;color:var(--wh);font-weight:700">${escH(selUser.username)}</span>
+      <span style="font-family:var(--fm);font-size:11px;color:var(--mu)">— viewing their data</span>
+    </div>
+    <button onclick="statsSelectFriend('${selFid}')" style="font-family:var(--fm);font-size:11px;color:var(--mu);background:none;border:none;cursor:pointer;padding:3px 8px;border-radius:6px;border:1px solid var(--b2)">✕</button>
+  </div>` : '';
+
+  // ── Friends list ──
+  const friendsListHtml=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="stats-title" style="margin:0">Top Friends</div>
+      <div style="display:flex;gap:5px">${sortBtn('tasks','TASKS')}${sortBtn('money','MONEY')}</div>
+    </div>
+    ${friendRows.length===0
+      ?`<div style="padding:24px 0;text-align:center;font-family:var(--fm);font-size:11px;color:var(--b3);letter-spacing:.08em">NO FRIENDS YET</div>`
+      :friendRows.map((r,i)=>{
+        const isSel=r.u.id===selFid;
+        return`<div onclick="statsSelectFriend('${r.u.id}')" style="display:flex;align-items:center;gap:10px;padding:9px 8px;border-bottom:1px solid var(--b1);cursor:pointer;border-radius:8px;margin:0 -4px;background:${isSel?'rgba(100,160,255,.08)':'none'};transition:background .1s" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background='${isSel?'rgba(100,160,255,.08)':'none'}'">
+          <div style="font-family:var(--fm);font-size:11px;color:var(--b3);width:14px;text-align:right;flex-shrink:0">${i+1}</div>
+          ${userAvHtml(r.u, 30)}
+          <div style="flex:1;min-width:0">
+            <div style="font-family:var(--fg);font-size:12px;color:${isSel?'var(--ac)':'var(--wh)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escH(r.u.username)}</div>
+            <div style="font-family:var(--fm);font-size:11px;color:var(--mu);margin-top:2px">${r.done} task${r.done!==1?'s':''} done</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-family:var(--fm);font-size:12px;font-weight:700;color:var(--grn)">$${r.money.toLocaleString()}</div>
+          </div>
+        </div>`;
+      }).join('')}`;
+
+  // ── Left-panel Top Projects ──
+  const leftProjSource = selFid ? (friendsMeta[selFid]?.projects||[]) : (activeTopic?db.settings.projects.filter(p=>p.topic===activeTopic):db.settings.projects);
+  const leftProjRows = leftProjSource.map(p=>{
+    const pm = selFid ? getProjMeta(p.id,selFid) : getProjMeta(p.id);
+    const ptasks = db.tasks.filter(t=>t.project===p.id&&(selFid?t.userId===selFid:(!t.userId||t.userId===currentUserId)));
+    const pdone = ptasks.filter(t=>t.status==='done').length;
+    const ppct = ptasks.length>0?Math.round(pdone/ptasks.length*100):0;
+    return{p,pm,ptasks:ptasks.length,pdone,ppct};
+  }).sort((a,b)=>b.ppct-a.ppct);
+
+  const leftProjTitle = selUser ? `Top Projects — ${escH(selUser.username)}` : 'Top Projects';
+  const projLeftHtml=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <div class="stats-title" style="margin:0">${leftProjTitle}</div>
+    ${calProjFilter?`<button onclick="calSetProj(null)" style="font-family:var(--fm);font-size:10px;color:var(--mu);background:none;border:1px solid var(--b2);border-radius:5px;cursor:pointer;padding:2px 8px">✕ Clear</button>`:''}
+  </div>
+  ${leftProjRows.length===0
+    ?`<div style="padding:18px 0;text-align:center;font-family:var(--fm);font-size:11px;color:var(--b3)">NO PROJECTS</div>`
+    :leftProjRows.map(r=>{
+      const isSel=calProjFilter===r.p.id;
+      return`<div onclick="calSetProj('${r.p.id}')" style="display:flex;align-items:center;gap:9px;padding:8px 8px;border-bottom:1px solid var(--b1);cursor:pointer;border-radius:8px;margin:0 -4px;background:${isSel?'rgba(100,160,255,.08)':'none'};transition:background .1s" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background='${isSel?'rgba(100,160,255,.08)':'none'}'">
+        <div style="width:26px;height:26px;border-radius:7px;${r.pm.img?'background:var(--s2)':'background:'+r.pm.grad};display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;overflow:hidden;position:relative">
+          ${r.pm.img?`<img src="${r.pm.img}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">`:`<span style="position:relative;z-index:1">${r.pm.emoji}</span>`}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:11px;font-weight:600;color:${isSel?'var(--ac)':'var(--wh)'};margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escH(r.p.name)}</div>
+          <div style="height:3px;background:var(--s2);border-radius:99px;overflow:hidden">
+            <div style="height:100%;width:${r.ppct}%;background:${r.pm.color};border-radius:99px"></div>
+          </div>
+        </div>
+        <div style="font-family:var(--fm);font-size:10px;font-weight:700;color:${r.pm.color};flex-shrink:0">${r.ppct}%</div>
+      </div>`;
+    }).join('')}`;
 
   document.getElementById('view-content').innerHTML=`
   <div class="stats-wrap">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">${netCard}${completionCard}</div>
     ${earnedPanelHtml}
-    ${projCard}
-    ${chartCard}
+    <div style="display:flex;gap:12px;align-items:flex-start">
+      <div style="flex:2;min-width:0;display:flex;flex-direction:column;gap:12px">
+        <div class="stats-card" style="cursor:default">${friendsListHtml}</div>
+        <div class="stats-card" style="cursor:default">${projLeftHtml}</div>
+      </div>
+      <div style="flex:5;min-width:0"><div class="stats-card" style="padding:16px 18px">${friendHeader}${viewHeader}${rightContent}</div></div>
+    </div>
   </div>`;
 }
 
@@ -6430,7 +6582,8 @@ function openFocusSession(taskId, event){
   if(event) event.stopPropagation();
   const t = db.tasks.find(x=>x.id===taskId);
   if(!t) return;
-  fsTaskId=taskId; fsElapsed=0; fsResumeAt=null; fsPaused=false; fsChecklist=[];
+  fsTaskId=taskId; fsElapsed=0; fsResumeAt=null; fsPaused=false;
+  fsChecklist=(t.checklist||[]).map(item=>({text:item.text,done:item.done}));
   clearInterval(fsInterval);
 
   // Fill header
@@ -6473,13 +6626,7 @@ function endFocusSession(){
   const t=db.tasks.find(x=>x.id===fsTaskId);
   if(t){
     t.timeInvested=(t.timeInvested||0)+elapsed;
-    if(fsChecklist.length>0){
-      if(!t.checklist) t.checklist=[];
-      fsChecklist.forEach(item=>{
-        if(!t.checklist.some(ex=>ex.text.trim()===item.text.trim()))
-          t.checklist.push({text:item.text,done:item.done});
-      });
-    }
+    t.checklist=fsChecklist.map(item=>({text:item.text,done:item.done}));
     saveData();
     renderCurrentView();
   }

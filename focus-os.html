@@ -585,7 +585,7 @@ body[data-theme="notion"] .tc-time-badge{color:#666}
 /* ── PROJECT DETAIL ── */
 .stats-proj-row:hover{background:var(--s2);transform:translateX(2px)}
 .pd-wrap{height:100%;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
-.pd-hero{height:200px;position:relative;overflow:hidden;flex-shrink:0}
+.pd-hero{height:90px;position:relative;overflow:hidden;flex-shrink:0}
 .pd-hero-bg{position:absolute;inset:0;width:100%;height:100%}
 .pd-hero-bg img{width:100%;height:100%;object-fit:cover;display:block}
 .pd-hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 10%,rgba(0,0,0,.78) 100%)}
@@ -1156,7 +1156,18 @@ body[data-theme="notion"] .tc-time-badge{color:#666}
     <div class="mini-modal-body">
       <label class="mm-label">Name</label>
       <input id="ap-name" class="mm-inp" type="text" placeholder="Project name...">
-      
+
+      <label class="mm-label" style="margin-top:12px">Type</label>
+      <div style="display:flex;gap:6px;margin-bottom:4px">
+        <button id="ap-type-tasks"   onclick="apSetType('tasks')"   style="flex:1;padding:7px 4px;border-radius:7px;border:1.5px solid var(--b2);background:var(--s2);font-family:var(--fm);font-size:11px;letter-spacing:.06em;cursor:pointer;color:var(--mu);transition:all .12s">📋 Tasks</button>
+        <button id="ap-type-numeric" onclick="apSetType('numeric')" style="flex:1;padding:7px 4px;border-radius:7px;border:1.5px solid var(--b2);background:var(--s2);font-family:var(--fm);font-size:11px;letter-spacing:.06em;cursor:pointer;color:var(--mu);transition:all .12s">📈 Numeric</button>
+        <button id="ap-type-habit"   onclick="apSetType('habit')"   style="flex:1;padding:7px 4px;border-radius:7px;border:1.5px solid var(--b2);background:var(--s2);font-family:var(--fm);font-size:11px;letter-spacing:.06em;cursor:pointer;color:var(--mu);transition:all .12s">✅ Habit</button>
+      </div>
+      <div id="ap-numeric-unit-row" style="display:none;margin-top:6px">
+        <label class="mm-label">Unit <span style="color:var(--b3);font-weight:400">(optional, e.g. kg, reps, pages)</span></label>
+        <input id="ap-num-unit" class="mm-inp" type="text" placeholder="e.g. kg" style="max-width:140px">
+      </div>
+
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
         <div>
           <label class="mm-label">Icon</label>
@@ -2108,7 +2119,7 @@ let statsFriendsSort='tasks'; // 'tasks' | 'money'
 let statsSelectedFriend=null;
 
 // Add-project modal state
-let apGradIdx=0, apEmoji='📁', apImgData=null, apEditId=null;
+let apGradIdx=0, apEmoji='📁', apImgData=null, apEditId=null, apProjType='tasks', apNumUnit='';
 // Add-topic modal state
 let atColorIdx=0;
 let tdColorIdx=0;
@@ -2996,6 +3007,38 @@ function pdSetCalMode(m){pdCalMode=m;renderProjectDetail(currentProjectId);}
 function pdSelectDay(d){pdSelDay=pdSelDay===d?null:d;pdShowRemaining=false;pdShowDone=false;renderProjectDetail(currentProjectId);}
 function pdToggleRemaining(){pdShowRemaining=!pdShowRemaining;if(pdShowRemaining){pdSelDay=null;pdShowDone=false;}renderProjectDetail(currentProjectId);}
 function pdToggleDone(){pdShowDone=!pdShowDone;if(pdShowDone){pdSelDay=null;pdShowRemaining=false;}renderProjectDetail(currentProjectId);}
+function pdNewTask(projId){vcProject=projId;openVC(null,'todo',pdSelDay||null);}
+function pdLogNumeric(projId){
+  const dateEl=document.getElementById('pd-num-date');
+  const valEl=document.getElementById('pd-num-val');
+  const noteEl=document.getElementById('pd-num-note');
+  const val=parseFloat(valEl?.value);
+  if(isNaN(val))return valEl?.focus();
+  const date=dateEl?.value||todayStr();
+  if(!db.settings.projMeta[projId])db.settings.projMeta[projId]={};
+  if(!db.settings.projMeta[projId].numericLog)db.settings.projMeta[projId].numericLog=[];
+  // Replace existing entry for same date or add new
+  const log=db.settings.projMeta[projId].numericLog;
+  const idx=log.findIndex(e=>e.date===date);
+  const entry={date,value:val,note:(noteEl?.value||'').trim()};
+  if(idx>=0)log[idx]=entry; else log.push(entry);
+  saveDb();
+  if(valEl)valEl.value='';
+  if(noteEl)noteEl.value='';
+  renderProjectDetail(projId);
+}
+function pdDeleteNumLog(projId,date){
+  if(!db.settings.projMeta[projId])return;
+  db.settings.projMeta[projId].numericLog=(db.settings.projMeta[projId].numericLog||[]).filter(e=>e.date!==date);
+  saveDb();renderProjectDetail(projId);
+}
+function pdToggleHabit(projId,date){
+  if(!db.settings.projMeta[projId])db.settings.projMeta[projId]={};
+  const log=db.settings.projMeta[projId].habitLog||(db.settings.projMeta[projId].habitLog=[]);
+  const idx=log.indexOf(date);
+  if(idx>=0)log.splice(idx,1); else log.push(date);
+  saveDb();renderProjectDetail(projId);
+}
 function pdDropOnDay(e,dateStr){
   e.preventDefault();e.stopPropagation();
   if(!dragTaskId)return;
@@ -3140,26 +3183,157 @@ function renderProjectDetail(projId){
   const selTasks=pdSelDay?(byDate[pdSelDay]||[]):[];
   const selLabel=pdSelDay?new Date(pdSelDay+'T00:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}):'';
 
+  const projType=pm.type||'tasks';
+  const numericLog=(pm.numericLog||[]).slice().sort((a,b)=>a.date.localeCompare(b.date));
+  const habitLog=new Set(pm.habitLog||[]);
+  const numUnit=pm.numUnit||'';
   document.getElementById('view-content').innerHTML=`
   <div class="pd-wrap">
+    <!-- Compact header -->
     <div class="pd-hero">
       <div class="pd-hero-bg" style="${projThumbBgStyle(pm)}">${projThumbInner(pm)}</div>
-      <div class="pd-hero-overlay"></div>
-      <button class="pd-back" onclick="switchView('projects')">← Projects</button>
-      <button class="pd-edit-btn" onclick="openAddProjModal('${projId}')">✏ Edit Style</button>
-      <div class="pd-hero-content">
-        <div class="pd-hero-emoji">${pm.emoji||'📁'}</div>
-        <div class="pd-hero-info">
-          <div class="pd-hero-name">${escH(proj.name)}</div>
-          <div class="pd-hero-meta">
-            <span style="color:${ptm.color}">${ptm.label}</span>
-            &nbsp;·&nbsp;${all.length} tasks&nbsp;·&nbsp;<span style="color:var(--grn)">$${totalMoney.toLocaleString()} earned total</span>
+      <div class="pd-hero-overlay" style="background:linear-gradient(to right,rgba(0,0,0,.72) 0%,rgba(0,0,0,.48) 100%)"></div>
+      <div style="position:relative;z-index:1;height:100%;display:flex;align-items:center;padding:0 20px;gap:14px">
+        <button style="font-family:var(--fm);font-size:11px;font-weight:700;letter-spacing:.08em;color:rgba(255,255,255,.8);background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.15);padding:5px 10px;border-radius:6px;cursor:pointer;flex-shrink:0;backdrop-filter:blur(8px)" onclick="switchView('projects')">← Projects</button>
+        <div style="width:52px;height:52px;border-radius:13px;${pm.img?'background:var(--s2)':'background:'+pm.grad};display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;overflow:hidden;position:relative;box-shadow:0 2px 12px rgba(0,0,0,.4)">
+          ${pm.img?`<img src="${pm.img}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">`:`<span style="position:relative;z-index:1">${pm.emoji||'📁'}</span>`}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:22px;font-weight:800;color:#fff;line-height:1;letter-spacing:-.3px">${escH(proj.name)}</div>
+          <div style="font-family:var(--fm);font-size:11px;color:rgba(255,255,255,.6);margin-top:5px;letter-spacing:.04em">
+            <span style="color:${ptm.color}">${ptm.label}</span>&nbsp;·&nbsp;${all.length} tasks&nbsp;·&nbsp;<span style="color:var(--grn)">$${totalMoney.toLocaleString()} earned total</span>
           </div>
         </div>
+        <button onclick="pdNewTask('${projId}')" style="font-family:var(--fm);font-size:11px;font-weight:700;letter-spacing:.08em;color:#fff;background:rgba(100,160,255,.25);border:1px solid rgba(100,160,255,.4);padding:6px 12px;border-radius:7px;cursor:pointer;flex-shrink:0;transition:all .12s" onmouseover="this.style.background='rgba(100,160,255,.38)'" onmouseout="this.style.background='rgba(100,160,255,.25)'">+ New Task</button>
+        <button onclick="openAddProjModal('${projId}')" style="font-family:var(--fm);font-size:11px;font-weight:700;letter-spacing:.08em;color:rgba(255,255,255,.8);background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.15);padding:6px 12px;border-radius:7px;cursor:pointer;flex-shrink:0;backdrop-filter:blur(8px)">✏ Edit Style</button>
       </div>
     </div>
 
     <div class="pd-body">
+    ${projType==='numeric'?`
+      ${(()=>{
+        const W=560,H=190,PAD={l:44,r:18,t:14,b:36};
+        const innerW=W-PAD.l-PAD.r, innerH=H-PAD.t-PAD.b;
+        let chartHtml='';
+        if(numericLog.length<2){
+          chartHtml=`<div style="display:flex;align-items:center;justify-content:center;height:${H}px;font-family:var(--fm);font-size:11px;color:var(--b3);letter-spacing:.06em">LOG AT LEAST 2 ENTRIES TO SEE THE CHART</div>`;
+        } else {
+          const vals=numericLog.map(e=>e.value);
+          const minV=Math.min(...vals),maxV=Math.max(...vals);
+          const range=maxV-minV||1;
+          const px=i=>PAD.l+(i/(numericLog.length-1))*innerW;
+          const py=v=>PAD.t+innerH-((v-minV)/range)*innerH;
+          const points=numericLog.map((e,i)=>`${px(i).toFixed(1)},${py(e.value).toFixed(1)}`).join(' ');
+          const areaPoints=`${PAD.l},${PAD.t+innerH} ${points} ${px(numericLog.length-1).toFixed(1)},${PAD.t+innerH}`;
+          const dots=numericLog.map((e,i)=>`<circle cx="${px(i).toFixed(1)}" cy="${py(e.value).toFixed(1)}" r="3.5" fill="var(--ac)" stroke="var(--bg)" stroke-width="2"><title>${e.date}: ${e.value}${numUnit?` ${numUnit}`:''}</title></circle>`).join('');
+          const yVals=[minV,minV+range/2,maxV];
+          const yLabels=yVals.map(v=>`<text x="${PAD.l-6}" y="${(py(v)+4).toFixed(1)}" text-anchor="end" fill="var(--mu)" font-size="10" font-family="var(--fm)">${Number.isInteger(v)?v:v.toFixed(1)}${numUnit?` ${numUnit}`:''}</text>`).join('');
+          const xIdxs=[0,...(numericLog.length>4?[Math.floor(numericLog.length/2)]:[]),(numericLog.length-1)];
+          const xLabels=[...new Set(xIdxs)].map(i=>`<text x="${px(i).toFixed(1)}" y="${H-6}" text-anchor="middle" fill="var(--mu)" font-size="9" font-family="var(--fm)">${numericLog[i].date.slice(5)}</text>`).join('');
+          chartHtml=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">
+            <defs><linearGradient id="numG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--ac)" stop-opacity=".2"/><stop offset="100%" stop-color="var(--ac)" stop-opacity="0"/></linearGradient></defs>
+            <polygon points="${areaPoints}" fill="url(#numG)"/>
+            <polyline points="${points}" fill="none" stroke="var(--ac)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            ${yLabels}${xLabels}${dots}
+          </svg>`;
+        }
+        const last=numericLog[numericLog.length-1];
+        const first=numericLog[0];
+        const delta=numericLog.length>=2?last.value-first.value:null;
+        const logRows=numericLog.slice().reverse().map(e=>`
+          <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--b1)">
+            <span style="font-family:var(--fm);font-size:11px;color:var(--mu);flex-shrink:0;min-width:76px">${e.date.slice(5).replace('-','/')}</span>
+            <span style="font-family:var(--fm);font-size:15px;font-weight:700;color:var(--wh);flex:1">${e.value}${numUnit?`<span style="font-size:11px;font-weight:400;color:var(--mu);margin-left:3px">${escH(numUnit)}</span>`:''}</span>
+            ${e.note?`<span style="font-family:var(--fg);font-size:11px;color:var(--mu);flex:2">${escH(e.note)}</span>`:''}
+            <button onclick="pdDeleteNumLog('${projId}','${e.date}')" style="color:var(--b3);background:none;border:none;cursor:pointer;font-size:14px;padding:0 2px;line-height:1;flex-shrink:0;transition:color .1s" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--b3)'">×</button>
+          </div>`).join('');
+        return`
+          <div class="pd-section" style="padding:14px 18px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+              <div style="display:flex;gap:20px;align-items:center">
+                ${last?`<div><div style="font-family:var(--fm);font-size:22px;font-weight:700;color:var(--wh);line-height:1">${last.value}${numUnit?`<span style="font-size:13px;font-weight:400;color:var(--mu);margin-left:4px">${escH(numUnit)}</span>`:''}</div><div style="font-family:var(--fm);font-size:11px;color:var(--mu);margin-top:3px;letter-spacing:.04em">latest (${last.date.slice(5)})</div></div>`:''}
+                ${delta!==null?`<div style="width:1px;height:32px;background:var(--b2)"></div><div><div style="font-family:var(--fm);font-size:22px;font-weight:700;color:${delta>=0?'var(--grn)':'#dc4646'};line-height:1">${delta>=0?'+':''}${delta.toFixed(1)}${numUnit?`<span style="font-size:13px;margin-left:3px">${escH(numUnit)}</span>`:''}</div><div style="font-family:var(--fm);font-size:11px;color:var(--mu);margin-top:3px;letter-spacing:.04em">total change</div></div>`:''}
+                ${numericLog.length>0?`<div style="width:1px;height:32px;background:var(--b2)"></div><div><div style="font-family:var(--fm);font-size:22px;font-weight:700;color:var(--wh);line-height:1">${numericLog.length}</div><div style="font-family:var(--fm);font-size:11px;color:var(--mu);margin-top:3px;letter-spacing:.04em">entries</div></div>`:''}
+              </div>
+              <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                <input id="pd-num-date" type="date" value="${today}" style="background:var(--s2);border:1px solid var(--b2);border-radius:6px;padding:5px 8px;font-family:var(--fm);font-size:11px;color:var(--wh);outline:none;cursor:pointer">
+                <input id="pd-num-val" type="number" step="any" placeholder="Value${numUnit?' ('+escH(numUnit)+')':''}" style="width:110px;background:var(--s2);border:1px solid var(--b2);border-radius:6px;padding:5px 8px;font-family:var(--fm);font-size:11px;color:var(--wh);outline:none" onkeydown="if(event.key==='Enter')pdLogNumeric('${projId}')">
+                <input id="pd-num-note" type="text" placeholder="Note (optional)" style="width:150px;background:var(--s2);border:1px solid var(--b2);border-radius:6px;padding:5px 8px;font-family:var(--fm);font-size:11px;color:var(--wh);outline:none" onkeydown="if(event.key==='Enter')pdLogNumeric('${projId}')">
+                <button onclick="pdLogNumeric('${projId}')" style="font-family:var(--fm);font-size:11px;font-weight:700;background:rgba(100,160,255,.15);border:1px solid rgba(100,160,255,.35);color:var(--ac);padding:5px 14px;border-radius:6px;cursor:pointer;flex-shrink:0">+ Log</button>
+              </div>
+            </div>
+            ${chartHtml}
+            <div style="margin-top:14px;max-height:260px;overflow-y:auto">
+              ${numericLog.length===0
+                ?`<div style="text-align:center;padding:24px;font-family:var(--fm);font-size:11px;color:var(--b3);letter-spacing:.06em">NO ENTRIES YET — LOG YOUR FIRST VALUE</div>`
+                :logRows}
+            </div>
+          </div>`;
+      })()}
+    `:projType==='habit'?`
+      ${(()=>{
+        const today2=new Date(today+'T00:00:00');
+        const startDate=new Date(today2);startDate.setDate(startDate.getDate()-364);
+        const dow=startDate.getDay();startDate.setDate(startDate.getDate()-((dow+6)%7));
+        const weeks=[];let cur=new Date(startDate);
+        while(cur<=today2){
+          const week=[];
+          for(let d=0;d<7;d++){
+            const ds=localDateStr(cur);
+            week.push({date:ds,future:cur>today2});
+            cur.setDate(cur.getDate()+1);
+          }
+          weeks.push(week);
+        }
+        const cellSz=13,gap=2,leftPad=18;
+        const totalW=leftPad+weeks.length*(cellSz+gap)+gap;
+        const totalH=7*(cellSz+gap)+gap+18;
+        const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const monthLabelItems=[];let prevM=-1;
+        weeks.forEach((week,wi)=>{
+          const first=week.find(c=>!c.future);
+          if(first){const m=parseInt(first.date.slice(5,7))-1;if(m!==prevM){monthLabelItems.push({x:leftPad+wi*(cellSz+gap),label:monthNames[m]});prevM=m;}}
+        });
+        const dayLabels=['M','','W','','F','','S'];
+        const dayLabelSvg=dayLabels.map((l,i)=>`<text x="2" y="${18+i*(cellSz+gap)+gap+cellSz*.75}" font-size="9" fill="var(--mu)" font-family="var(--fm)">${l}</text>`).join('');
+        const monthLabelSvg=monthLabelItems.map(m=>`<text x="${m.x}" y="12" font-size="9" fill="var(--mu)" font-family="var(--fm)">${m.label}</text>`).join('');
+        const cells=weeks.map((week,wi)=>week.map((cell,di)=>{
+          if(cell.future)return'';
+          const done=habitLog.has(cell.date);
+          const isToday=cell.date===today;
+          const x=leftPad+wi*(cellSz+gap)+gap;
+          const y=18+di*(cellSz+gap)+gap;
+          return`<rect x="${x}" y="${y}" width="${cellSz}" height="${cellSz}" rx="3" fill="${done?'var(--grn)':'var(--s2)'}" opacity="${done?1:0.5}" stroke="${isToday?'var(--ac)':'none'}" stroke-width="${isToday?1.5:0}" style="cursor:pointer;transition:opacity .1s" onclick="pdToggleHabit('${projId}','${cell.date}')" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='${done?1:0.5}'"><title>${cell.date}${done?' ✓':''}</title></rect>`;
+        }).join('')).join('');
+        let streak=0;const c2=new Date(today2);
+        while(habitLog.has(localDateStr(c2))){streak++;c2.setDate(c2.getDate()-1);}
+        const last30=[],c3=new Date(today2);
+        for(let i=0;i<30;i++){last30.push(localDateStr(c3));c3.setDate(c3.getDate()-1);}
+        const rate30=Math.round(last30.filter(d=>habitLog.has(d)).length/30*100);
+        const totalDays=pm.habitLog?pm.habitLog.filter(d=>d<=today).length:0;
+        const todayDone=habitLog.has(today);
+        return`
+          <div class="pd-section" style="padding:14px 18px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+              <div style="display:flex;gap:22px;align-items:center">
+                <div><div style="font-family:var(--fm);font-size:22px;font-weight:700;color:var(--grn);line-height:1">${streak}</div><div style="font-family:var(--fm);font-size:11px;color:var(--mu);margin-top:3px;letter-spacing:.04em">day streak</div></div>
+                <div style="width:1px;height:32px;background:var(--b2)"></div>
+                <div><div style="font-family:var(--fm);font-size:22px;font-weight:700;color:var(--wh);line-height:1">${rate30}%</div><div style="font-family:var(--fm);font-size:11px;color:var(--mu);margin-top:3px;letter-spacing:.04em">last 30 days</div></div>
+                <div style="width:1px;height:32px;background:var(--b2)"></div>
+                <div><div style="font-family:var(--fm);font-size:22px;font-weight:700;color:var(--wh);line-height:1">${totalDays}</div><div style="font-family:var(--fm);font-size:11px;color:var(--mu);margin-top:3px;letter-spacing:.04em">total days</div></div>
+              </div>
+              <button onclick="pdToggleHabit('${projId}','${today}')" style="font-family:var(--fm);font-size:12px;font-weight:700;padding:8px 20px;border-radius:8px;cursor:pointer;transition:all .12s;${todayDone?'background:rgba(88,192,144,.15);border:1.5px solid var(--grn);color:var(--grn)':'background:var(--s2);border:1.5px solid var(--b2);color:var(--su)'}">
+                ${todayDone?'✓ Done Today':'Mark Today Done'}
+              </button>
+            </div>
+            <div style="overflow-x:auto;padding-bottom:6px">
+              <svg width="${totalW}" height="${totalH}" viewBox="0 0 ${totalW} ${totalH}">
+                ${monthLabelSvg}${dayLabelSvg}${cells}
+              </svg>
+            </div>
+          </div>`;
+      })()}
+    `:`
 
       <div class="pd-section" style="padding:14px 18px">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
@@ -3205,18 +3379,19 @@ function renderProjectDetail(projId){
         </div>
       </div>
 
-      <!-- Calendar + Day detail -->
-      <div style="display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start">
+      <!-- Calendar + Day detail + Sidebar -->
+      <div style="display:flex;gap:14px;align-items:flex-start">
 
         <!-- Compact calendar -->
-        <div class="pd-section" style="padding:14px;width:320px;flex-shrink:0">
-          <!-- Mode toggle -->
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <div style="font-family:var(--fm);font-size:11px;color:var(--mu);letter-spacing:.1em;text-transform:uppercase">${new Date(pdCalYear,pdCalMonth,1).toLocaleDateString('en-US',{month:'long',year:'numeric'}).toUpperCase()}</div>
-            <div style="display:flex;background:var(--s2);border:1px solid var(--b1);border-radius:6px;padding:2px;gap:2px">
+        <div class="pd-section" style="padding:14px;width:310px;flex-shrink:0">
+          <!-- Mode toggle + new task -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px">
+            <div style="display:flex;background:var(--s2);border:1px solid var(--b1);border-radius:6px;padding:2px;gap:2px;flex-shrink:0">
               <button class="mode-btn${pdCalMode==='done'?' active':''}" onclick="pdSetCalMode('done')" style="font-size:11px;padding:3px 8px">DONE</button>
               <button class="mode-btn${pdCalMode==='todo'?' active':''}" onclick="pdSetCalMode('todo')" style="font-size:11px;padding:3px 8px">TO-DO</button>
             </div>
+            <div style="font-family:var(--fm);font-size:10px;color:var(--mu);letter-spacing:.08em;flex:1;text-align:center">${new Date(pdCalYear,pdCalMonth,1).toLocaleDateString('en-US',{month:'short',year:'numeric'}).toUpperCase()}</div>
+            <button onclick="pdNewTask('${projId}')" style="font-family:var(--fm);font-size:11px;font-weight:700;color:var(--ac);background:rgba(100,160,255,.1);border:1px solid rgba(100,160,255,.3);padding:3px 9px;border-radius:6px;cursor:pointer;flex-shrink:0;transition:all .1s" onmouseover="this.style.background='rgba(100,160,255,.2)'" onmouseout="this.style.background='rgba(100,160,255,.1)'">+ Task</button>
           </div>
           <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;margin-bottom:4px">
             ${['M','T','W','T','F','S','S'].map(d=>`<div style="font-family:var(--fm);font-size:11px;color:var(--mu);text-align:center;padding:3px 0;letter-spacing:.04em">${d}</div>`).join('')}
@@ -3257,7 +3432,7 @@ function renderProjectDetail(projId){
         </div>
 
         <!-- Day detail / Remaining tasks panel -->
-        <div class="pd-section" style="min-height:240px;overflow-y:auto;max-height:420px">
+        <div class="pd-section" style="flex:1;min-width:0;min-height:240px;overflow-y:auto;max-height:500px">
           ${(()=>{
             /* ── DONE TASKS LIST (month) — default when no day selected ── */
             if(!pdSelDay && !pdShowRemaining){
@@ -3324,11 +3499,11 @@ function renderProjectDetail(projId){
               });
               const sorted=Object.values(groups).sort((a,b)=>a.sortKey.localeCompare(b.sortKey));
               return`
-                <div class="pd-section-title" style="margin-bottom:12px">REMAINING TASKS <span style="color:var(--bl)">${remTasks.length}</span>
+                <div class="pd-section-title" style="margin-bottom:12px">REMAINING TASKS
                   <button onclick="pdToggleRemaining()" style="font-family:var(--fm);font-size:11px;color:var(--mu);background:none;border:none;cursor:pointer;letter-spacing:.06em;padding:2px 6px;border-radius:4px;transition:color .1s" onmouseover="this.style.color='var(--wh)'" onmouseout="this.style.color='var(--mu)'">✕ CLOSE</button>
                 </div>
                 ${sorted.map(g=>`
-                  <div style="font-family:var(--fm);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${g.sortKey==='zzz'?'var(--mu)':'var(--bl)'};padding:8px 0 4px;margin-top:2px">
+                  <div style="font-family:var(--fm);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${g.sortKey==='zzz'?'var(--mu)':'var(--bl)'};padding:8px 0 10px;margin-top:4px">
                     ${g.sortKey==='zzz'?'📌 ':g.label.startsWith('Week')?'📅 ':'🗓 '}${g.label}
                   </div>
                   ${g.tasks.map(t=>`
@@ -3381,7 +3556,8 @@ function renderProjectDetail(projId){
               </div>`;
           })()}
         </div>
-      </div>
+
+      </div>`}
 
       <!-- Danger Zone -->
       <div class="pd-section" style="margin-top:40px;padding:14px 18px;border-top:1px solid var(--b2)">
@@ -4705,18 +4881,24 @@ function openAddProjModal(editId=null,topicId=null){
     document.getElementById('ap-del-btn').style.display='block';
     document.getElementById('ap-color').value=pm.color||'#8898b0';
     document.getElementById('ap-color-hex').value=pm.color||'#8898b0';
+    apProjType=pm.type||'tasks';
+    apNumUnit=pm.numUnit||'';
+    document.getElementById('ap-num-unit').value=apNumUnit;
   }else{
     apEmoji='📁'; apGradIdx=0;
+    apProjType='tasks'; apNumUnit='';
     document.getElementById('ap-name').value='';
     document.getElementById('ap-modal-ttl').textContent='New Project';
     document.getElementById('ap-save-btn').textContent='Create Project';
     document.getElementById('ap-del-btn').style.display='none';
     document.getElementById('ap-color').value='#8898b0';
     document.getElementById('ap-color-hex').value='#8898b0';
+    document.getElementById('ap-num-unit').value='';
     vcTopic=topicId||'';
   }
   apRenderGradGrid(); apRenderImgZone();
   document.getElementById('ap-emoji-preview').textContent=apEmoji;
+  apSetType(apProjType);
   document.getElementById('add-proj-modal').style.display='flex';
   setTimeout(()=>document.getElementById('ap-name').focus(),60);
 }
@@ -4838,6 +5020,18 @@ function closeEmojiPicker(){
   emojiPickerCallback = null;
 }
 
+function apSetType(t){
+  apProjType=t;
+  ['tasks','numeric','habit'].forEach(x=>{
+    const btn=document.getElementById('ap-type-'+x);
+    if(!btn)return;
+    const on=x===t;
+    btn.style.borderColor=on?'var(--ac)':'var(--b2)';
+    btn.style.background=on?'rgba(100,160,255,.12)':'var(--s2)';
+    btn.style.color=on?'var(--ac)':'var(--mu)';
+  });
+  document.getElementById('ap-numeric-unit-row').style.display=t==='numeric'?'block':'none';
+}
 function apPickEmoji(em){
   apEmoji=em;
   document.getElementById('ap-emoji-preview').textContent=em;
@@ -4859,7 +5053,8 @@ function saveNewProject(){
   if(!name)return document.getElementById('ap-name').focus();
   const preset=GRAD_PRESETS[apGradIdx]||GRAD_PRESETS[0];
   const userColor=document.getElementById('ap-color').value||'#8898b0';
-  const meta={grad:colorToGrad(userColor,preset.angle),emoji:apEmoji||'📁',color:userColor,pat:preset.pat};
+  const meta={grad:colorToGrad(userColor,preset.angle),emoji:apEmoji||'📁',color:userColor,pat:preset.pat,type:apProjType};
+  if(apProjType==='numeric'){meta.numUnit=(document.getElementById('ap-num-unit').value||'').trim()||null;}
   if(apImgData)meta.img=apImgData;
 
   if(apEditId){

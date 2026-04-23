@@ -3136,6 +3136,88 @@ function pdDeleteProject(projId){
   showToast(`"${proj.name}" deleted`);
 }
 
+function pdQuickToggle(taskId,projId){
+  const t=db.tasks.find(x=>x.id===taskId);if(!t)return;
+  t.status=t.status==='done'?'todo':'done';
+  if(t.status==='done')t.completedDate=todayStr();else delete t.completedDate;
+  saveData();renderProjectDetail(projId);
+}
+function pdAddTaskForDate(projId,dateStr){
+  vcProject=projId;openVC(null,'todo',dateStr||null);
+}
+
+function pdBuildTaskListHtml(projId,allTasks,mode,selDay,today){
+  const showDone=mode==='done';
+  const tasks=showDone?allTasks.filter(t=>t.status==='done'):allTasks.filter(t=>t.status!=='done');
+  const groups={};
+  tasks.forEach(t=>{
+    const d=showDone?(t.scheduledDate||t.completedDate||'zz-unscheduled'):(t.scheduledDate||'zz-unscheduled');
+    if(!groups[d])groups[d]=[];
+    groups[d].push(t);
+  });
+  const anchor=selDay||today;
+  let keys=Object.keys(groups).filter(k=>k!=='zz-unscheduled');
+  // sort: for done, descending from anchor; for todo, anchor first then reverse then future
+  if(showDone){
+    keys=keys.sort().reverse();
+  } else {
+    const past=keys.filter(k=>k<anchor).sort().reverse();
+    const fut=keys.filter(k=>k>anchor).sort();
+    const anc=keys.includes(anchor)?[anchor]:[];
+    keys=[...anc,...past,...fut];
+  }
+  if(groups['zz-unscheduled'])keys.push('zz-unscheduled');
+  // always show anchor group (even if empty) for todo mode
+  if(!showDone&&!keys.includes(anchor))keys=[anchor,...keys];
+
+  const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let html='';
+  keys.forEach(dateStr=>{
+    const isUnscheduled=dateStr==='zz-unscheduled';
+    const isAnchor=!isUnscheduled&&dateStr===anchor;
+    const isToday=!isUnscheduled&&dateStr===today;
+    const dayTasks=groups[dateStr]||[];
+    let dayLabel;
+    if(isUnscheduled){dayLabel='UNSCHEDULED';}
+    else{
+      const d=new Date(dateStr+'T00:00:00');
+      if(isToday)dayLabel='TODAY';
+      else if(dateStr===selDay&&!isToday)dayLabel='SELECTED';
+      else{
+        const dow=['SUN','MON','TUE','WED','THU','FRI','SAT'][d.getDay()];
+        dayLabel=dow+' · '+monthNames[d.getMonth()]+' '+d.getDate();
+      }
+    }
+    const taskRows=dayTasks.map(t=>{
+      const done=t.status==='done';
+      return '<div class="pd-task-row" style="padding:9px 14px;gap:10px;cursor:pointer" onclick="openVC(\''+t.id+'\')">'+
+        '<div style="width:18px;height:18px;border-radius:50%;border:1.5px solid '+(done?'var(--grn)':'var(--b2)')+';background:'+(done?'var(--grn)':'none')+';flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .1s;cursor:pointer" onclick="event.stopPropagation();pdQuickToggle(\''+t.id+'\',\''+projId+'\')">'+
+          (done?'<svg width="10" height="7" viewBox="0 0 10 7"><polyline points="1,3.5 4,6.5 9,1" fill="none" stroke="#0a0a10" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>':'')+
+        '</div>'+
+        '<span style="flex:1;font-family:var(--fg);font-size:13px;color:'+(done?'var(--mu)':'var(--wh)')+';text-decoration:'+(done?'line-through':'none')+';line-height:1.4">'+escH(t.title)+'</span>'+
+        (t.difficulty?'<span class="diff-badge diff-'+t.difficulty+'" style="flex-shrink:0">'+DIFF_LABELS[t.difficulty]+'</span>':'')+
+        (done?'<span style="font-family:var(--fm);font-size:11px;font-weight:700;color:var(--grn);flex-shrink:0">+$'+(DIFF_MONEY[t.difficulty]||0)+'</span>':
+              '<span class="tag '+(STATUS_CLS[t.status]||'')+'" style="flex-shrink:0;font-size:10px">'+statusLabel(t.status)+'</span>')+
+      '</div>';
+    }).join('');
+    const addBtn=(!isUnscheduled&&!showDone)?
+      '<div style="padding:6px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--b3);transition:color .1s" onclick="pdAddTaskForDate(\''+projId+'\',\''+dateStr+'\')" onmouseover="this.style.color=\'var(--ac)\'" onmouseout="this.style.color=\'var(--b3)\'">'+
+        '<span style="font-size:13px;line-height:1">+</span><span style="font-family:var(--fm);font-size:11px;letter-spacing:.06em">ADD TASK</span>'+
+      '</div>':'';
+    const accentColor=isAnchor?(showDone?'var(--grn)':'var(--ac)'):'var(--mu)';
+    html+='<div style="border-bottom:1px solid var(--b1)">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px 6px">'+
+        '<span style="font-family:var(--fm);font-size:10px;font-weight:700;letter-spacing:.1em;color:'+accentColor+'">'+dayLabel+'</span>'+
+        (dayTasks.length>0?'<span style="font-family:var(--fm);font-size:10px;color:var(--b3)">'+dayTasks.length+' task'+(dayTasks.length!==1?'s':'')+'</span>':'')+
+      '</div>'+
+      taskRows+
+      addBtn+
+    '</div>';
+  });
+  if(!html)html='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:180px;gap:8px"><div style="font-size:28px;opacity:.2">📋</div><div style="font-family:var(--fm);font-size:11px;color:var(--b3);letter-spacing:.08em">NO TASKS YET</div></div>';
+  return html;
+}
+
 function renderProjectDetail(projId){
   const proj=db.settings.projects.find(p=>p.id===projId);
   if(!proj){switchView('projects');return;}
@@ -3204,7 +3286,12 @@ function renderProjectDetail(projId){
             <span style="color:${ptm.color}">${ptm.label}</span>&nbsp;·&nbsp;${all.length} tasks&nbsp;·&nbsp;<span style="color:var(--grn)">$${totalMoney.toLocaleString()} earned total</span>
           </div>
         </div>
-        <button onclick="pdNewTask('${projId}')" style="font-family:var(--fm);font-size:11px;font-weight:700;letter-spacing:.08em;color:#fff;background:rgba(100,160,255,.25);border:1px solid rgba(100,160,255,.4);padding:6px 12px;border-radius:7px;cursor:pointer;flex-shrink:0;transition:all .12s" onmouseover="this.style.background='rgba(100,160,255,.38)'" onmouseout="this.style.background='rgba(100,160,255,.25)'">+ New Task</button>
+        ${projType==='tasks'?`<div style="display:flex;gap:14px;align-items:center;flex-shrink:0;padding:0 14px;border-left:1px solid rgba(255,255,255,.12)">
+          <div style="text-align:center"><div style="font-family:var(--fm);font-size:14px;font-weight:700;color:var(--grn);line-height:1">$${monthMoney.toLocaleString()}</div><div style="font-family:var(--fm);font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.08em;margin-top:2px">MONTH</div></div>
+          <div style="text-align:center"><div style="font-family:var(--fm);font-size:14px;font-weight:700;color:var(--wh);line-height:1">${monthDone.length}</div><div style="font-family:var(--fm);font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.08em;margin-top:2px">DONE</div></div>
+          <div style="text-align:center"><div style="font-family:var(--fm);font-size:14px;font-weight:700;color:#8ab4d8;line-height:1">${remaining}</div><div style="font-family:var(--fm);font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.08em;margin-top:2px">LEFT</div></div>
+          ${all.length>0?`<div style="width:52px"><div style="height:3px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden"><div style="height:100%;width:${Math.round(doneTasks.length/all.length*100)}%;background:var(--grn);border-radius:99px"></div></div><div style="font-family:var(--fm);font-size:9px;color:rgba(255,255,255,.3);margin-top:3px;text-align:center">${Math.round(doneTasks.length/all.length*100)}%</div></div>`:''}
+        </div>`:`<button onclick="pdNewTask('${projId}')" style="font-family:var(--fm);font-size:11px;font-weight:700;letter-spacing:.08em;color:#fff;background:rgba(100,160,255,.25);border:1px solid rgba(100,160,255,.4);padding:6px 12px;border-radius:7px;cursor:pointer;flex-shrink:0">+ New Task</button>`}
         <button onclick="openAddProjModal('${projId}')" style="font-family:var(--fm);font-size:11px;font-weight:700;letter-spacing:.08em;color:rgba(255,255,255,.8);background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.15);padding:6px 12px;border-radius:7px;cursor:pointer;flex-shrink:0;backdrop-filter:blur(8px)">✏ Edit Style</button>
       </div>
     </div>
@@ -3334,67 +3421,23 @@ function renderProjectDetail(projId){
           </div>`;
       })()}
     `:`
-
-      <div class="pd-section" style="padding:14px 18px">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
-          <div style="display:flex;gap:28px;align-items:center">
-            <div>
-              <div style="font-family:var(--fm);font-size:22px;font-weight:700;color:var(--wh);line-height:1">$${monthMoney.toLocaleString()}</div>
-              <div style="font-family:var(--fm);font-size:11px;color:var(--mu);margin-top:3px;letter-spacing:.04em">earned this month</div>
-            </div>
-            <div style="width:1px;height:32px;background:var(--b2)"></div>
-            <div onclick="pdToggleDone()" style="cursor:pointer;padding:6px 10px;border-radius:8px;border:1px solid ${pdShowDone?'var(--grn)':'transparent'};background:${pdShowDone?'rgba(88,192,144,.1)':'transparent'};transition:all .15s;margin:-6px -10px"
-              onmouseover="this.style.background='rgba(88,192,144,.08)';this.style.borderColor='var(--b2)'"
-              onmouseout="this.style.background='${pdShowDone?'rgba(88,192,144,.1)':'transparent'}';this.style.borderColor='${pdShowDone?'var(--grn)':'transparent'}'">
-              <div style="font-family:var(--fm);font-size:22px;font-weight:700;color:var(--grn);line-height:1">${monthDone.length}</div>
-              <div style="font-family:var(--fm);font-size:11px;color:var(--mu);margin-top:3px;letter-spacing:.04em;display:flex;align-items:center;gap:4px">
-                tasks done${pdShowDone?` <span style="color:var(--grn)">↑</span>`:''}
-              </div>
-            </div>
-            <div style="width:1px;height:32px;background:var(--b2)"></div>
-            <div onclick="pdToggleRemaining()" style="cursor:pointer;padding:6px 10px;border-radius:8px;border:1px solid ${pdShowRemaining?'var(--bl)':'transparent'};background:${pdShowRemaining?'rgba(90,120,152,.12)':'transparent'};transition:all .15s;margin:-6px -10px"
-              onmouseover="this.style.background='rgba(90,120,152,.1)';this.style.borderColor='var(--b2)'"
-              onmouseout="this.style.background='${pdShowRemaining?'rgba(90,120,152,.12)':'transparent'}';this.style.borderColor='${pdShowRemaining?'var(--bl)':'transparent'}'">
-              <div style="font-family:var(--fm);font-size:22px;font-weight:700;color:${pdShowRemaining?'var(--bl)':'var(--bl)'};line-height:1">${remaining}</div>
-              <div style="font-family:var(--fm);font-size:11px;color:var(--mu);margin-top:3px;letter-spacing:.04em;display:flex;align-items:center;gap:4px">
-                remaining${pdShowRemaining?` <span style="color:var(--bl)">↑</span>`:''}
-              </div>
-            </div>
-            ${all.length>0?`
-            <div style="width:1px;height:32px;background:var(--b2)"></div>
-            <div style="min-width:120px">
-              <div style="font-family:var(--fm);font-size:11px;color:var(--mu);margin-bottom:5px;letter-spacing:.04em">OVERALL PROGRESS</div>
-              <div style="height:4px;background:var(--s2);border-radius:99px;overflow:hidden">
-                <div style="height:100%;width:${Math.round(doneTasks.length/all.length*100)}%;background:var(--grn);border-radius:99px;transition:width .3s"></div>
-              </div>
-              <div style="font-family:var(--fm);font-size:11px;color:var(--mu);margin-top:3px">${doneTasks.length}/${all.length} done</div>
-            </div>`:''}
-          </div>
-          <!-- Month navigator -->
-          <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0 0 10px;flex-shrink:0">
+        <div style="display:flex;background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:2px;gap:2px">
+          <button class="mode-btn${pdCalMode==='done'?' active':''}" onclick="pdSetCalMode('done')" style="font-size:11px;padding:3px 10px">DONE</button>
+          <button class="mode-btn${pdCalMode==='todo'?' active':''}" onclick="pdSetCalMode('todo')" style="font-size:11px;padding:3px 10px">TO-DO</button>
+        </div>
+        <button onclick="pdAddTaskForDate('${projId}','${today}')" style="font-family:var(--fm);font-size:11px;font-weight:700;letter-spacing:.07em;color:#fff;background:rgba(100,160,255,.2);border:1px solid rgba(100,160,255,.35);padding:6px 14px;border-radius:7px;cursor:pointer;transition:all .12s" onmouseover="this.style.background='rgba(100,160,255,.35)'" onmouseout="this.style.background='rgba(100,160,255,.2)'">+ New Task</button>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <!-- Mini calendar -->
+        <div class="pd-section" style="padding:12px;width:240px;flex-shrink:0">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
             <button class="period-btn" onclick="pdCalPrev()">&#8249;</button>
-            <span style="font-family:var(--fm);font-size:11px;color:var(--w2);min-width:108px;text-align:center;letter-spacing:.06em">${monthLabel.toUpperCase()}</span>
+            <span style="font-family:var(--fm);font-size:11px;color:var(--w2);letter-spacing:.06em">${monthLabel.toUpperCase()}</span>
             <button class="period-btn" onclick="pdCalNext()">&#8250;</button>
           </div>
-        </div>
-      </div>
-
-      <!-- Calendar + Day detail + Sidebar -->
-      <div style="display:flex;gap:14px;align-items:flex-start">
-
-        <!-- Compact calendar -->
-        <div class="pd-section" style="padding:14px;width:310px;flex-shrink:0">
-          <!-- Mode toggle + new task -->
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px">
-            <div style="display:flex;background:var(--s2);border:1px solid var(--b1);border-radius:6px;padding:2px;gap:2px;flex-shrink:0">
-              <button class="mode-btn${pdCalMode==='done'?' active':''}" onclick="pdSetCalMode('done')" style="font-size:11px;padding:3px 8px">DONE</button>
-              <button class="mode-btn${pdCalMode==='todo'?' active':''}" onclick="pdSetCalMode('todo')" style="font-size:11px;padding:3px 8px">TO-DO</button>
-            </div>
-            <div style="font-family:var(--fm);font-size:10px;color:var(--mu);letter-spacing:.08em;flex:1;text-align:center">${new Date(pdCalYear,pdCalMonth,1).toLocaleDateString('en-US',{month:'short',year:'numeric'}).toUpperCase()}</div>
-            <button onclick="pdNewTask('${projId}')" style="font-family:var(--fm);font-size:11px;font-weight:700;color:var(--ac);background:rgba(100,160,255,.1);border:1px solid rgba(100,160,255,.3);padding:3px 9px;border-radius:6px;cursor:pointer;flex-shrink:0;transition:all .1s" onmouseover="this.style.background='rgba(100,160,255,.2)'" onmouseout="this.style.background='rgba(100,160,255,.1)'">+ Task</button>
-          </div>
-          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;margin-bottom:4px">
-            ${['M','T','W','T','F','S','S'].map(d=>`<div style="font-family:var(--fm);font-size:11px;color:var(--mu);text-align:center;padding:3px 0;letter-spacing:.04em">${d}</div>`).join('')}
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;margin-bottom:3px">
+            ${['M','T','W','T','F','S','S'].map(d=>`<div style="font-family:var(--fm);font-size:10px;color:var(--mu);text-align:center;padding:2px 0">${d}</div>`).join('')}
           </div>
           <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">
             ${cells.map(cell=>{
@@ -3405,159 +3448,22 @@ function renderProjectDetail(projId){
               const clickable=!cell.other;
               const dayNum=parseInt(cell.date.split('-')[2]);
               const dotColor=pdCalMode==='done'?'var(--grn)':'var(--bl)';
-              const taskBg=pdCalMode==='done'?'rgba(88,192,144,.08)':'rgba(90,120,152,.12)';
-              const taskBgHov=pdCalMode==='done'?'rgba(88,192,144,.15)':'rgba(90,120,152,.2)';
+              const taskBg=pdCalMode==='done'?'rgba(88,192,144,.1)':'rgba(90,120,152,.14)';
               const restoreBg=isSel?'var(--ac2)':isToday?'rgba(90,120,152,.18)':hasTasks?taskBg:'transparent';
               const restoreBorder=isSel?'var(--ac)':isToday?'var(--ac)':'transparent';
-              return`<div
-                onclick="${clickable?`pdSelectDay('${cell.date}')`:''}"
-                ${clickable?`
-                  ondragover="event.preventDefault();this.style.background='rgba(168,188,208,.22)';this.style.borderColor='var(--bl)';this.style.transform='scale(1.08)';"
-                  ondragleave="this.style.background='${restoreBg}';this.style.borderColor='${restoreBorder}';this.style.transform='';"
-                  ondrop="pdDropOnDay(event,'${cell.date}');this.style.background='${restoreBg}';this.style.borderColor='${restoreBorder}';this.style.transform='';"
-                `:''}
-                style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:6px;cursor:${clickable?'pointer':'default'};
-                  background:${restoreBg};
-                  border:1px solid ${restoreBorder};
-                  transition:background .1s,border-color .1s,transform .1s;position:relative"
-                ${clickable&&!isSel?`onmouseover="if(!dragTaskId){this.style.background='${hasTasks?taskBgHov:'rgba(255,255,255,.04)'}'}" onmouseout="if(!dragTaskId){this.style.background='${restoreBg}'}"`:''}>
-                <div style="font-family:var(--fm);font-size:10px;font-weight:${isToday?'700':'400'};
-                  color:${cell.other?'var(--b3)':isSel?'var(--wh)':isToday?'var(--bl)':hasTasks?'var(--wh)':'var(--su)'}">
-                  ${dayNum}
-                </div>
-                ${hasTasks?`<div style="width:4px;height:4px;border-radius:50%;background:${isSel?'rgba(255,255,255,.6)':dotColor};margin-top:1px"></div>`:''}
+              return`<div onclick="${clickable?`pdSelectDay('${cell.date}')`:''}" style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:5px;cursor:${clickable?'pointer':'default'};background:${restoreBg};border:1px solid ${restoreBorder};transition:background .1s,border-color .1s" ${clickable&&!isSel?`onmouseover="this.style.background='${hasTasks?taskBg:'rgba(255,255,255,.04)'}'" onmouseout="this.style.background='${restoreBg}'"`:''}>
+                <div style="font-family:var(--fm);font-size:9px;font-weight:${isToday?'700':'400'};color:${cell.other?'var(--b3)':isSel?'var(--wh)':isToday?'var(--bl)':hasTasks?'var(--wh)':'var(--su)'};">${dayNum}</div>
+                ${hasTasks?`<div style="width:3px;height:3px;border-radius:50%;background:${isSel?'rgba(255,255,255,.6)':dotColor};margin-top:1px"></div>`:''}
               </div>`;
             }).join('')}
           </div>
         </div>
-
-        <!-- Day detail / Remaining tasks panel -->
-        <div class="pd-section" style="flex:1;min-width:0;min-height:240px;overflow-y:auto;max-height:500px">
-          ${(()=>{
-            /* ── DONE TASKS LIST (month) — default when no day selected ── */
-            if(!pdSelDay && !pdShowRemaining){
-              if(monthDone.length===0) return`
-                <div class="pd-section-title">DONE THIS MONTH <span style="color:var(--b3)">0</span>
-                </div>
-                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:140px;gap:6px">
-                  <div style="font-size:22px;opacity:.15">📭</div>
-                  <div style="font-family:var(--fm);font-size:11px;color:var(--b3);letter-spacing:.06em">NO COMPLETED TASKS THIS MONTH</div>
-                </div>`;
-              /* group by date */
-              const doneGroups={};
-              monthDone.forEach(t=>{
-                const d=t.scheduledDate||t.completedDate;
-                if(!d)return;
-                if(!doneGroups[d])doneGroups[d]={label:new Date(d+'T00:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'}),tasks:[],date:d};
-                doneGroups[d].tasks.push(t);
-              });
-              const doneGroupsSorted=Object.values(doneGroups).sort((a,b)=>a.date.localeCompare(b.date));
-              const monthTotal=monthDone.reduce((s,t)=>s+(DIFF_MONEY[t.difficulty]||0),0);
-              return`
-                <div class="pd-section-title" style="margin-bottom:12px">DONE THIS MONTH
-                  <span style="font-family:var(--fm);font-size:11px;color:var(--grn);font-weight:700;margin-left:6px">+$${monthTotal.toLocaleString()}</span>
-                </div>
-                ${doneGroupsSorted.map(g=>`
-                  <div style="font-family:var(--fm);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--grn);padding:8px 0 10px;margin-top:2px">
-                    ✓ ${g.label}
-                    <span style="font-weight:400;color:var(--mu);margin-left:6px">+$${g.tasks.reduce((s,t)=>s+(DIFF_MONEY[t.difficulty]||0),0).toLocaleString()}</span>
-                  </div>
-                  ${g.tasks.map(t=>`
-                  <div class="pd-task-row" onclick="openVC('${t.id}')" style="cursor:pointer">
-                    <span style="font-size:10px;color:var(--grn);flex-shrink:0">✓</span>
-                    <span class="pd-task-title done">${escH(t.title)}</span>
-                    ${t.difficulty?`<span class="diff-badge diff-${t.difficulty}" style="flex-shrink:0">${DIFF_LABELS[t.difficulty]}</span>`:''}
-                    <span style="font-family:var(--fm);font-size:10px;font-weight:700;color:var(--grn);flex-shrink:0">+$${DIFF_MONEY[t.difficulty]||0}</span>
-                  </div>`).join('')}
-                `).join('')}`;
-            }
-            /* ── REMAINING TASKS LIST ── */
-            if(pdShowRemaining){
-              const remTasks=all.filter(t=>t.status!=='done');
-              if(remTasks.length===0) return`
-                <div class="pd-section-title">REMAINING TASKS <span style="color:var(--b3)">0</span></div>
-                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:140px;gap:6px">
-                  <div style="font-size:22px;opacity:.15">🎉</div>
-                  <div style="font-family:var(--fm);font-size:11px;color:var(--b3);letter-spacing:.06em">ALL TASKS COMPLETED</div>
-                </div>`;
-              /* group by schedule */
-              const groups={};
-              remTasks.forEach(t=>{
-                let key,label;
-                if(t.scheduledDate){
-                  key='date_'+t.scheduledDate;
-                  label=new Date(t.scheduledDate+'T00:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
-                } else if(t.scheduledWeek){
-                  key='week_'+t.scheduledWeek;
-                  const wEnd=new Date(t.scheduledWeek+'T00:00:00');wEnd.setDate(wEnd.getDate()+6);
-                  label='Week of '+new Date(t.scheduledWeek+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})+' – '+wEnd.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-                } else {
-                  key='unscheduled';label='Unscheduled';
-                }
-                if(!groups[key])groups[key]={label,tasks:[],sortKey:t.scheduledDate||t.scheduledWeek||'zzz'};
-                groups[key].tasks.push(t);
-              });
-              const sorted=Object.values(groups).sort((a,b)=>a.sortKey.localeCompare(b.sortKey));
-              return`
-                <div class="pd-section-title" style="margin-bottom:12px">REMAINING TASKS
-                  <button onclick="pdToggleRemaining()" style="font-family:var(--fm);font-size:11px;color:var(--mu);background:none;border:none;cursor:pointer;letter-spacing:.06em;padding:2px 6px;border-radius:4px;transition:color .1s" onmouseover="this.style.color='var(--wh)'" onmouseout="this.style.color='var(--mu)'">✕ CLOSE</button>
-                </div>
-                ${sorted.map(g=>`
-                  <div style="font-family:var(--fm);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${g.sortKey==='zzz'?'var(--mu)':'var(--bl)'};padding:8px 0 10px;margin-top:4px">
-                    ${g.sortKey==='zzz'?'📌 ':g.label.startsWith('Week')?'📅 ':'🗓 '}${g.label}
-                  </div>
-                  ${g.tasks.map(t=>`
-                  <div class="pd-task-row" draggable="true"
-                    ondragstart="dzStart(event,'${t.id}','pd-remaining')"
-                    onclick="openVC('${t.id}')"
-                    style="cursor:grab">
-                    <span style="font-size:11px;color:var(--b3);flex-shrink:0;cursor:grab">⠿</span>
-                    <span class="pd-task-title">${escH(t.title)}</span>
-                    ${t.difficulty?`<span class="diff-badge diff-${t.difficulty}" style="flex-shrink:0">${DIFF_LABELS[t.difficulty]}</span>`:''}
-                    <span class="tag ${STATUS_CLS[t.status]||''}" style="flex-shrink:0">${statusLabel(t.status)}</span>
-                  </div>`).join('')}
-                `).join('')}`;
-            }
-            /* ── DAY DETAIL ── */
-            if(pdSelDay) return`
-              <div class="pd-section-title">
-                ${selLabel.toUpperCase()}
-                ${selTasks.length>0
-                  ?`<span style="color:${pdCalMode==='done'?'var(--grn)':'var(--bl)'}">${selTasks.length} task${selTasks.length!==1?'s':''} ${pdCalMode==='done'?'done':'scheduled'}</span>`
-                  :`<span style="color:var(--b3)">no tasks</span>`}
-              </div>
-              ${selTasks.length===0
-                ?`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:140px;gap:6px">
-                    <div style="font-size:22px;opacity:${pdCalMode==='done'?'0.15':'0.15'}">${pdCalMode==='done'?'✓':'📋'}</div>
-                    <div style="font-family:var(--fm);font-size:11px;color:var(--b3);letter-spacing:.06em">NO ${pdCalMode==='done'?'COMPLETED':'SCHEDULED'} TASKS THIS DAY</div>
-                  </div>`
-                :selTasks.map(t=>`
-                <div class="pd-task-row"
-                  ${pdCalMode==='todo'?`draggable="true" ondragstart="dzStart(event,'${t.id}','pd-cal-todo')" style="cursor:grab"`:''}
-                  onclick="openVC('${t.id}')">
-                  ${pdCalMode==='done'
-                    ?`<span style="font-size:10px;color:var(--grn);flex-shrink:0">✓</span>
-                      <span class="pd-task-title done">${escH(t.title)}</span>`
-                    :`<span style="font-size:11px;color:var(--b3);flex-shrink:0;cursor:grab">⠿</span>
-                      <span class="pd-task-title">${escH(t.title)}</span>`}
-                  ${t.difficulty?`<span class="diff-badge diff-${t.difficulty}" style="flex-shrink:0">${DIFF_LABELS[t.difficulty]}</span>`:''}
-                  ${pdCalMode==='done'
-                    ?`<span style="font-family:var(--fm);font-size:10px;font-weight:700;color:var(--grn);flex-shrink:0">+$${DIFF_MONEY[t.difficulty]||0}</span>`
-                    :`<span class="tag ${STATUS_CLS[t.status]||''}" style="flex-shrink:0">${statusLabel(t.status)}</span>`}
-                </div>`).join('')}
-              ${pdCalMode==='done'&&selTasks.length>0?`<div style="margin-top:12px;font-family:var(--fm);font-size:10px;color:var(--grn);font-weight:700;border-top:1px solid var(--b1);padding-top:10px">
-                Total: $${selTasks.reduce((s,t)=>s+(DIFF_MONEY[t.difficulty]||0),0).toLocaleString()}
-              </div>`:''}`;
-            /* ── EMPTY STATE ── */
-            return`
-              <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;gap:8px">
-                <div style="font-size:28px;opacity:.2">📅</div>
-                <div style="font-family:var(--fm);font-size:11px;color:var(--b3);letter-spacing:.08em;text-align:center">SELECT A DAY TO SEE TASKS<br><span style="color:var(--b2)">OR CLICK TASKS DONE / REMAINING FOR LISTS</span></div>
-              </div>`;
-          })()}
+        <!-- Task list -->
+        <div class="pd-section" style="flex:1;min-width:0;overflow-y:auto;max-height:620px;padding:0">
+          ${pdBuildTaskListHtml(projId,all,pdCalMode,pdSelDay,today)}
         </div>
-
-      </div>`}
+      </div>
+    `}
 
       <!-- Danger Zone -->
       <div class="pd-section" style="margin-top:40px;padding:14px 18px;border-top:1px solid var(--b2)">
